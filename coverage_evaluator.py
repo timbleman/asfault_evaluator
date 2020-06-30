@@ -18,10 +18,17 @@ from scipy import stats
 
 from shapely.geometry import LineString
 
+from pathlib import Path
+
+from code_obe_evaluator import OBEEvaluator, OBE
+
+# TODO OBE Coverage
+
 NUM_BINS = 16
 STEERING_RANGE = (-1, 1)
 SPEED_RANGE = (0, 100)
-ANGLE_RANGE = (-np.pi, np.pi)
+# fixme 180 instead of 360
+ANGLE_RANGE = (-360, 360)
 
 def setup_logging(log_level):
     level = l.INFO
@@ -37,11 +44,71 @@ def setup_logging(log_level):
                   level=level, handlers=[term_handler])
 
 
-def main():
+def get_obes_dict(executions):
+    obe_evaluator = OBEEvaluator(executions)
+
+    obe_data = list()
+    for global_id, obe in enumerate(obe_evaluator.obes):
+        obe_dict = OBE.to_dict(obe)
+        # Extend obe information with additional features
+        obe_dict['global_id'] = global_id
+        obe_data.append(obe_dict)
+    print("obe data ", obe_data)
+    return obe_data
+
+# TODO create callable method that returns results of a execution
+
+def cov_evaluate_set(set_path: Path):
     # Local import to main
     import os
     import csv
 
+    setup_logging(l.INFO)
+    # ENV DIR
+    #   Contains CONFIGURATION (TO LOAD)
+    #   Contains EXEC folder to look for test executions
+    env_directory = str(set_path)# sys.argv[1]
+
+    l.info("Start evaluation of OBEs from %s", env_directory)
+
+    # Load the configuration from the given env and store in the "global" asfault configurations ev, ex
+    from asfault.app import read_environment
+    read_environment(env_directory)
+
+    from asfault.config import rg as asfault_environment
+    from asfault.config import ev as asfault_evolution_config
+    # from asfault.config import ex as asfault_execution_config
+
+    # Read all the execution data of this experiment
+    l.info("Reading execution data from %s", str(asfault_environment.get_execs_path()))
+
+    executions = list()
+
+    for test_file_name in [f for f in listdir(asfault_environment.get_execs_path()) if isfile(join(asfault_environment.get_execs_path(), f))]:
+
+        test_file = path.join(asfault_environment.get_execs_path(), test_file_name)
+
+        # Load test object from file
+        with open(test_file , 'r') as in_file:
+            test_dict = json.loads(in_file.read())
+
+        the_test = RoadTest.from_dict(test_dict)
+        executions.append(the_test.execution)
+
+    print("executions ", executions)
+
+    cov_evaluator = CoverageEvaluator(executions)
+
+    # obe_dict = get_obes_dict(executions)
+
+
+def main():
+    # Local import to main
+    import os
+    import csv
+    str_path = sys.argv[1]
+    cov_evaluate_set(Path(str_path))
+    """
     setup_logging(l.INFO)
     # ENV DIR
     #   Contains CONFIGURATION (TO LOAD)
@@ -77,6 +144,7 @@ def main():
     print("executions ", executions)
 
     voc_evaluator = CoverageEvaluator(executions)
+    """
     '''
     # Instantiate the OBE Evaluator
     obe_evaluator = OBEEvaluator(executions)
@@ -136,9 +204,24 @@ class CoverageEvaluator:
         self.speed_arr = []
         self.steering_arr = []
         self.distance_arr = []
+        self.speed_steering_2d = []
+        self.obe_speed_arr = []
+        self.obe_angle_arr = []
+
+        obe_dict = get_obes_dict(executions)
 
         for execution in executions:
-            self._fill_bins(execution)
+            """
+            # TODO what happens if there are multiple obes?
+            obe_list = [d for d in obe_dict if d['test_id'] == execution.test.test_id]
+            for obe in obe_list:
+                obe_speed = obe['speed']
+                self.obe_speed_arr.append(obe_speed)
+                obe_angle = (obe['road_angle'] - obe['heading_angle']) % 360
+                self.obe_angle_arr.append(obe_angle)
+            print("single obe ", obe_list)
+            """
+            self._fill_bins(execution, obe_dict)
             '''
             obes = self._extract_obes_from_test(execution)
 
@@ -153,18 +236,29 @@ class CoverageEvaluator:
             self.bounds = execution.test.network.bounds
             '''
 
-    def _fill_bins(self, execution):
+    def _fill_bins(self, execution, obe_dict):
+        # fixme bins are adding
         for state in execution.states:
             state_dict = CarState.to_dict(state)
             self.speed_arr.append(np.linalg.norm([state.vel_x, state.vel_y]) * 3.6)
             self.steering_arr.append(state_dict['steering'])
             self.distance_arr.append(state.get_centre_distance())
 
+            # TODO what happens if there are multiple obes?
+        obe_list = [d for d in obe_dict if d['test_id'] == execution.test.test_id]
+        for obe in obe_list:
+            obe_speed = obe['speed']
+            self.obe_speed_arr.append(obe_speed)
+            obe_angle = (obe['road_angle'] - obe['heading_angle']) % 360
+            self.obe_angle_arr.append(obe_angle)
+        print("single obe list ", obe_list)
         # print("arrays for each feature: ", speed_arr, steering_arr, distance_arr)
 
-        # testid instead of whole execution object?
-        bins = {'test': execution.test, 'speed_bins': self.get_speed_bins(), 'steering_bins': self.get_steering_bins(),
-                "distance_bins": self.get_distance_bins((0, 100)), "speed_steering_2d": []}
+        # .testid instead of whole execution object?
+        bins = {'test': execution.test.test_id, 'speed_bins': self.get_speed_bins(), 'steering_bins': self.get_steering_bins(),
+                "distance_bins": self.get_distance_bins((0, 100)), "speed_steering_2d": self.get_speed_steering_2d(),
+                "obe_2d": self.get_obe_speed_angle_bins()}
+
         print("bins: ", bins)
 
     def get_bins(self, data: list, bounds):
@@ -186,6 +280,20 @@ class CoverageEvaluator:
 
     def get_distance_bins(self, bounds):
         return self.get_bins(self.distance_arr, bounds)
+
+    def get_speed_steering_2d(self):
+        """ Returns a two dimensional array of bins with the steering input as x-axis and the speed as y-axis
+
+        :return: histogram as a two-dimensional array
+        """
+        histogram, steering_edges, speed_edges = np.histogram2d(self.steering_arr, self.speed_arr, bins=NUM_BINS,
+                                                                range=(STEERING_RANGE, SPEED_RANGE), normed=False)
+        return histogram
+
+    def get_obe_speed_angle_bins(self):
+        histogram, speed_edges, angle_edges = np.histogram2d(self.obe_speed_arr, self.obe_angle_arr, bins=NUM_BINS,
+                                                                range=(SPEED_RANGE, ANGLE_RANGE), normed=False)
+        return histogram
 
 
 if __name__ == "__main__":
