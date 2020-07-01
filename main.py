@@ -5,6 +5,7 @@ from os.path import isfile, join
 from pathlib import Path
 
 import coverage_evaluator
+from suite_behaviour_computer import SuiteBehaviourComputer
 
 # ssh -i /root/.ssh/id_rsa.pub ubuntu@160.85.252.213  # bill test suite pc
 
@@ -25,8 +26,20 @@ def main():
     # r"C:\Users\fraun\AppData\Local\Packages\CANONI~1.UBU\LOCALS~1\rootfs\home\TIMBLE~1\ASFAUL~1\ASFAUL~1\EXPERI~1\EXPERI~1\RANDOM~1\RANDOM~1"
     # r"C:\Users\fraun\AppData\Local\Packages\CANONI~1.UBU\LOCALS~1\rootfs\home\TIMBLE~1\ASFAUL~1\ASFAUL~1\EXPERI~1\EXPERI~1\RADF79~1\RANDOM~1"
     env_directory = Path(r"C:\Users\fraun\AppData\Local\Packages\CANONI~1.UBU\LOCALS~1\rootfs\home\TIMBLE~1\ASFAUL~1\ASFAUL~1\EXPERI~1\EXPERI~1\RANDOM~1\RANDOM~1")
-    coverage_evaluator.cov_evaluate_set(env_directory)
+    partial_bins = coverage_evaluator.cov_evaluate_set(env_directory)
     print("Start evaluation of OBEs from %s", env_directory)
+    print("partial_bins ", partial_bins)
+
+    sbh = SuiteBehaviourComputer(partial_bins)
+    print("speed coverage", sbh.calculate_suite_coverage_1d('speed_bins'))
+    print("obe coverage", sbh.calculate_suite_2d_coverage('obe_2d'))
+    print("road compare 1d", sbh.road_compare_1d("1-2", 'steering_bins'))
+    print("road compare 2d", sbh.road_compare_2d("1-2", 'speed_steering_2d'))
+
+    # unnecessary, pass by reference
+    # partial_bins = sbh.get_test_dict()
+
+    # print("partial_bins ", partial_bins)
 
 
 if __name__ == "__main__":

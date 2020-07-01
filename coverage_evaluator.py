@@ -97,7 +97,12 @@ def cov_evaluate_set(set_path: Path):
 
     print("executions ", executions)
 
-    cov_evaluator = CoverageEvaluator(executions)
+    # TODO find meaningful global name
+    cov_evaluator = CoverageEvaluator(executions, "1-")
+    all_bins_of_a_folder = cov_evaluator.get_all_bins()
+    # print("all_bins_of_a_folder ", all_bins_of_a_folder)
+
+    return all_bins_of_a_folder
 
     # obe_dict = get_obes_dict(executions)
 
@@ -200,13 +205,16 @@ def main():
 
 
 class CoverageEvaluator:
-    def __init__(self, executions):
+    def __init__(self, executions, global_name):
         self.speed_arr = []
         self.steering_arr = []
         self.distance_arr = []
-        self.speed_steering_2d = []
+        speed_steering_2d = []
         self.obe_speed_arr = []
         self.obe_angle_arr = []
+
+        self.suite_bins = {}
+        self.global_name = global_name
 
         obe_dict = get_obes_dict(executions)
 
@@ -237,7 +245,19 @@ class CoverageEvaluator:
             '''
 
     def _fill_bins(self, execution, obe_dict):
+        """ fills the bins for a single execution
+
+        :param execution:
+        :param obe_dict:
+        :return:
+        """
         # fixme bins are adding
+        self.speed_arr = []
+        self.steering_arr = []
+        self.distance_arr = []
+        speed_steering_2d = []
+        self.obe_speed_arr = []
+        self.obe_angle_arr = []
         for state in execution.states:
             state_dict = CarState.to_dict(state)
             self.speed_arr.append(np.linalg.norm([state.vel_x, state.vel_y]) * 3.6)
@@ -255,11 +275,20 @@ class CoverageEvaluator:
         # print("arrays for each feature: ", speed_arr, steering_arr, distance_arr)
 
         # .testid instead of whole execution object?
-        bins = {'test': execution.test.test_id, 'speed_bins': self.get_speed_bins(), 'steering_bins': self.get_steering_bins(),
+        bins = {'test_id': execution.test.test_id, 'speed_bins': self.get_speed_bins(), 'steering_bins': self.get_steering_bins(),
                 "distance_bins": self.get_distance_bins((0, 100)), "speed_steering_2d": self.get_speed_steering_2d(),
                 "obe_2d": self.get_obe_speed_angle_bins()}
 
-        print("bins: ", bins)
+        #print("bins: ", bins)
+        road_name = self.global_name + str(execution.test.test_id)
+        # check if road is included, may need renaming if the road is dífferent
+        if road_name in self.suite_bins:
+            print("road is already included in the dict!")
+        else:
+            self.suite_bins[road_name] = bins
+
+    def get_all_bins(self):
+        return self.suite_bins
 
     def get_bins(self, data: list, bounds):
         """ Returns a list of bins for an array, the bins are non-binary but counting

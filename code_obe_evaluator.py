@@ -24,7 +24,7 @@ import csv
 import numpy as np
 import numpy.linalg as la
 import json
-from asfault.tests import RoadTest, TestExecution
+from asfault.tests import RoadTest, TestExecution, CarState
 import math
 
 from shapely.geometry import LineString
@@ -303,6 +303,8 @@ class OBEEvaluator:
 
         for execution in executions:
             obes = self._extract_obes_from_test(execution)
+
+            self._fill_bins(execution)
             #
             self.obe_speed.extend([obe.get_speed() for obe in obes])
             # Angles must be given in radiants
@@ -311,6 +313,25 @@ class OBEEvaluator:
 
             # This is the same for each execution !
             self.bounds = execution.test.network.bounds
+
+    def _fill_bins(self, execution):
+        # TODO weg?
+        speed_arr = []
+        steering_arr = []
+        distance_arr = []
+
+        for state in execution.states:
+            state_dict = CarState.to_dict(state)
+            speed_arr.append(np.linalg.norm([state.vel_x, state.vel_y]) * 3.6)
+            steering_arr.append(state_dict['steering'])
+            distance_arr.append(state.get_centre_distance())
+
+        #print("arrays for each feature: ", speed_arr, steering_arr, distance_arr)
+
+        #bins = {'test_id': execution.test, 'speed_bins': [], 'steering_bins': [], "distance_bins": [],
+        #        "speed_steering_2d": []}
+        #print("bins: ", bins)
+
 
     def _extract_obes_from_test(self, execution):
         """ This one is inspired by the TestExecution"""
@@ -603,7 +624,7 @@ def main():
     l.info("Reading execution data from %s", str(asfault_environment.get_execs_path()))
 
     executions = list()
-    print("executions ", executions)
+
     for test_file_name in [f for f in listdir(asfault_environment.get_execs_path()) if isfile(join(asfault_environment.get_execs_path(), f))]:
 
         test_file = path.join(asfault_environment.get_execs_path(), test_file_name)
@@ -615,6 +636,7 @@ def main():
         the_test = RoadTest.from_dict(test_dict)
         executions.append(the_test.execution)
 
+    print("executions ", executions)
     # Instantiate the OBE Evaluator
     obe_evaluator = OBEEvaluator(executions)
 
@@ -643,6 +665,7 @@ def main():
         plt.savefig(polar_plot_file)
 
         obe_data.append(obe_dict)
+    print("obe data ", obe_data)
 
 
     html_index_file= path.join(os.path.dirname(os.path.abspath(env_directory)), 'index.html')
