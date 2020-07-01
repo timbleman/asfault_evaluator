@@ -98,6 +98,12 @@ def cov_evaluate_set(set_path: Path):
     print("executions ", executions)
 
     # TODO find meaningful global name
+    set_name = ""
+    path_index = -1
+    while str(set_path)[path_index-1].isdigit():
+        path_index -= 1
+    set_name = str(set_path)[path_index:]
+    print("set name ", set_name, "for", str(set_path))
     cov_evaluator = CoverageEvaluator(executions, "1-")
     all_bins_of_a_folder = cov_evaluator.get_all_bins()
     # print("all_bins_of_a_folder ", all_bins_of_a_folder)
