@@ -5,6 +5,7 @@ from os.path import isfile, join
 from pathlib import Path
 
 import coverage_evaluator
+from string_comparison import StringComparer
 from suite_behaviour_computer import SuiteBehaviourComputer
 
 # ssh -i /root/.ssh/id_rsa.pub ubuntu@160.85.252.213  # bill test suite pc
@@ -45,9 +46,11 @@ def main():
     #print("road compare 2d", sbh.road_compare_2d("1-2", 'speed_steering_2d'))
 
     # unnecessary, pass by reference
-    # partial_bins = sbh.get_test_dict()
+    partial_bins = sbh.get_test_dict()
 
-    # print("partial_bins ", partial_bins)
+    #print("partial_bins ", partial_bins)
+
+    str_comparer = StringComparer(data_dict=partial_bins)
 
 
 if __name__ == "__main__":
