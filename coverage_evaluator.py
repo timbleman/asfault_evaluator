@@ -286,8 +286,6 @@ class CoverageEvaluator:
             self.obe_speed_arr.append(obe_speed)
             obe_angle = (obe['road_angle'] - obe['heading_angle']) % 360
             self.obe_angle_arr.append(obe_angle)
-        print("single obe list ", obe_list)
-        # print("arrays for each feature: ", speed_arr, steering_arr, distance_arr)
 
         path_nodes = execution.test.get_path()
         path_polyline = execution.test.get_path_polyline()

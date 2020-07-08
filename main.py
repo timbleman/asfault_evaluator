@@ -42,8 +42,8 @@ def main():
     sbh = SuiteBehaviourComputer(partial_bins)
     #print("speed coverage", sbh.calculate_suite_coverage_1d('speed_bins'))
     #print("obe coverage", sbh.calculate_suite_2d_coverage('obe_2d'))
-    #print("road compare 1d", sbh.road_compare_1d("1-2", 'steering_bins'))
-    #print("road compare 2d", sbh.road_compare_2d("1-2", 'speed_steering_2d'))
+    print("road compare 1d", sbh.road_compare_1d("1-2", 'steering_bins'))
+    print("road compare 2d", sbh.road_compare_2d("1-2", 'speed_steering_2d'))
 
     # unnecessary, pass by reference
     partial_bins = sbh.get_test_dict()

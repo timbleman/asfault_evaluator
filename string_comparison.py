@@ -42,8 +42,11 @@ class StringComparer:
         first_test_road = self.data_dict['1-1']
         second_test_road = self.data_dict['1-2']
         third_test_road = self.data_dict['1-3']
-        print("first road", first_test_road, "first road", second_test_road)
-        print("first to third road", self.cur_sdl_one_to_one(first_test_road['curve_sdl'], third_test_road['curve_sdl']))
+        #print("first road", first_test_road, "first road", second_test_road)
+        #print("first to third road", self.cur_sdl_one_to_one(first_test_road['curve_sdl'], third_test_road['curve_sdl']))
+        print(self.cur_sdl_one_to_all_unoptimized(first_test_road['curve_sdl']))
+        self.cur_sdl_all_to_all_unoptimized()
+        print("first road", first_test_road)
 
     def all_roads_to_curvature_sdl(self):
         """ Performs shape definition language on all roads represented as asfault nodes
@@ -59,7 +62,6 @@ class StringComparer:
             assert nodes is not None, "There have to be nodes for each road"
             # TODO add road to dict
             self.data_dict[name]['curve_sdl'] = self.nodes_to_curvature_sdl(name=name, nodes=nodes)
-
 
     def gather_all_angles(self):
         """ is needed to be able to get the percentiles
@@ -86,13 +88,20 @@ class StringComparer:
         for node in nodes:
             curve_sdl.append(self.get_const_for_angle(node.angle))
             # fixme distribution seems many zeros, straights get classified as slight lefts
-            print("node.roadtype", node.roadtype, "; angle ", node.angle, "; cur type",
-                  self.get_const_for_angle(node.angle))
-            if jo == 0:
-                print("print node to dict ", node.to_dict(node))
-                jo = 1
-        print("curve_sdl", curve_sdl)
+            #print("node.roadtype", node.roadtype, "; angle ", node.angle, "; cur type", self.get_const_for_angle(node.angle))
         return curve_sdl
+
+    def cur_sdl_all_to_all_unoptimized(self):
+        for name in self.data_dict:
+            distance_arr = self.cur_sdl_one_to_all_unoptimized(self.data_dict[name]['curve_sdl'])
+            self.data_dict[name]['curve_sdl_dist'] = distance_arr
+
+    def cur_sdl_one_to_all_unoptimized(self, curve1_sdl):
+        distance_dict = {}
+        for name in self.data_dict:
+            dist = self.cur_sdl_one_to_one(curve1_sdl, self.data_dict[name]['curve_sdl'])
+            distance_dict[name] = dist
+        return distance_dict
 
     def cur_sdl_one_to_one(self, curve1_sdl, curve2_sdl):
         best_similarity = float('inf')
@@ -106,6 +115,7 @@ class StringComparer:
         for start_point in range(0, len(longer_road)):
             error = 0
             for i in range(0, len(shorter_road)):
+                #print("index", (start_point + i) % len(longer_road), "longer_road len", len(longer_road))
                 error += abs(longer_road[(start_point + i) % len(longer_road)].value - shorter_road[i].value)
             if error < best_similarity:
                 best_similarity = error

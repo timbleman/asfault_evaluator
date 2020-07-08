@@ -26,7 +26,7 @@ class SuiteBehaviourComputer:
         """
         global_bins = [0] * NUM_BINS
         for test in self.test_dict.values():
-            print("test ", test)
+            # print("test ", test)
             cov_col = test.get(feature)
             assert cov_col is not None, "The bin " + feature + " has not been added or spelling is incorrect"
             global_bins = np.add(global_bins, cov_col)
@@ -62,14 +62,22 @@ class SuiteBehaviourComputer:
         :return: the road similarities
         """
         road_similarities = {}
-        main_bin = self.test_dict.get(road_to_compare).get(measure)
+        # TODO do this everywhere, more pythonic
+        main_bin = self.test_dict.get(road_to_compare, None).get(measure, None)
         assert main_bin is not None, "The bin " + measure + " has not been added or spelling is incorrect"
         # print(main_bin)
+        """
         for test in self.test_dict.values():
             compared_road_name = test['test_id']
             road_similarities[compared_road_name] = utils.list_difference_1d(main_bin,
                                                                              test.get(measure),
                                                                              function=function, normalized=True)
+        """
+        for name in self.test_dict:
+            test_to_compare = self.test_dict[name]
+            road_similarities[name] = utils.list_difference_1d(main_bin,
+                                                               test_to_compare.get(measure),
+                                                               function=function, normalized=True)
         self.test_dict.get(road_to_compare)[road_to_compare + '_' + function + '_' + measure] = road_similarities
         return road_similarities
 
@@ -81,14 +89,21 @@ class SuiteBehaviourComputer:
         :return: None
         """
         road_similarities = {}
-        main_bin = self.test_dict.get(road_to_compare).get(measure)
+        main_bin = self.test_dict.get(road_to_compare, None).get(measure, None)
         assert main_bin is not None, "The bin " + measure + " has not been added or spelling is incorrect"
         # print(main_bin)
+        """
         for test in self.test_dict.values():
             compared_road_name = test['test_id']
             road_similarities[compared_road_name] = utils.bin_difference_2d(main_bin,
                                                                             test.get(measure),
                                                                             function='binary', normalized=True)
+        """
+        for name in self.test_dict:
+            test_to_compare = self.test_dict[name]
+            road_similarities[name] = utils.bin_difference_2d(main_bin,
+                                                               test_to_compare.get(measure),
+                                                               function='binary', normalized=True)
         self.test_dict.get(road_to_compare)[road_to_compare + ' ' + measure] = road_similarities
         return road_similarities
 
