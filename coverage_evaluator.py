@@ -12,6 +12,7 @@ import numpy as np
 import numpy.linalg as la
 import json
 from asfault.tests import RoadTest, TestExecution, CarState
+from asfault.tests import has_path
 import math
 
 from scipy import stats
@@ -93,6 +94,14 @@ def cov_evaluate_set(set_path: Path):
             test_dict = json.loads(in_file.read())
 
         the_test = RoadTest.from_dict(test_dict)
+        '''print("the_test.get_path()", the_test.get_path())
+        num_segments = len(the_test.get_path())
+        print("number of segments", num_segments)
+        print("the_test.get_path_polyline()", the_test.get_path_polyline())
+        print("the_test.seg_dist", the_test.seg_dist)
+        print(the_test.get_full_seg_distribution(num_segments))
+        print()'''
+
         executions.append(the_test.execution)
 
     print("executions ", executions)
@@ -280,10 +289,12 @@ class CoverageEvaluator:
         print("single obe list ", obe_list)
         # print("arrays for each feature: ", speed_arr, steering_arr, distance_arr)
 
+        path_nodes = execution.test.get_path()
+        path_polyline = execution.test.get_path_polyline()
         # .testid instead of whole execution object?
         bins = {'test_id': execution.test.test_id, 'speed_bins': self.get_speed_bins(), 'steering_bins': self.get_steering_bins(),
                 "distance_bins": self.get_distance_bins((0, 100)), "speed_steering_2d": self.get_speed_steering_2d(),
-                "obe_2d": self.get_obe_speed_angle_bins()}
+                "obe_2d": self.get_obe_speed_angle_bins(), "nodes": path_nodes, "polyline": path_polyline}
 
         #print("bins: ", bins)
         road_name = self.global_name + str(execution.test.test_id)
