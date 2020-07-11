@@ -22,8 +22,9 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True)
     # print("ratio_a_to_b", ratio_a_to_b)
     # assert sum_a == sum_b, "Both lists have to have the same element count!"
     # TODO different sized bins may cause problems
-    assert sum_b * 0.25 <= sum_a <= sum_b * 4, "Both lists have to have similar element count!" + str(sum_a) + " vs " + \
-                                              str(sum_b)
+    # fixme find a good solution, discard some roads?
+    #assert sum_b * 0.25 <= sum_a <= sum_b * 4, "Both lists have to have similar element count!" + str(sum_a) + " vs " + \
+    #                                          str(sum_b)
 
     # returns the binary difference
     def difference_bin():
