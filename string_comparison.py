@@ -39,14 +39,14 @@ class StringComparer:
         self.get_const_for_angle(200)
 
         # for testing purposes
-        first_test_road = self.data_dict['1-1']
+        #first_test_road = self.data_dict['1-1']
         second_test_road = self.data_dict['1-2']
         third_test_road = self.data_dict['1-3']
         #print("first road", first_test_road, "first road", second_test_road)
         #print("first to third road", self.cur_sdl_one_to_one(first_test_road['curve_sdl'], third_test_road['curve_sdl']))
-        print(self.cur_sdl_one_to_all_unoptimized(first_test_road['curve_sdl']))
+        print(self.cur_sdl_one_to_all_unoptimized(second_test_road['curve_sdl']))
         self.cur_sdl_all_to_all_unoptimized()
-        print("first road", first_test_road)
+        print("second road", second_test_road)
 
     def all_roads_to_curvature_sdl(self):
         """ Performs shape definition language on all roads represented as asfault nodes
@@ -103,7 +103,7 @@ class StringComparer:
             distance_dict[name] = dist
         return distance_dict
 
-    def cur_sdl_one_to_one(self, curve1_sdl, curve2_sdl):
+    def cur_sdl_one_to_one(self, curve1_sdl, curve2_sdl, normalized: bool = True):
         best_similarity = float('inf')
         best_startpoint = 0
         if len(curve1_sdl) < len(curve2_sdl):
@@ -120,6 +120,8 @@ class StringComparer:
             if error < best_similarity:
                 best_similarity = error
                 best_startpoint = start_point
+        if normalized:
+            best_similarity = best_similarity / len(shorter_road)
         return best_similarity
 
     def get_const_for_angle(self, angle: float):

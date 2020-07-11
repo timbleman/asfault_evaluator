@@ -28,7 +28,7 @@ from code_obe_evaluator import OBEEvaluator, OBE
 NUM_BINS = 16
 STEERING_RANGE = (-1, 1)
 SPEED_RANGE = (0, 100)
-# fixme 180 instead of 360
+# fixme 180 instead of 360 ?
 ANGLE_RANGE = (-360, 360)
 
 def setup_logging(log_level):
@@ -84,10 +84,15 @@ def cov_evaluate_set(set_path: Path):
     l.info("Reading execution data from %s", str(asfault_environment.get_execs_path()))
 
     executions = list()
+    executions_dict = {}
 
     for test_file_name in [f for f in listdir(asfault_environment.get_execs_path()) if isfile(join(asfault_environment.get_execs_path(), f))]:
 
         test_file = path.join(asfault_environment.get_execs_path(), test_file_name)
+
+        # todo remove
+        # print("test_file_name", test_file_name)
+        # print("test_file", test_file)
 
         # Load test object from file
         with open(test_file , 'r') as in_file:
@@ -103,8 +108,10 @@ def cov_evaluate_set(set_path: Path):
         print()'''
 
         executions.append(the_test.execution)
+        executions_dict[test_file_name] = the_test.execution
 
     print("executions ", executions)
+    print("executions_dict ", list(executions_dict.values()))
 
     # TODO find meaningful global name
     set_name = ""
@@ -113,7 +120,7 @@ def cov_evaluate_set(set_path: Path):
         path_index -= 1
     set_name = str(set_path)[path_index:]
     print("set name ", set_name, "for", str(set_path))
-    cov_evaluator = CoverageEvaluator(executions, "1-")
+    cov_evaluator = CoverageEvaluator(executions_dict, "1-")
     all_bins_of_a_folder = cov_evaluator.get_all_bins()
     # print("all_bins_of_a_folder ", all_bins_of_a_folder)
 
@@ -220,7 +227,7 @@ def main():
 
 
 class CoverageEvaluator:
-    def __init__(self, executions, global_name):
+    def __init__(self, executions_dict, global_name):
         self.speed_arr = []
         self.steering_arr = []
         self.distance_arr = []
@@ -231,9 +238,11 @@ class CoverageEvaluator:
         self.suite_bins = {}
         self.global_name = global_name
 
+        executions = list(executions_dict.values())
+
         obe_dict = get_obes_dict(executions)
 
-        for execution in executions:
+        for name in executions_dict:
             """
             # TODO what happens if there are multiple obes?
             obe_list = [d for d in obe_dict if d['test_id'] == execution.test.test_id]
@@ -244,7 +253,7 @@ class CoverageEvaluator:
                 self.obe_angle_arr.append(obe_angle)
             print("single obe ", obe_list)
             """
-            self._fill_bins(execution, obe_dict)
+            self._fill_bins(name, executions_dict[name], obe_dict)
             '''
             obes = self._extract_obes_from_test(execution)
 
@@ -259,14 +268,16 @@ class CoverageEvaluator:
             self.bounds = execution.test.network.bounds
             '''
 
-    def _fill_bins(self, execution, obe_dict):
+    def _fill_bins(self, test_file_name: str, execution, obe_dict):
         """ fills the bins for a single execution
 
-        :param execution:
-        :param obe_dict:
-        :return:
+        :param test_file_name: name of a single test execution
+        :param execution: execution of a test
+        :param obe_dict: dictionary containing OBEs
+        :return: None
         """
-        # fixme bins are adding
+        from asfault.config import rg as asfault_environment
+
         self.speed_arr = []
         self.steering_arr = []
         self.distance_arr = []
@@ -287,12 +298,13 @@ class CoverageEvaluator:
             obe_angle = (obe['road_angle'] - obe['heading_angle']) % 360
             self.obe_angle_arr.append(obe_angle)
 
-        path_nodes = execution.test.get_path()
-        path_polyline = execution.test.get_path_polyline()
+        road_nodes = execution.test.get_path()
+        road_polyline = execution.test.get_path_polyline()
+        test_path = path.join(asfault_environment.get_execs_path(), test_file_name)  # test_file_name #""# execution.test
         # .testid instead of whole execution object?
-        bins = {'test_id': execution.test.test_id, 'speed_bins': self.get_speed_bins(), 'steering_bins': self.get_steering_bins(),
+        bins = {'test_id': execution.test.test_id, 'test_path': test_path, 'speed_bins': self.get_speed_bins(), 'steering_bins': self.get_steering_bins(),
                 "distance_bins": self.get_distance_bins((0, 100)), "speed_steering_2d": self.get_speed_steering_2d(),
-                "obe_2d": self.get_obe_speed_angle_bins(), "nodes": path_nodes, "polyline": path_polyline}
+                "obe_2d": self.get_obe_speed_angle_bins(), "nodes": road_nodes, "polyline": road_polyline}
 
         #print("bins: ", bins)
         road_name = self.global_name + str(execution.test.test_id)

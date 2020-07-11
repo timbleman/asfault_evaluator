@@ -54,7 +54,7 @@ class SuiteBehaviourComputer:
         print("The suite covered ", self.coverage_dict["whole_suite_" + feature + "_coverage"], "% of", feature)
         return cov
 
-    def road_compare_1d(self, road_to_compare: str, measure: str, function: str = 'binary'):
+    def behavior_compare_1d(self, road_to_compare: str, measure: str, function: str = 'binary'):
         """ compares the coverage of a single-dimensional feature of a road to all others in the suite
 
         :param road_to_compare: the baseline road which is compared to all others
@@ -81,7 +81,7 @@ class SuiteBehaviourComputer:
         self.test_dict.get(road_to_compare)[road_to_compare + '_' + function + '_' + measure] = road_similarities
         return road_similarities
 
-    def road_compare_2d(self, road_to_compare: str, measure: str):
+    def behavior_compare_2d(self, road_to_compare: str, measure: str):
         """ compares the coverage of a two-dimensional feature of a road to all others in the suite
 
         :param road_to_compare: the baseline road which is compared to all others
