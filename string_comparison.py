@@ -10,9 +10,14 @@ from typing import List
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+import colorama
+
+import evaluator_config as econf
+
 """has to be symmetric around zero"""
 NUM_ALPHABET = 7
 
+DEFAULT_PERCENTILE_VALUES = [-120.0, -75.0, -30.0, 0.0, 0.0, 30.0, 75.0, 120.0]
 
 class cur(Enum):
     STRONG_LEFT = -3
@@ -31,7 +36,15 @@ class StringComparer:
         self.percentile_values = []
 
         self.gather_all_angles()
-        self.get_curve_distribution()
+
+        #colorama.init(autoreset=True)
+        if not self.data_dict:
+            print(colorama.Fore.RED + "Warning, there are no roads to convert to Strings" + colorama.Style.RESET_ALL)
+            # dirty hack, maybe avoid
+            return
+
+        if not econf.USE_FIXED_STRONG_BORDERS:
+            self.get_curve_distribution()
 
         self.all_roads_to_curvature_sdl()
 
@@ -40,13 +53,13 @@ class StringComparer:
 
         # for testing purposes
         #first_test_road = self.data_dict['1-1']
-        second_test_road = self.data_dict['1-2']
-        third_test_road = self.data_dict['1-3']
+        #second_test_road = self.data_dict['1-2']
+        #third_test_road = self.data_dict['1-3']
         #print("first road", first_test_road, "first road", second_test_road)
         #print("first to third road", self.cur_sdl_one_to_one(first_test_road['curve_sdl'], third_test_road['curve_sdl']))
-        print(self.cur_sdl_one_to_all_unoptimized(second_test_road['curve_sdl']))
-        self.cur_sdl_all_to_all_unoptimized()
-        print("second road", second_test_road)
+        #print(self.cur_sdl_one_to_all_unoptimized(second_test_road['curve_sdl']))
+        #self.cur_sdl_all_to_all_unoptimized()
+        #print("second road", second_test_road)
 
     def all_roads_to_curvature_sdl(self):
         """ Performs shape definition language on all roads represented as asfault nodes
@@ -131,15 +144,19 @@ class StringComparer:
         :param angle: the angle
         :return: cur type
         """
-        assert self.percentile_values, "percentile values have to be defined"
+        if econf.USE_FIXED_STRONG_BORDERS:
+            percentile_values = DEFAULT_PERCENTILE_VALUES
+        else:
+            percentile_values = self.percentile_values
+        assert percentile_values, "percentile values have to be defined"
 
         # start value at most negative -> most left value
         # type conversions for rounding to zero
         cur_i = -int(float(len(cur) / 2))
         # index for the curvature percentile array
         per_j = 1
-        if angle <= self.percentile_values[-1]:
-            while angle > self.percentile_values[per_j]:
+        if angle <= percentile_values[-1]:
+            while angle > percentile_values[per_j]:
                 cur_i += 1
                 per_j += 1
         else:
@@ -164,7 +181,7 @@ class StringComparer:
         percentile_step_sum = 0
         self.percentile_values = []
         for i in range(0, NUM_ALPHABET + 1):
-            print("percentile_step_sum", percentile_step_sum)
+            # print("percentile_step_sum", percentile_step_sum)
             self.percentile_values.append(np.percentile(self.all_angles, percentile_step_sum))
             percentile_step_sum += percentile_step
             if percentile_step_sum > 100:

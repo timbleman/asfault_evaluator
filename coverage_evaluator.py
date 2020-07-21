@@ -23,6 +23,8 @@ from pathlib import Path
 
 from code_obe_evaluator import OBEEvaluator, OBE
 
+import evaluator_config as econf
+
 # TODO OBE Coverage
 
 NUM_BINS = 16
@@ -30,6 +32,27 @@ STEERING_RANGE = (-1, 1)
 SPEED_RANGE = (0, 100)
 # fixme 180 instead of 360 ?
 ANGLE_RANGE = (-360, 360)
+
+def get_set_name(set_path: Path) -> str:
+    """ tries to find a unique name for each executed set
+    combines the first part of the parent folders name and the last number
+    Requires a notation like Bill Bosshards
+
+    :param set_path: Path to the folder where outputs and executions are stored
+    :return: name to identify the set
+    """
+    name_of_parent = str(set_path.parts[-2])
+    # Add first part of parents name
+    set_name = name_of_parent[0:econf.first_chars_of_experiments_subfolder]
+
+    # Add the last number
+    path_index = -1
+    while name_of_parent[path_index - 1].isdigit():
+        path_index -= 1
+    set_name += name_of_parent[path_index:]
+
+    print("set name ", set_name, "for", str(set_path))
+    return set_name
 
 def setup_logging(log_level):
     level = l.INFO
@@ -114,13 +137,8 @@ def cov_evaluate_set(set_path: Path):
     print("executions_dict ", list(executions_dict.values()))
 
     # TODO find meaningful global name
-    set_name = ""
-    path_index = -1
-    while str(set_path)[path_index-1].isdigit():
-        path_index -= 1
-    set_name = str(set_path)[path_index:]
-    print("set name ", set_name, "for", str(set_path))
-    cov_evaluator = CoverageEvaluator(executions_dict, "1-")
+    set_name = get_set_name(set_path)
+    cov_evaluator = CoverageEvaluator(executions_dict, set_name)
     all_bins_of_a_folder = cov_evaluator.get_all_bins()
     # print("all_bins_of_a_folder ", all_bins_of_a_folder)
 
