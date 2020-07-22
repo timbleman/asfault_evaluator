@@ -35,8 +35,6 @@ class StringComparer:
         self.all_angles = []
         self.percentile_values = []
 
-        self.gather_all_angles()
-
         #colorama.init(autoreset=True)
         if not self.data_dict:
             print(colorama.Fore.RED + "Warning, there are no roads to convert to Strings" + colorama.Style.RESET_ALL)
@@ -44,6 +42,7 @@ class StringComparer:
             return
 
         if not econf.USE_FIXED_STRONG_BORDERS:
+            self.gather_all_angles()
             self.get_curve_distribution()
 
         self.all_roads_to_curvature_sdl()
@@ -58,30 +57,27 @@ class StringComparer:
         #print("first road", first_test_road, "first road", second_test_road)
         #print("first to third road", self.cur_sdl_one_to_one(first_test_road['curve_sdl'], third_test_road['curve_sdl']))
         #print(self.cur_sdl_one_to_all_unoptimized(second_test_road['curve_sdl']))
-        #self.cur_sdl_all_to_all_unoptimized()
+        self.cur_sdl_all_to_all_unoptimized()
         #print("second road", second_test_road)
 
     def all_roads_to_curvature_sdl(self):
         """ Performs shape definition language on all roads represented as asfault nodes
 
 
-        :return:
+        :return: None
         """
         assert self.data_dict is not None, "There have to be roads added"
         for name in self.data_dict:
             test = self.data_dict[name]
-            # print("name, test", name, test)
             nodes = test['nodes']
             assert nodes is not None, "There have to be nodes for each road"
-            # TODO add road to dict
-            self.data_dict[name]['curve_sdl'] = self.nodes_to_curvature_sdl(name=name, nodes=nodes)
+            self.data_dict[name]['curve_sdl'] = self.nodes_to_curvature_sdl(nodes=nodes)
 
     def gather_all_angles(self):
         """ is needed to be able to get the percentiles
         has an performance overhead, should be avoided
 
-        :param nodes:
-        :return:
+        :return: None
         """
         for name in self.data_dict:
             test = self.data_dict[name]
@@ -90,18 +86,26 @@ class StringComparer:
             for node in nodes:
                 self.all_angles.append(node.angle)
 
-    def nodes_to_curvature_sdl(self, name: str, nodes: List[asfault.network.NetworkNode]):
+    def nodes_to_curvature_sdl(self, nodes: List[asfault.network.NetworkNode], compress_neighbours: bool = False):
         """ shape definition language of a single road
 
-        :return:
+        :param nodes: List of all asfault.network.NetworkNode of a road
+        :param compress_neighbours: only update list if the successor is different
+        :return: List with all the symbols
         """
         curve_sdl = []
-        # self.all_angles = []
-        jo = 0
-        for node in nodes:
-            curve_sdl.append(self.get_const_for_angle(node.angle))
-            # fixme distribution seems many zeros, straights get classified as slight lefts
-            #print("node.roadtype", node.roadtype, "; angle ", node.angle, "; cur type", self.get_const_for_angle(node.angle))
+
+        if compress_neighbours:
+            for node in nodes:
+                current_angle = self.get_const_for_angle(node.angle)
+                if current_angle != curve_sdl:
+                    curve_sdl.append(current_angle)
+                    print("happens!")
+                # fixme distribution seems many zeros, straights get classified as slight lefts
+                #print("node.roadtype", node.roadtype, "; angle ", node.angle, "; cur type", self.get_const_for_angle(node.angle))
+        else:
+            for node in nodes:
+                curve_sdl.append(self.get_const_for_angle(node.angle))
         return curve_sdl
 
     def cur_sdl_all_to_all_unoptimized(self):
