@@ -30,7 +30,7 @@ class cur(Enum):
 
 
 class StringComparer:
-    def __init__(self, data_dict):
+    def __init__(self, data_dict: dict):
         self.data_dict = data_dict
         self.all_angles = []
         self.percentile_values = []

@@ -302,6 +302,7 @@ class CoverageEvaluator:
         speed_steering_2d = []
         self.obe_speed_arr = []
         self.obe_angle_arr = []
+        num_states = len(execution.states)
         for state in execution.states:
             state_dict = CarState.to_dict(state)
             self.speed_arr.append(np.linalg.norm([state.vel_x, state.vel_y]) * 3.6)
@@ -320,9 +321,10 @@ class CoverageEvaluator:
         road_polyline = execution.test.get_path_polyline()
         test_path = path.join(asfault_environment.get_execs_path(), test_file_name)  # test_file_name #""# execution.test
         # .testid instead of whole execution object?
-        bins = {'test_id': execution.test.test_id, 'test_path': test_path, 'speed_bins': self.get_speed_bins(), 'steering_bins': self.get_steering_bins(),
-                "distance_bins": self.get_distance_bins((0, 100)), "speed_steering_2d": self.get_speed_steering_2d(),
-                "obe_2d": self.get_obe_speed_angle_bins(), "nodes": road_nodes, "polyline": road_polyline}
+        bins = {'test_id': execution.test.test_id, 'test_path': test_path, 'speed_bins': self.get_speed_bins(),
+                'steering_bins': self.get_steering_bins(), "distance_bins": self.get_distance_bins((0, 100)),
+                "speed_steering_2d": self.get_speed_steering_2d(), "obe_2d": self.get_obe_speed_angle_bins(),
+                "nodes": road_nodes, "polyline": road_polyline, "num_states": num_states}
 
         #print("bins: ", bins)
         road_name = self.global_name + str(execution.test.test_id)

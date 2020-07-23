@@ -7,8 +7,6 @@ import utils
 NUM_BINS = coverage_evaluator.NUM_BINS
 
 
-# TODO write csvs
-
 
 class SuiteBehaviourComputer:
     def __init__(self, t_dict: Dict, start: int = 0, end: int = 0):
@@ -17,18 +15,23 @@ class SuiteBehaviourComputer:
         self.start = start
         self.end = end
 
-    def calculate_suite_coverage_1d(self, feature: str):
+    def calculate_suite_coverage_1d(self, feature: str, add_for_each: bool = True):
         """ Calculates the 1d coverage of a selected feature across the whole test suite
             The coverage is added to the test suite dictionary
 
         :param feature: the feature name across the coverage is calculated
+        :param add_for_each: adds the single coverage to each road
         :return: Coverage across the suite
         """
         global_bins = [0] * NUM_BINS
-        for test in self.test_dict.values():
+        for key, test in self.test_dict.items():
             # print("test ", test)
-            cov_col = test.get(feature)
+            cov_col = test.get(feature, None)
             assert cov_col is not None, "The bin " + feature + " has not been added or spelling is incorrect"
+            # the if should be avoided, add coverage to each road
+            if add_for_each:
+                single_coverage = utils.coverage_compute_1d(cov_col)
+                test[feature + "_cov"] = single_coverage
             global_bins = np.add(global_bins, cov_col)
         cov = utils.coverage_compute_1d(global_bins)
         self.coverage_dict["whole_suite_" + feature + "_coverage"] = cov
@@ -37,16 +40,22 @@ class SuiteBehaviourComputer:
         print("The suite covered ", self.coverage_dict["whole_suite_" + feature + "_coverage"], "% of", feature)
         return cov
 
-    def calculate_suite_2d_coverage(self, feature: str):
+    def calculate_suite_2d_coverage(self, feature: str, add_for_each: bool = True):
         """ Calculates the 2d coverage of steering across the whole test suite
             The coverage is added to the test suite dictionary
 
+        :param feature: the feature name across the coverage is calculated
+        :param add_for_each: adds the single coverage to each road
         :return: Coverage across the suite
         """
         global_2d_cov = np.zeros((NUM_BINS, NUM_BINS))
-        for test in self.test_dict.values():
-            cov_col = test.get(feature)
+        for key, test in self.test_dict.items():
+            cov_col = test.get(feature, None)
             assert cov_col is not None, "The bin " + feature + " has not been added or spelling is incorrect"
+            # the if should be avoided, add coverage to each road
+            if add_for_each:
+                single_coverage = utils.coverage_compute_1d(cov_col)
+                test[feature + "_cov"] = single_coverage
             global_2d_cov = np.add(global_2d_cov, cov_col)
         cov = utils.coverage_compute_2d(global_2d_cov)
         self.coverage_dict["whole_suite_" + feature + "_coverage"] = cov

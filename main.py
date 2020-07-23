@@ -6,9 +6,11 @@ from typing import List
 from pathlib import Path
 
 import coverage_evaluator
+import utils
 from string_comparison import StringComparer
 from suite_behaviour_computer import SuiteBehaviourComputer
 from csv_creator import CSVCreator
+from suite_trimmer import SuiteTrimmer
 
 import colorama
 
@@ -71,22 +73,22 @@ def main():
     #env_directory = Path(r"C:\Users\fraun\AppData\Local\Packages\CANONI~1.UBU\LOCALS~1\rootfs\home\TIMBLE~1\ASFAUL~1\ASFAUL~1\EXPERI~1\EXPERI~1\RANDOM~1\RANDOM~1")
     #env_directory = Path(r"C:\Users\fraun\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--6\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env")
 
-    #env_directory = Path(r"C:\Users\fraun\experiments-driver-ai\random--lanedist--driver-ai--small--no-repair--with-restart--2\.random--lanedist--ext--small--no-repair--with-restart--env")
-    #data_bins_dict = coverage_evaluator.cov_evaluate_set(env_directory)
+    env_directory = Path(r"C:\Users\fraun\experiments-driver-ai\random--lanedist--driver-ai--small--no-repair--with-restart--2\.random--lanedist--ext--small--no-repair--with-restart--env")
+    data_bins_dict = coverage_evaluator.cov_evaluate_set(env_directory)
 
-
+    """
     # commented for testing purposes
     data_bins_dict = {}
     for env_directory in all_paths:
         print("Start evaluation of OBEs from %s", env_directory)
-        # TODO check wether identifier already exists in dict
+        # TODO check whether identifier already exists in dict
         data_bins_dict.update(coverage_evaluator.cov_evaluate_set(env_directory))
     #print("partial_bins ", partial_bins)
-
+    """
 
     sbh = SuiteBehaviourComputer(data_bins_dict)
-    #print("speed coverage", sbh.calculate_suite_coverage_1d('speed_bins'))
-    #print("obe coverage", sbh.calculate_suite_2d_coverage('obe_2d'))
+    print("speed coverage", sbh.calculate_suite_coverage_1d('speed_bins'))
+    print("obe coverage", sbh.calculate_suite_2d_coverage('obe_2d'))
     print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
     #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
 
@@ -100,9 +102,17 @@ def main():
     csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
     #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
 
+    utils.whole_suite_statistics(dataset_dict=data_bins_dict, feature="speed_bins_cov", desired_quartile=42, plot=True)
+
     print(colorama.Fore.GREEN + "Collected a total of", len(data_bins_dict), "roads!" + colorama.Style.RESET_ALL)
-    print("all roads ", data_bins_dict.keys())
+    names_of_all = list(data_bins_dict.keys())
+    print("all roads ", names_of_all)
+    print(colorama.Fore.GREEN + "Computed following measures for each road", data_bins_dict[names_of_all[0]].keys(), "" + colorama.Style.RESET_ALL)
     #print("all roads ", data_bins_dict)
+
+    suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=None)
+    import operator
+    suite_trimmer.get_unworthy_paths(feature="num_states", op=operator.le, threshold=300)
 
 
 if __name__ == "__main__":
