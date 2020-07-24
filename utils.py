@@ -148,6 +148,8 @@ def whole_suite_statistics(dataset_dict: dict, feature: str, desired_percentile:
     stat_dict = {'median': np.percentile(all_values, 50),
                  'lower_quartile': np.percentile(all_values, 25),
                  'higher_quartile': np.percentile(all_values, 75),
+                 'min': np.min(all_values),
+                 'max': np.max(all_values),
                  'avg': np.average(all_values),
                  'std_dev': np.std(all_values)}
 

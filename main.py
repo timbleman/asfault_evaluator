@@ -19,6 +19,9 @@ import colorama
 # TODO do this everywhere this is more pythonic
 # main_bin = self.test_dict.get(road_to_compare, None).get(measure, None)
 
+# this path is broken
+# "C:\Users\fraun\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env\output\execs\test_0028.json"
+
 def _configure_asfault() -> None:
     from asfault.config import init_configuration, load_configuration
     from tempfile import TemporaryDirectory
@@ -59,29 +62,19 @@ def get_all_paths(parent_dir: Path) -> List[Path]:
 def main():
     # Local import to main
     import os
-    import csv
-    # ce = CoverageEvaluator()
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
-    parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai-trimmed")
+    parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai-long-execution")
     all_paths = get_all_paths(parent_dir)
 
     # FIXME the folder structure seems broken sometimes
     # FIXME there is an defective road in C:\Users\fraun\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env
-    all_paths.pop(2)
+    print(all_paths.pop(2))
 
 
-    # # merging two dicts
-    # global_dict.update(local_dict)
+    #env_directory = Path(r"C:\Users\fraun\experiments-driver-ai-trimmed\random--lanedist--driver-ai--small--no-repair--with-restart--2\.random--lanedist--ext--small--no-repair--with-restart--env")
+    #data_bins_dict = coverage_evaluator.cov_evaluate_set(env_directory)
 
-    # r"C:\Users\fraun\AppData\Local\Packages\CANONI~1.UBU\LOCALS~1\rootfs\home\TIMBLE~1\ASFAUL~1\ASFAUL~1\EXPERI~1\EXPERI~1\RANDOM~1\RANDOM~1"
-    # r"C:\Users\fraun\AppData\Local\Packages\CANONI~1.UBU\LOCALS~1\rootfs\home\TIMBLE~1\ASFAUL~1\ASFAUL~1\EXPERI~1\EXPERI~1\RADF79~1\RANDOM~1"
-    #env_directory = Path(r"C:\Users\fraun\AppData\Local\Packages\CANONI~1.UBU\LOCALS~1\rootfs\home\TIMBLE~1\ASFAUL~1\ASFAUL~1\EXPERI~1\EXPERI~1\RANDOM~1\RANDOM~1")
-    #env_directory = Path(r"C:\Users\fraun\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--6\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env")
 
-    env_directory = Path(r"C:\Users\fraun\experiments-driver-ai-trimmed\random--lanedist--driver-ai--small--no-repair--with-restart--2\.random--lanedist--ext--small--no-repair--with-restart--env")
-    data_bins_dict = coverage_evaluator.cov_evaluate_set(env_directory)
-
-    """
     # commented for testing purposes
     data_bins_dict = {}
     for env_directory in all_paths:
@@ -89,7 +82,7 @@ def main():
         # TODO check whether identifier already exists in dict
         data_bins_dict.update(coverage_evaluator.cov_evaluate_set(env_directory))
     #print("partial_bins ", partial_bins)
-    """
+
 
     sbh = SuiteBehaviourComputer(data_bins_dict)
     print("speed coverage", sbh.calculate_suite_coverage_1d('speed_bins'))
@@ -107,7 +100,7 @@ def main():
     csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
     #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
 
-    utils.whole_suite_statistics(dataset_dict=data_bins_dict, feature="speed_bins_cov", desired_percentile=42, plot=True)
+    utils.whole_suite_statistics(dataset_dict=data_bins_dict, feature="num_states", plot=True)
 
     print(colorama.Fore.GREEN + "Collected a total of", len(data_bins_dict), "roads!" + colorama.Style.RESET_ALL)
     names_of_all = list(data_bins_dict.keys())
@@ -118,7 +111,8 @@ def main():
     suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=parent_dir)
     import operator
     #print("unworthy paths:", suite_trimmer.get_unworthy_paths(feature="num_states", op=operator.le, threshold=300))
-    suite_trimmer.trim_dataset(feature="num_states", op=operator.le, threshold=300)
+    #suite_trimmer.trim_dataset(feature="num_states", op=operator.le, threshold=300)
+    suite_trimmer.trim_dataset_percentile(feature="num_states", op=operator.le, threshold_percentile=60)
 
 
 if __name__ == "__main__":

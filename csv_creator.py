@@ -68,7 +68,6 @@ class CSVCreator:
         # Create folder
         test_dir_path = path.split(test_path)
         test_dir_path = path.split(test_dir_path[0])
-        print("test_dir_path", test_dir_path)
         # Conditional if folder does not exist
         folder_path = path.join(test_dir_path[0], road_1_name + "_csvs")
         if not path.isdir(folder_path):
@@ -79,13 +78,10 @@ class CSVCreator:
             with open(csv_file, 'w') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
                 writer.writeheader()
-                """dic = {'measure': measures[0]}
-                dic.update(first_measure)
-                print("{'measure': measures[0]}.update(first_measure)", dic)"""
                 for i in range(0, len(measures)):
                     dic = _get_dict_to_write(i)
                     writer.writerow(dic)
-            print(colorama.Fore.GREEN + "wrote csv_file to", csv_file + colorama.Style.RESET_ALL)
+            # print(colorama.Fore.GREEN + "wrote csv_file to", csv_file + colorama.Style.RESET_ALL)
         except IOError:
             print("I/O error")
 

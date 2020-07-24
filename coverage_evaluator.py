@@ -324,7 +324,8 @@ class CoverageEvaluator:
         bins = {'test_id': execution.test.test_id, 'test_path': test_path, 'speed_bins': self.get_speed_bins(),
                 'steering_bins': self.get_steering_bins(), "distance_bins": self.get_distance_bins((0, 100)),
                 "speed_steering_2d": self.get_speed_steering_2d(), "obe_2d": self.get_obe_speed_angle_bins(),
-                "nodes": road_nodes, "polyline": road_polyline, "num_states": num_states}
+                "nodes": road_nodes, "polyline": road_polyline, "road_len": road_polyline.length,
+                "num_states": num_states}
 
         #print("bins: ", bins)
         road_name = self.global_name + str(execution.test.test_id)
