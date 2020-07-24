@@ -123,7 +123,7 @@ def entropy_compute_2d(a: np.ndarray):
     return entropy_compute_1d(new_a)
 
 
-def whole_suite_statistics(dataset_dict: dict, feature: str, desired_quartile: int = 0, plot: bool = False) -> dict:
+def whole_suite_statistics(dataset_dict: dict, feature: str, desired_percentile: int = 0, plot: bool = False) -> dict:
     """ Calculates common statistics on numerical feature of each road in the dataset.
     This could be a certain coverage or the length.
 
@@ -151,9 +151,9 @@ def whole_suite_statistics(dataset_dict: dict, feature: str, desired_quartile: i
                  'avg': np.average(all_values),
                  'std_dev': np.std(all_values)}
 
-    if desired_quartile != 0:
-        desired_quartile_val = np.percentile(all_values, desired_quartile)
-        stat_dict['desired_quartile'] = desired_quartile_val
+    if desired_percentile != 0:
+        desired_percentile_val = np.percentile(all_values, desired_percentile)
+        stat_dict['desired_percentile'] = desired_percentile_val
 
     if plot:
         print("Stats for", feature, stat_dict)
