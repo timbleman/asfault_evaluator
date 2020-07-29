@@ -309,7 +309,6 @@ class CoverageEvaluator:
             self.steering_arr.append(state_dict['steering'])
             self.distance_arr.append(state.get_centre_distance())
 
-            # TODO what happens if there are multiple obes?
         obe_list = [d for d in obe_dict if d['test_id'] == execution.test.test_id]
         for obe in obe_list:
             obe_speed = obe['speed']
@@ -325,7 +324,7 @@ class CoverageEvaluator:
                 'steering_bins': self.get_steering_bins(), "distance_bins": self.get_distance_bins((0, 100)),
                 "speed_steering_2d": self.get_speed_steering_2d(), "obe_2d": self.get_obe_speed_angle_bins(),
                 "nodes": road_nodes, "polyline": road_polyline, "road_len": road_polyline.length,
-                "num_states": num_states}
+                "num_states": num_states, "ex_result": execution.result}
 
         #print("bins: ", bins)
         road_name = self.global_name + str(execution.test.test_id)

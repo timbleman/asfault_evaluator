@@ -3,21 +3,25 @@ import numpy as np
 
 import asfault
 from asfault import network
-from asfault.network import NetworkNode
+from asfault.network import NetworkNode, TYPE_STRAIGHT, TYPE_L_TURN, TYPE_R_TURN
 from typing import List
+
+from shapely.geometry import Point
 
 # for box plots
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import colorama
-
+import math
 import evaluator_config as econf
+
+MINIMUM_SEG_LEN = 5
 
 """has to be symmetric around zero"""
 NUM_ALPHABET = 7
 
-DEFAULT_PERCENTILE_VALUES = [-120.0, -75.0, -30.0, 0.0, 0.0, 30.0, 75.0, 120.0]
+DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -75.0, -30.0, -1.0, 1.0, 30.0, 75.0, 120.0]
 
 class cur(Enum):
     STRONG_LEFT = -3
@@ -29,11 +33,25 @@ class cur(Enum):
     STRONG_RIGHT = 3
 
 
+DEFAULT_PERCENTILE_VALUES_LEN = [10.0, 30.0, 50, 75.0, 90, 120.0, 160]
+
+class len_en(Enum):
+    VERY_SHORT = 0
+    SHORT = 1
+    SLIGHTLY_SHORTER = 2
+    MEDIUM = 3
+    SLIGHTLY_LONGER = 4
+    LONG = 5
+    VERY_LONG = 6
+
+
 class StringComparer:
     def __init__(self, data_dict: dict):
         self.data_dict = data_dict
         self.all_angles = []
         self.percentile_values = []
+
+        self._get_equal_borders()
 
         #colorama.init(autoreset=True)
         if not self.data_dict:
@@ -45,20 +63,29 @@ class StringComparer:
             self.gather_all_angles()
             self.get_curve_distribution()
 
+        self.gather_all_angles()
+        self.get_curve_distribution()
+
         self.all_roads_to_curvature_sdl()
 
         print("self.all_angles", self.all_angles)
         self.get_const_for_angle(200)
 
         # for testing purposes
-        #first_test_road = self.data_dict['1-1']
+        first_test_road = self.data_dict['random--la52']
+        #self.nodes_to_sdl_2d(first_test_road['nodes'])
         #second_test_road = self.data_dict['1-2']
         #third_test_road = self.data_dict['1-3']
         #print("first road", first_test_road, "first road", second_test_road)
         #print("first to third road", self.cur_sdl_one_to_one(first_test_road['curve_sdl'], third_test_road['curve_sdl']))
         #print(self.cur_sdl_one_to_all_unoptimized(second_test_road['curve_sdl']))
-        self.cur_sdl_all_to_all_unoptimized()
+        self.sdl_all_to_all_unoptimized()
         #print("second road", second_test_road)
+
+    def _get_equal_borders(self):
+        # TODO not implemented but probably a bad idea
+        print("len_cur ", len(cur))
+        assert len(cur)%2 == 1, "The number of symbols for the shape compression language has to be balanced!"
 
     def all_roads_to_curvature_sdl(self):
         """ Performs shape definition language on all roads represented as asfault nodes
@@ -71,23 +98,12 @@ class StringComparer:
             test = self.data_dict[name]
             nodes = test['nodes']
             assert nodes is not None, "There have to be nodes for each road"
-            self.data_dict[name]['curve_sdl'] = self.nodes_to_curvature_sdl(nodes=nodes)
-
-    def gather_all_angles(self):
-        """ is needed to be able to get the percentiles
-        has an performance overhead, should be avoided
-
-        :return: None
-        """
-        for name in self.data_dict:
-            test = self.data_dict[name]
-            nodes = test['nodes']
-            assert nodes is not None, "There have to be nodes for each road"
-            for node in nodes:
-                self.all_angles.append(node.angle)
+            # save both the curve only and the 2d shape definition language representation
+            self.data_dict[name]['curve_sdl'] = self.nodes_to_curvature_sdl(nodes=nodes, compress_neighbours=True)
+            self.data_dict[name]['sdl_2d'] = self.nodes_to_sdl_2d(nodes=nodes)
 
     def nodes_to_curvature_sdl(self, nodes: List[asfault.network.NetworkNode], compress_neighbours: bool = False):
-        """ shape definition language of a single road
+        """ curve shape definition language of a single road
 
         :param nodes: List of all asfault.network.NetworkNode of a road
         :param compress_neighbours: only update list if the successor is different
@@ -97,26 +113,41 @@ class StringComparer:
 
         if compress_neighbours:
             for node in nodes:
-                current_angle = self.get_const_for_angle(node.angle)
-                if current_angle != curve_sdl:
-                    curve_sdl.append(current_angle)
-                    print("happens!")
-                # fixme distribution seems many zeros, straights get classified as slight lefts
-                #print("node.roadtype", node.roadtype, "; angle ", node.angle, "; cur type", self.get_const_for_angle(node.angle))
+                if self._compute_length(node) >= MINIMUM_SEG_LEN:
+                    current_angle = self.get_const_for_angle(node.angle)
+                    if current_angle != curve_sdl:
+                        curve_sdl.append(current_angle)
+                    # fixme distribution seems many zeros, straights get classified as slight lefts
+                    #print("node.roadtype", node.roadtype, "; angle ", node.angle, "; cur type", self.get_const_for_angle(node.angle))
         else:
             for node in nodes:
                 curve_sdl.append(self.get_const_for_angle(node.angle))
+
+        too_short_segments = len(nodes) - len(curve_sdl)
+        if too_short_segments > 0:
+            print(str(too_short_segments) + " segments were removed, because they were too short")
+
         return curve_sdl
 
-    def cur_sdl_all_to_all_unoptimized(self):
+    def sdl_all_to_all_unoptimized(self):
         for name in self.data_dict:
             distance_arr = self.cur_sdl_one_to_all_unoptimized(self.data_dict[name]['curve_sdl'])
             self.data_dict[name]['curve_sdl_dist'] = distance_arr
+
+            distance_arr = self.sdl_2d_one_to_all_unoptimized(self.data_dict[name]['sdl_2d'])
+            self.data_dict[name]['sdl_2d_dist'] = distance_arr
 
     def cur_sdl_one_to_all_unoptimized(self, curve1_sdl):
         distance_dict = {}
         for name in self.data_dict:
             dist = self.cur_sdl_one_to_one(curve1_sdl, self.data_dict[name]['curve_sdl'])
+            distance_dict[name] = dist
+        return distance_dict
+
+    def sdl_2d_one_to_all_unoptimized(self, curve1_sdl):
+        distance_dict = {}
+        for name in self.data_dict:
+            dist = self.sdl_2d_one_to_one(curve1_sdl, self.data_dict[name]['sdl_2d'])
             distance_dict[name] = dist
         return distance_dict
 
@@ -133,6 +164,7 @@ class StringComparer:
             error = 0
             for i in range(0, len(shorter_road)):
                 #print("index", (start_point + i) % len(longer_road), "longer_road len", len(longer_road))
+                # TODO devide by 7?
                 error += abs(longer_road[(start_point + i) % len(longer_road)].value - shorter_road[i].value)
             if error < best_similarity:
                 best_similarity = error
@@ -141,6 +173,64 @@ class StringComparer:
             best_similarity = best_similarity / len(shorter_road)
         return best_similarity
 
+
+    def sdl_2d_one_to_one(self, sdl_2d_1, sdl_2d_2, normalized: bool = True):
+        # TODO adjust these weights
+        CURVE_WEIGHT = 1
+        LENGTH_WEIGHT = 1
+
+        best_similarity = float('inf')
+        best_startpoint = 0
+        if len(sdl_2d_1) < len(sdl_2d_2):
+            shorter_road = sdl_2d_1
+            longer_road = sdl_2d_2
+        else:
+            shorter_road = sdl_2d_2
+            longer_road = sdl_2d_1
+        for start_point in range(0, len(longer_road)):
+            error = 0
+            error_cur = 0
+            error_len = 0
+            for i in range(0, len(shorter_road)):
+                error_cur += abs(longer_road[(start_point + i) % len(longer_road)][0].value - shorter_road[i][0].value)
+                error_len += abs(longer_road[(start_point + i) % len(longer_road)][1].value - shorter_road[i][1].value)
+                error = (error_cur * CURVE_WEIGHT + error_len * LENGTH_WEIGHT) / ((CURVE_WEIGHT + LENGTH_WEIGHT) * 7)
+            if error < best_similarity:
+                best_similarity = error
+                best_startpoint = start_point
+        if normalized:
+            best_similarity = best_similarity / len(shorter_road)
+        return best_similarity
+
+
+    def nodes_to_sdl_2d(self, nodes: List[asfault.network.NetworkNode]):
+        # used to accumulate lengths of previous same curve segments
+        lengths = 0
+        sdl_2d = []
+        current_angle = None
+        next_angle = self.get_const_for_angle(nodes[0].angle)
+
+        for i in range(0, len(nodes)-1):
+            node = nodes[i]
+            lengths += node.length
+
+            current_angle = next_angle
+            next_angle = self.get_const_for_angle(nodes[i+1].angle)
+            print("current_angle, next_angle", current_angle, ", ", next_angle)
+
+            if next_angle != current_angle:
+                length_en = self.get_const_for_length(lengths)
+                print("appending, length", length_en)
+                sdl_2d.append((current_angle, length_en))
+                lengths = 0
+
+        lengths += nodes[-1].length
+        last_tup = (self.get_const_for_angle(nodes[-1].angle), self.get_const_for_length(lengths))
+        sdl_2d.append(last_tup)
+        print("sdl_2d", sdl_2d)
+
+        return sdl_2d
+
     def get_const_for_angle(self, angle: float):
         """ returns the representation for an angle based on the percentiles
         needs self.percentile_values to be set
@@ -148,24 +238,59 @@ class StringComparer:
         :param angle: the angle
         :return: cur type
         """
+        # TODO stimmt das überhaupt?
         if econf.USE_FIXED_STRONG_BORDERS:
-            percentile_values = DEFAULT_PERCENTILE_VALUES
+            percentile_values_cur = DEFAULT_PERCENTILE_VALUES_CUR
         else:
-            percentile_values = self.percentile_values
-        assert percentile_values, "percentile values have to be defined"
+            percentile_values_cur = self.percentile_values
+        assert percentile_values_cur, "percentile values have to be defined"
 
         # start value at most negative -> most left value
         # type conversions for rounding to zero
         cur_i = -int(float(len(cur) / 2))
         # index for the curvature percentile array
         per_j = 1
-        if angle <= percentile_values[-1]:
-            while angle > percentile_values[per_j]:
+        if angle <= percentile_values_cur[-1]:
+            while angle > percentile_values_cur[per_j]:
                 cur_i += 1
                 per_j += 1
         else:
             cur_i = abs(cur_i)
         return cur(cur_i)
+
+    def get_const_for_length(self, length: float):
+        """ returns the representation for an length based on the percentiles
+
+        :param length: the length
+        :return: cur type
+        """
+        # TODO stimmt das überhaupt?
+        percentile_values_len = DEFAULT_PERCENTILE_VALUES_LEN
+
+        # start value at the shortest value
+        len_i = 0
+        # index for the curvature percentile array
+        per_j = 1
+        if length <= percentile_values_len[-1]:
+            while length > percentile_values_len[per_j]:
+                len_i += 1
+                per_j += 1
+        else:
+            cur_i = abs(len_i)
+        return len_en(len_i)
+
+    def gather_all_angles(self):
+        """ is needed to be able to get the percentiles
+        has an performance overhead, should be avoided
+
+        :return: None
+        """
+        for name in self.data_dict:
+            test = self.data_dict[name]
+            nodes = test['nodes']
+            assert nodes is not None, "There have to be nodes for each road"
+            for node in nodes:
+                self.all_angles.append(node.angle)
 
     def get_curve_distribution(self):
         """ draws a box plot and self.percentile_values with bounds of all angles
@@ -202,3 +327,48 @@ class StringComparer:
             and self.percentile_values[int(np.ceil(NUM_ALPHABET / 2)) - 1] <= 0 <= self.percentile_values[
                    int(np.ceil(NUM_ALPHABET / 2)) + 1], \
             "the curve distribution of the dataset is not balanced!"
+
+    # copied from https://gitlab.infosun.fim.uni-passau.de/gambi/esec-fse-20/-/blob/master/code/profiles_estimator.py#L516
+    def _compute_length(self, road_segment: NetworkNode):
+        if road_segment.roadtype == TYPE_L_TURN or road_segment.roadtype == TYPE_R_TURN:
+            # https: // www.wikihow.com / Find - Arc - Length
+            # Length of the segment "is" the length of the arc defined for the turn
+            xc, yc, radius = self._compute_radius_turn(road_segment)
+            angle = road_segment.angle
+            return 2 * math.pi * radius * (abs(angle) / 360.0)
+
+        if road_segment.roadtype == TYPE_STRAIGHT:
+            # Apparently this might be 0, not sure why so we need to "compute" the lenght which is the value of y
+            return road_segment.y_off
+
+
+    # copied from https://gitlab.infosun.fim.uni-passau.de/gambi/esec-fse-20/-/blob/master/code/profiles_estimator.py#L516
+    # Since there are some quirks in how AsFault implements turn generation using angle, pivot offset and such we adopt the
+    # direct strategy to compute the radius of the turn: sample three points on the turn (spine), use triangulation to find
+    # out where's the center of the turn is, and finally compute the radius as distance between any of the points on the
+    # circle and the center
+    def _compute_radius_turn(self, road_segment: NetworkNode):
+        if road_segment.roadtype == TYPE_STRAIGHT:
+            return math.inf
+
+        spine_coord = list(road_segment.get_spine().coords)
+
+        # Use triangulation.
+        p1 = Point(spine_coord[0])
+        x1 = p1.x
+        y1 = p1.y
+
+        p2 = Point(spine_coord[-1])
+        x2 = p2.x
+        y2 = p2.y
+
+        # This more or less is the middle point, not that should matters
+        p3 = Point(spine_coord[int(len(spine_coord) / 2)])
+        x3 = p3.x
+        y3 = p3.y
+
+        center_x = ((x1**2 + y1**2)*(y2-y3) + (x2**2 + y2**2)*(y3-y1) + (x3**2+y3**2)*(y1-y2)) / (2*(x1*(y2-y3) - y1*(x2-x3) + x2*y3 - x3*y2))
+        center_y = ( (x1**2 + y1**2)*(x3-x2) + (x2**2 + y2**2)*(x1-x3) +(x3**2+y3**2)*(x2-x1) ) / (2*(x1*(y2-y3) - y1*(x2-x3) + x2*y3 - x3*y2))
+        radius = math.sqrt( (center_x-x1)**2 + (center_y-y1)**2 )
+
+        return (center_x, center_y, radius)

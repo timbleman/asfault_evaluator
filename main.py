@@ -19,8 +19,9 @@ import colorama
 # TODO do this everywhere this is more pythonic
 # main_bin = self.test_dict.get(road_to_compare, None).get(measure, None)
 
-# this path is broken
-# "C:\Users\fraun\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env\output\execs\test_0028.json"
+# these paths are broken
+# "C:\Users\fraun\exp-ba\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env\output\execs\test_0029.json"
+# "C:\Users\fraun\exp-ba\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env\output\execs\test_0042.json"
 
 def _configure_asfault() -> None:
     from asfault.config import init_configuration, load_configuration
@@ -63,18 +64,19 @@ def main():
     # Local import to main
     import os
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
-    parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai-long-execution")
+    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai")
     all_paths = get_all_paths(parent_dir)
 
     # FIXME the folder structure seems broken sometimes
     # FIXME there is an defective road in C:\Users\fraun\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env
-    print(all_paths.pop(2))
+    #print(all_paths.pop(2))
 
 
-    #env_directory = Path(r"C:\Users\fraun\experiments-driver-ai-trimmed\random--lanedist--driver-ai--small--no-repair--with-restart--2\.random--lanedist--ext--small--no-repair--with-restart--env")
-    #data_bins_dict = coverage_evaluator.cov_evaluate_set(env_directory)
+    env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
+    #env_directory = Path(r"C:\Users\fraun\experiments-driver-ai\own-asfault-own-asfault--1\.own-asfault-own-asfault--1")
+    data_bins_dict = coverage_evaluator.cov_evaluate_set(env_directory)
 
-
+    """
     # commented for testing purposes
     data_bins_dict = {}
     for env_directory in all_paths:
@@ -82,12 +84,12 @@ def main():
         # TODO check whether identifier already exists in dict
         data_bins_dict.update(coverage_evaluator.cov_evaluate_set(env_directory))
     #print("partial_bins ", partial_bins)
-
+    """
 
     sbh = SuiteBehaviourComputer(data_bins_dict)
     print("speed coverage", sbh.calculate_suite_coverage_1d('speed_bins'))
     print("obe coverage", sbh.calculate_suite_2d_coverage('obe_2d'))
-    print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
+    #print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
     #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
 
     # unnecessary, pass by reference
@@ -95,10 +97,12 @@ def main():
 
     str_comparer = StringComparer(data_dict=data_bins_dict)
 
-    csv_creator = CSVCreator(data_dict=data_bins_dict)
-    csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
-    csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
+    #csv_creator = CSVCreator(data_dict=data_bins_dict)
+    #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
+    #csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
     #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
+
+    #print(list(data_bins_dict.values())[2]["curve_sdl"])
 
     utils.whole_suite_statistics(dataset_dict=data_bins_dict, feature="num_states", plot=True)
 
@@ -112,7 +116,7 @@ def main():
     import operator
     #print("unworthy paths:", suite_trimmer.get_unworthy_paths(feature="num_states", op=operator.le, threshold=300))
     #suite_trimmer.trim_dataset(feature="num_states", op=operator.le, threshold=300)
-    suite_trimmer.trim_dataset_percentile(feature="num_states", op=operator.le, threshold_percentile=60)
+    #suite_trimmer.trim_dataset_percentile(feature="num_states", op=operator.le, threshold_percentile=2)
 
 
 if __name__ == "__main__":
