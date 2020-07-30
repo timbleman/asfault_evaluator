@@ -96,6 +96,8 @@ def main():
     #partial_bins = sbh.get_test_dict()
 
     str_comparer = StringComparer(data_dict=data_bins_dict)
+    str_comparer.all_roads_to_curvature_sdl()
+    str_comparer.sdl_all_to_all_unoptimized()
 
     #csv_creator = CSVCreator(data_dict=data_bins_dict)
     #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])

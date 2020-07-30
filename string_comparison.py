@@ -35,6 +35,8 @@ class cur(Enum):
 
 DEFAULT_PERCENTILE_VALUES_LEN = [10.0, 30.0, 50, 75.0, 90, 120.0, 160]
 
+NUM_LEN_ALPHABET = 7
+
 class len_en(Enum):
     VERY_SHORT = 0
     SHORT = 1
@@ -51,8 +53,6 @@ class StringComparer:
         self.all_angles = []
         self.percentile_values = []
 
-        self._get_equal_borders()
-
         #colorama.init(autoreset=True)
         if not self.data_dict:
             print(colorama.Fore.RED + "Warning, there are no roads to convert to Strings" + colorama.Style.RESET_ALL)
@@ -63,23 +63,23 @@ class StringComparer:
             self.gather_all_angles()
             self.get_curve_distribution()
 
-        self.gather_all_angles()
-        self.get_curve_distribution()
+        #self.gather_all_angles()
+        #self.get_curve_distribution()
 
-        self.all_roads_to_curvature_sdl()
-
-        print("self.all_angles", self.all_angles)
-        self.get_const_for_angle(200)
+        #print("self.all_angles", self.all_angles)
+        #self.get_const_for_angle(200)
 
         # for testing purposes
-        first_test_road = self.data_dict['random--la52']
+        #first_test_road = self.data_dict['random--la52']
         #self.nodes_to_sdl_2d(first_test_road['nodes'])
-        #second_test_road = self.data_dict['1-2']
+        #second_test_road = self.data_dict['random--la54']
+        #import utils
+        #print("lcs: ", utils.lcs(first_test_road['sdl_2d'], second_test_road['sdl_2d']))
+        #print("lcstr: ", utils.LCSubStr(first_test_road['sdl_2d'], second_test_road['sdl_2d']))
         #third_test_road = self.data_dict['1-3']
         #print("first road", first_test_road, "first road", second_test_road)
         #print("first to third road", self.cur_sdl_one_to_one(first_test_road['curve_sdl'], third_test_road['curve_sdl']))
         #print(self.cur_sdl_one_to_all_unoptimized(second_test_road['curve_sdl']))
-        self.sdl_all_to_all_unoptimized()
         #print("second road", second_test_road)
 
     def _get_equal_borders(self):
@@ -271,12 +271,12 @@ class StringComparer:
         len_i = 0
         # index for the curvature percentile array
         per_j = 1
-        if length <= percentile_values_len[-1]:
+        if length < percentile_values_len[-1]:
             while length > percentile_values_len[per_j]:
                 len_i += 1
                 per_j += 1
         else:
-            cur_i = abs(len_i)
+            len_i = NUM_LEN_ALPHABET - 1
         return len_en(len_i)
 
     def gather_all_angles(self):
