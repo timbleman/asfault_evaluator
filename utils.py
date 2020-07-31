@@ -15,6 +15,10 @@ class DicConst(Enum):
     CUR_SDL = "curve_sdl"
     CUR_SDL_DIST = "curve_sdl_dist"
     SDL_2D_DIST = "sdl_2d_dist"
+    CUR_SDL_LCS_DIST = "cur_sdl_lcs_dist"
+    CUR_SDL_LCSTR_DIST = "cur_sdl_lcstr_dist"
+    SDL_2D_LCS_DIST = "sdl_2d_lcs_dist"
+    SDL_2D_LCSTR_DIST = "sdl_2d_lcstr_dist"
 
 
 class DiffFuncConst(Enum):

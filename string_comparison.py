@@ -83,11 +83,6 @@ class StringComparer:
         # print(self.cur_sdl_one_to_all_unoptimized(second_test_road['curve_sdl']))
         # print("second road", second_test_road)
 
-    def _get_equal_borders(self):
-        # TODO not implemented but probably a bad idea
-        print("len_cur ", len(cur))
-        assert len(cur) % 2 == 1, "The number of symbols for the shape compression language has to be balanced!"
-
     def all_roads_to_curvature_sdl(self):
         """ Performs shape definition language on all roads represented as asfault nodes
 
@@ -133,23 +128,41 @@ class StringComparer:
 
     def sdl_all_to_all_unoptimized(self):
         for name in self.data_dict:
-            distance_arr = self.cur_sdl_one_to_all_unoptimized(self.data_dict[name][utils.DicConst.CUR_SDL.value])
+            # TODO schau mal ob da alles passt
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.cur_sdl_one_to_one,
+                                                               representation=utils.DicConst.CUR_SDL.value)
             self.data_dict[name][utils.DicConst.CUR_SDL_DIST.value] = distance_arr
 
-            distance_arr = self.sdl_2d_one_to_all_unoptimized(self.data_dict[name][utils.DicConst.SDL_2D.value])
+            # distance_arr = self.sdl_2d_one_to_all_unoptimized(self.data_dict[name][utils.DicConst.SDL_2D.value])
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.sdl_2d_one_to_one,
+                                                               representation=utils.DicConst.SDL_2D.value)
             self.data_dict[name][utils.DicConst.SDL_2D_DIST.value] = distance_arr
 
-    def cur_sdl_one_to_all_unoptimized(self, curve1_sdl):
-        distance_dict = {}
-        for name in self.data_dict:
-            dist = self.cur_sdl_one_to_one(curve1_sdl, self.data_dict[name][utils.DicConst.CUR_SDL.value])
-            distance_dict[name] = dist
-        return distance_dict
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.lcs,
+                                                               representation=utils.DicConst.CUR_SDL.value)
+            self.data_dict[name][utils.DicConst.CUR_SDL_LCS_DIST.value] = distance_arr
 
-    def sdl_2d_one_to_all_unoptimized(self, curve1_sdl):
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.lcs,
+                                                               representation=utils.DicConst.SDL_2D.value)
+            self.data_dict[name][utils.DicConst.SDL_2D_LCS_DIST.value] = distance_arr
+
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.LCSubStr,
+                                                               representation=utils.DicConst.CUR_SDL.value)
+            self.data_dict[name][utils.DicConst.CUR_SDL_LCSTR_DIST.value] = distance_arr
+
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.LCSubStr,
+                                                               representation=utils.DicConst.SDL_2D.value)
+            self.data_dict[name][utils.DicConst.SDL_2D_LCSTR_DIST.value] = distance_arr
+
+    # these three should be one
+    def compare_one_to_all_unoptimized(self, road_name: str, funct, representation: str):
         distance_dict = {}
+        road_dic = self.data_dict[road_name]
+        assert road_dic is not None, "The road has not been found in the dict!"
+        sdl = road_dic.get(representation, None)
+        assert sdl is not None, "The sdl representation has not been found!"
         for name in self.data_dict:
-            dist = self.sdl_2d_one_to_one(curve1_sdl, self.data_dict[name][utils.DicConst.SDL_2D.value])
+            dist = funct(sdl, self.data_dict[name][representation])
             distance_dict[name] = dist
         return distance_dict
 
