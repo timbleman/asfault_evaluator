@@ -3,8 +3,10 @@ import os
 from os import path
 from typing import List
 
-import colorama
+import utils
 
+import colorama
+import evaluator_config as econf
 
 class CSVCreator:
     def __init__(self, data_dict):
@@ -84,6 +86,44 @@ class CSVCreator:
             # print(colorama.Fore.GREEN + "wrote csv_file to", csv_file + colorama.Style.RESET_ALL)
         except IOError:
             print("I/O error")
+
+    def write_all_to_all_dist_matrix(self, measure: str):
+        assert measure, "There has to be a measure declared"
+
+        csv_columns = list(self.data_dict.keys())
+        csv_columns.insert(0, "road")
+        print("csv_columns", csv_columns)
+
+        first_road_dict = self.data_dict.get(csv_columns[1], None)
+        assert first_road_dict is not None, "There has to be at least one road!"
+        first_path = first_road_dict.get(utils.DicConst.TEST_PATH.value, None)
+        assert os.path.exists(first_path), "The path has not been set correctly!"
+
+        # get the root of the dataset
+        root_folder = utils.get_root_of_test_suite(test_path=first_path)
+
+        def _get_dict_to_write(road_name: str, road_dict: dict) -> dict:
+            dicc = {"road": road_name}
+            values = road_dict.get(measure, None)
+            assert values is not None, str(measure) + "has not been found for" + road_name
+            dicc.update(values)
+            print("dicc", dicc)
+            return dicc
+
+        csv_file = path.join(root_folder, measure + '.csv')
+        try:
+            with open(csv_file, 'w') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
+                writer.writeheader()
+                for key in self.data_dict.keys():
+                    road = self.data_dict.get(key)
+                    dic = _get_dict_to_write(key, road)
+                    writer.writerow(dic)
+                print(colorama.Fore.GREEN + "wrote" + measure + "csv_file to", csv_file + colorama.Style.RESET_ALL)
+        except IOError:
+            print("I/O error")
+
+
 
     def write_single_road_to_all_dists(self, road_name: str, measures: List[str]):
         assert measures, "There have to be measures declared"

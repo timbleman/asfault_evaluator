@@ -64,7 +64,10 @@ def main():
     # Local import to main
     import os
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
+    """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
     parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai")
+    # unnecessary
+    # parent_dir = utils.get_root_of_test_suite(parent_dir)
     all_paths = get_all_paths(parent_dir)
 
     # FIXME the folder structure seems broken sometimes
@@ -99,14 +102,15 @@ def main():
     str_comparer.all_roads_to_curvature_sdl()
     str_comparer.sdl_all_to_all_unoptimized()
 
-    #csv_creator = CSVCreator(data_dict=data_bins_dict)
+    csv_creator = CSVCreator(data_dict=data_bins_dict)
+    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_DIST.value)
     #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
     #csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
     #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
 
     #print(list(data_bins_dict.values())[2]["curve_sdl"])
 
-    utils.whole_suite_statistics(dataset_dict=data_bins_dict, feature="num_states", plot=True)
+    #utils.whole_suite_statistics(dataset_dict=data_bins_dict, feature="num_states", plot=True)
 
     print(colorama.Fore.GREEN + "Collected a total of", len(data_bins_dict), "roads!" + colorama.Style.RESET_ALL)
     names_of_all = list(data_bins_dict.keys())

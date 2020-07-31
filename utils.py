@@ -1,12 +1,16 @@
 import numpy as np
 from scipy import stats
 from enum import Enum
+from os import path
 
 import colorama
+
+import evaluator_config as econf
 
 
 class DicConst(Enum):
     NODES = 'nodes'
+    TEST_PATH = 'test_path'
     SDL_2D = "sdl_2d"
     CUR_SDL = "curve_sdl"
     CUR_SDL_DIST = "curve_sdl_dist"
@@ -17,6 +21,23 @@ class DiffFuncConst(Enum):
     BINARY = 'binary'
     SINGLE = 'single'
     SQUARED = 'squared'
+
+
+def get_root_of_test_suite(test_path: path) -> path:
+    """ Finds the main parent path of a test suite
+
+    :param test_path: os.path of some subfolder
+    :return: The suites root
+    """
+    suite_dir_path = path.split(test_path)
+    print(suite_dir_path[1])
+    while not suite_dir_path[1].startswith(econf.START_OF_PARENT_DIR):
+        suite_dir_path = path.split(suite_dir_path[0])
+    # suite_dir_path = path.split(suite_dir_path[0])
+    suite_dir_path = path.join(suite_dir_path[0], suite_dir_path[1])
+    print(colorama.Fore.BLUE + "Found this parent path:", str(suite_dir_path) + colorama.Style.RESET_ALL)
+    return suite_dir_path
+
 
 
 def list_difference_1d(a: list, b: list, function: str, normalized: bool = True):
