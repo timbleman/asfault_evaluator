@@ -1,10 +1,22 @@
 import numpy as np
 from scipy import stats
-import enum
+from enum import Enum
+
+import colorama
 
 
-#class DICT_CONSTANTS(enum):
-#    NODES = 'nodes'
+class DicConst(Enum):
+    NODES = 'nodes'
+    SDL_2D = "sdl_2d"
+    CUR_SDL = "curve_sdl"
+    CUR_SDL_DIST = "curve_sdl_dist"
+    SDL_2D_DIST = "sdl_2d_dist"
+
+
+class DiffFuncConst(Enum):
+    BINARY = 'binary'
+    SINGLE = 'single'
+    SQUARED = 'squared'
 
 
 def list_difference_1d(a: list, b: list, function: str, normalized: bool = True):
@@ -50,7 +62,9 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True)
             for i in range(0, a.__len__()):
                 if a[i] != b[i]:
                     different_sum += abs(a[i] - b[i] * ratio_a_to_b)
-            different_sum /= sum_a + sum_b
+            # FIXME pretty sure this should be sum_a * 2, in case on is larger than the
+            # different_sum /= sum_a + sum_b
+            different_sum /= sum_a * 2
         else:
             for i in range(0, a.__len__()):
                 if a[i] != b[i]:
@@ -65,12 +79,14 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True)
         if normalized:
             dist = 0.5 * (np.std(a_minus_b) ** 2) / (np.std(a) ** 2 + np.std(b) ** 2)
         else:
+            print(colorama.Fore.RED + "Warning: Squared normalized difference is not recommended!",
+                  "The normalization does not work globally!" + colorama.Style.RESET_ALL)
             dist = np.linalg.norm(a_minus_b)
         return dist
 
-    options = {'binary': difference_bin,
-               'single': difference_sin,
-               'squared': difference_sqrd}
+    options = {DiffFuncConst.BINARY.value: difference_bin,
+               DiffFuncConst.SINGLE.value: difference_sin,
+               DiffFuncConst.SQUARED.value: difference_sqrd}
     return options.get(function)()
 
 
