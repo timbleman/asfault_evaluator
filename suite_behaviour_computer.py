@@ -113,7 +113,7 @@ class SuiteBehaviourComputer:
             road_similarities[name] = utils.bin_difference_2d(main_bin,
                                                                test_to_compare.get(measure),
                                                                function='binary', normalized=True)
-        self.test_dict.get(road_to_compare)[road_to_compare + ' ' + measure] = road_similarities
+        self.test_dict.get(road_to_compare)[road_to_compare + '_' + measure] = road_similarities
         return road_similarities
 
     def get_test_dict(self):

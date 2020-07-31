@@ -127,7 +127,7 @@ class StringComparer:
 
         too_short_segments = len(nodes) - len(curve_sdl)
         if too_short_segments > 0:
-            print(str(too_short_segments) + " segments were removed, because they were too short")
+            print(str(too_short_segments) + " segments were ignored, because they were too short")
 
         return curve_sdl
 
