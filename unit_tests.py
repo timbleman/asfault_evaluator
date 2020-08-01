@@ -297,6 +297,38 @@ class TestCurveSDL(unittest.TestCase):
             sdl_2d_error = self.str_comparer.data_dict["0"].get(utils.DicConst.SDL_2D_DIST.value)
             self.assertAlmostEqual(0, sdl_error["0"], msg="Ones own 2d sdl error has to be 0")
 
+    def test_nodes_to_sdl_2d_segment_compression(self):
+        with unittest.mock.patch.object(self.str_comparer, "_compute_length", new=mocked_compute_length):
+            max_len = string_comparison.DEFAULT_PERCENTILE_VALUES_LEN[-1]
+
+            # create a node that has a little over the quarter length of the last segment
+            node_quarter_len = MagicMock()
+            node_quarter_len.angle = 20
+            node_quarter_len.length = max_len/4 + 1
+            node_quarter_len.roadtype = TYPE_R_TURN
+
+            print(max_len, max_len/4 + 1)
+
+            node_list = [node_quarter_len, self.nodes0_list[-2], self.nodes0_list[-1], node_quarter_len,
+                         node_quarter_len, node_quarter_len, node_quarter_len]
+
+            # expects the quarters to be combined into one long segment
+            result = self.str_comparer.nodes_to_sdl_2d(nodes=node_list)
+            expected = string_comparison.len_en(string_comparison.NUM_LEN_ALPHABET-1)
+            self.assertEqual(expected, result[-1][1])
+            # a reduction is expected
+            self.assertEqual(4, len(result))
+
+    def test_get_const_for_length_min_len(self):
+        with unittest.mock.patch.object(self.str_comparer, "_compute_length", new=mocked_compute_length):
+            min_len = string_comparison.DEFAULT_PERCENTILE_VALUES_LEN[0]
+
+            # expects the shortest symbol
+            result = self.str_comparer.get_const_for_length(min_len)
+            expected = string_comparison.len_en(0)
+            self.assertEqual(expected, result)
+
+
 
 if __name__ == '__main__':
     unittest.main()
