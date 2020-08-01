@@ -17,8 +17,11 @@ class DicConst(Enum):
     SDL_2D_DIST = "sdl_2d_dist"
     CUR_SDL_LCS_DIST = "cur_sdl_lcs_dist"
     CUR_SDL_LCSTR_DIST = "cur_sdl_lcstr_dist"
+    CUR_SDL_K_LCSTR_DIST = "cur_sdl_k_lcstr_dist"
     SDL_2D_LCS_DIST = "sdl_2d_lcs_dist"
     SDL_2D_LCSTR_DIST = "sdl_2d_lcstr_dist"
+    SDL_2D_K_LCSTR_DIST = "sdl_2d_k_lcstr_dist"
+
 
 
 class DiffFuncConst(Enum):
@@ -275,3 +278,40 @@ def LCSubStr(X, Y):
             else:
                 LCSuff[i][j] = 0
     return result
+
+
+def k_lcstr(X, Y, k:int = 1) -> int:
+    """ Longest common substring with k mismatches
+    Implementation of https://doi.org/10.1016/j.ipl.2015.03.006 algorithm
+    TODO experiment with k
+    
+    :param X: First string
+    :param Y: Second string
+    :param k: number of mismatches
+    :return: length of longest common substring with k mismatches
+    """
+    n = len(X)
+    m = len(Y)
+    length = 0
+    offset_1 = 0
+    offset_2 = 0
+    for d in range(-m + 1, n):
+        i = max(-d, 0) + d
+        j = max(-d, 0)
+        # using a list as a queue
+        queue = []
+        s = 0
+        p = 0
+        while p <= min(n-i, m-j) - 1:
+            if X[i+p] != Y[j+p]:
+                if len(queue) == k:
+                    s = min(queue) + 1
+                    queue.pop(0)
+                queue.append(p)
+            p += 1
+            if (p - s) > length:
+                length = p - s
+                offset_1 = i + s
+                offset_2 = j + s
+
+    return length

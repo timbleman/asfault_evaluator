@@ -75,6 +75,13 @@ class TestUtils(unittest.TestCase):
         expected = 2/3
         self.assertEqual(expected, diff, "Unequal element count causes problems")
 
+    def test_k_lcstr(self):
+        # should detect "fuel"
+        str1 = "qwerfueltzuio"
+        str2 = "yxfxelnnmkl"
+        result = utils.k_lcstr(str1, str2)
+        self.assertEqual(4, result)
+
 
 class TestCurveSDL(unittest.TestCase):
 

@@ -154,6 +154,16 @@ class StringComparer:
                                                                representation=utils.DicConst.SDL_2D.value)
             self.data_dict[name][utils.DicConst.SDL_2D_LCSTR_DIST.value] = distance_arr
 
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=utils.DicConst.CUR_SDL.value)
+            self.data_dict[name][utils.DicConst.CUR_SDL_K_LCSTR_DIST.value] = distance_arr
+
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=utils.DicConst.SDL_2D.value)
+            self.data_dict[name][utils.DicConst.SDL_2D_K_LCSTR_DIST.value] = distance_arr
+
+
+
     # these three should be one
     def compare_one_to_all_unoptimized(self, road_name: str, funct, representation: str):
         distance_dict = {}
