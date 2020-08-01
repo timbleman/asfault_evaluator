@@ -107,7 +107,6 @@ class CSVCreator:
             values = road_dict.get(measure, None)
             assert values is not None, str(measure) + "has not been found for" + road_name
             dicc.update(values)
-            print("dicc", dicc)
             return dicc
 
         csv_file = path.join(root_folder, measure + '.csv')
