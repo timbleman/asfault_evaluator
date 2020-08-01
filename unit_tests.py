@@ -199,7 +199,7 @@ class TestCurveSDL(unittest.TestCase):
         # TODO
         sdl_road_1 = self.str_comparer.nodes_to_curvature_sdl(self.nodes0_list)
         sdl_road_2 = self.str_comparer.nodes_to_curvature_sdl(self.nodes1_list)
-        result = self.str_comparer.cur_sdl_one_to_one(sdl_road_1, sdl_road_2, normalized=True)
+        result = self.str_comparer.cur_sdl_one_to_one(sdl_road_1, sdl_road_2, normalized=True, invert=False)
         print(result)
 
     def test_cur_sdl_one_to_one_max_difference(self):
@@ -219,7 +219,7 @@ class TestCurveSDL(unittest.TestCase):
 
         sdl_road_1 = self.str_comparer.nodes_to_curvature_sdl(node_alt_list_0)
         sdl_road_2 = self.str_comparer.nodes_to_curvature_sdl(node_alt_list_1)
-        result = self.str_comparer.cur_sdl_one_to_one(sdl_road_1, sdl_road_2, normalized=True)
+        result = self.str_comparer.cur_sdl_one_to_one(sdl_road_1, sdl_road_2, normalized=True, invert=False)
         self.assertAlmostEqual(0, result, msg="Translation should not affect the result!")
 
     def test__cur_sdl_error_at_startpoint(self):
@@ -264,7 +264,7 @@ class TestCurveSDL(unittest.TestCase):
         sdl_road_1 = self.str_comparer.nodes_to_sdl_2d(node_alt_list_1)
         result = self.str_comparer._sdl_2d_error_at_startpoint(start_point=0, longer_road_sdl=sdl_road_0,
                                                                shorter_road_sdl=sdl_road_1)
-        # this only works if the weights are both 1
+        # errors are summed up --> 4
         expected_error = 1.0 * len(sdl_road_1)
         self.assertAlmostEqual(expected_error, result, msg="The error should be maxed, check the weights!")
 

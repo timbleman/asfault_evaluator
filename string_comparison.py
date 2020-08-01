@@ -176,7 +176,7 @@ class StringComparer:
             distance_dict[name] = dist
         return distance_dict
 
-    def cur_sdl_one_to_one(self, curve1_sdl, curve2_sdl, normalized: bool = True):
+    def cur_sdl_one_to_one(self, curve1_sdl, curve2_sdl, normalized: bool = True, invert: bool = True):
         best_similarity = float('inf')
         best_startpoint = 0
         if len(curve1_sdl) < len(curve2_sdl):
@@ -195,16 +195,30 @@ class StringComparer:
             # normalize by the length of the shorter road, as errors get summed up
             # normalize by (NUM_ALPHABET-1), as values have to range from -(NUM_ALPHABET-1)/2 to (NUM_ALPHABET-1)/2
             best_similarity = best_similarity / (len(shorter_road) * (NUM_ALPHABET - 1))
+
+        # FIXME still experimental, might fail
+        if invert:
+            error = 1 - best_similarity
+        assert 0 <= best_similarity <= 1, "The error " + str(error) + " is outside the range"
         return best_similarity
 
     def _cur_sdl_error_at_startpoint(self, start_point: int, longer_road_sdl: List[cur],
                                      shorter_road_sdl: List[cur]) -> float:
+        """ calculates error element wise for the curvature shape definition language representation
+        WARNING: the output is not yet normalized by length, but counting, to save unnecessary divisions
+        error can be up to n * (NUM_ALPHABET-1)/2
+
+        :param start_point:
+        :param longer_road_sdl: curve sdl representation of the longer road
+        :param shorter_road_sdl: curve sdl representation of the shorter road
+        :return: counting error, can be up to n * (NUM_ALPHABET-1)/2
+        """
         error = 0
         for i in range(0, len(shorter_road_sdl)):
             error += abs(longer_road_sdl[(start_point + i) % len(longer_road_sdl)].value - shorter_road_sdl[i].value)
         return error
 
-    def sdl_2d_one_to_one(self, sdl_2d_1, sdl_2d_2, normalized: bool = True):
+    def sdl_2d_one_to_one(self, sdl_2d_1, sdl_2d_2, normalized: bool = True, invert: bool = True):
 
         best_similarity = float('inf')
         best_startpoint = 0
@@ -222,13 +236,27 @@ class StringComparer:
                 best_startpoint = start_point
         if normalized:
             best_similarity = best_similarity / len(shorter_road)
+
+        # FIXME still experimental, this could cause problems
+        if invert:
+            best_similarity = 1 - best_similarity
+        assert 0 <= best_similarity <= 1, "The error " + str(best_similarity) + " is outside the range"
         return best_similarity
 
     def _sdl_2d_error_at_startpoint(self, start_point: int, longer_road_sdl: List,
                                     shorter_road_sdl: List) -> float:
+        """ calculates error element wise for the 2d shape definition language representation
+        WARNING: the output is not yet normalized by road length, but alphabet length, to save unnecessary divisions
+        error can be up to n * 1.0
+
+        :param start_point:
+        :param longer_road_sdl: curve sdl representation of the longer road
+        :param shorter_road_sdl: curve sdl representation of the shorter road
+        :return: counting error, can be up to n * 1.0
+        """
         # TODO adjust these weights
-        CURVE_WEIGHT = 1
-        LENGTH_WEIGHT = 1
+        CURVE_WEIGHT = 0.666
+        LENGTH_WEIGHT = 0.333
         error = 0
         for i in range(0, len(shorter_road_sdl)):
             error_cur = 0
@@ -244,7 +272,7 @@ class StringComparer:
 
         return error
 
-    def nodes_to_sdl_2d(self, nodes: List[asfault.network.NetworkNode]):
+    def nodes_to_sdl_2d(self, nodes: List[asfault.network.NetworkNode]) -> list:
         # used to accumulate lengths of previous same curve segments
         lengths = 0
         sdl_2d = []
