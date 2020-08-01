@@ -126,6 +126,23 @@ class StringComparer:
 
         return curve_sdl
 
+    def all_roads_average_curvature(self, normalized: bool = True):
+        def _average_curvature(road_sdl: list, normalized: bool) -> float:
+            sum = 0
+            for seg in road_sdl:
+                sum += abs(seg.value)
+            avg = sum / len(road_sdl)
+
+            # Normalize by the maximum segment value
+            if normalized:
+                avg /= (NUM_ALPHABET-1)/2
+
+            return avg
+
+        for road in self.data_dict.values():
+            avg_curve = _average_curvature(road[utils.DicConst.CUR_SDL.value], normalized)
+            road[utils.DicConst.AVG_CURVATURE.value] = avg_curve
+
     def sdl_all_to_all_unoptimized(self):
         for name in self.data_dict:
             # TODO schau mal ob da alles passt

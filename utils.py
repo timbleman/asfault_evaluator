@@ -11,6 +11,7 @@ import evaluator_config as econf
 class DicConst(Enum):
     NODES = 'nodes'
     TEST_PATH = 'test_path'
+    AVG_CURVATURE = 'avg_curvature'
     SDL_2D = "sdl_2d"
     CUR_SDL = "curve_sdl"
     CUR_SDL_DIST = "curve_sdl_dist"
@@ -211,13 +212,14 @@ def whole_suite_statistics(dataset_dict: dict, feature: str, desired_percentile:
     return stat_dict
 
 
-def lcs(X, Y):
+def lcs(X, Y, normalized: bool = True):
     """ longest common subsequence problem dynamic programming approach
     copied form here: https://www.geeksforgeeks.org/python-program-for-longest-common-subsequence/
 
-    :param X:
-    :param Y:
-    :return:
+    :param X: First string
+    :param Y: Second string
+    :param normalized: normalizes in the range [0, 1.0] using the length of the shorter road
+    :return: lcs
     """
     # find the length of the strings
     m = len(X)
@@ -239,13 +241,18 @@ def lcs(X, Y):
                 L[i][j] = max(L[i - 1][j], L[i][j - 1])
 
                 # L[m][n] contains the length of LCS of X[0..n-1] & Y[0..m-1]
-    return L[m][n]
+    length = L[m][n]
     # end of function lcs
+    if normalized:
+        length = length / min(m, n)
+        # TODO remove this if it does not break anything
+        assert 0.0 <= length <= 1.0, "length " + str(length) + " is out of bounds!"
+    return length
 
 
 # Returns length of longest common
 # substring of X[0..m-1] and Y[0..n-1]
-def LCSubStr(X, Y):
+def LCSubStr(X, Y, normalized: bool = True):
     # Create a table to store lengths of
     # longest common suffixes of substrings.
     # Note that LCSuff[i][j] contains the
@@ -277,17 +284,23 @@ def LCSubStr(X, Y):
                 result = max(result, LCSuff[i][j])
             else:
                 LCSuff[i][j] = 0
+
+    if normalized:
+        result = result / min(m, n)
+        # TODO remove this if it does not break anything
+        assert 0.0 <= result <= 1.0, "length " + str(result) + " is out of bounds!"
     return result
 
 
-def k_lcstr(X, Y, k:int = 1) -> int:
+def k_lcstr(X, Y, k:int = 1, normalized: bool = False) -> int:
     """ Longest common substring with k mismatches
     Implementation of https://doi.org/10.1016/j.ipl.2015.03.006 algorithm
     TODO experiment with k
-    
+
     :param X: First string
     :param Y: Second string
     :param k: number of mismatches
+    :param normalized: normalizes in the range [0, 1.0] using the length of the shorter road
     :return: length of longest common substring with k mismatches
     """
     n = len(X)
@@ -314,4 +327,8 @@ def k_lcstr(X, Y, k:int = 1) -> int:
                 offset_1 = i + s
                 offset_2 = j + s
 
+    if normalized:
+        length = length / min(m, n)
+        # TODO remove this if it does not break anything
+        assert 0.0 <= length <= 1.0, "length " + str(length) + " is out of bounds!"
     return length

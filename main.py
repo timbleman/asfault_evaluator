@@ -101,9 +101,12 @@ def main():
     str_comparer = StringComparer(data_dict=data_bins_dict)
     str_comparer.all_roads_to_curvature_sdl()
     str_comparer.sdl_all_to_all_unoptimized()
+    str_comparer.all_roads_average_curvature()
 
     csv_creator = CSVCreator(data_dict=data_bins_dict)
     csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_DIST.value)
+    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCS_DIST.value)
+    #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCSTR_DIST.value)
     #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
     #csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
     #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])

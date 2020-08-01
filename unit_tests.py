@@ -75,12 +75,20 @@ class TestUtils(unittest.TestCase):
         expected = 2/3
         self.assertEqual(expected, diff, "Unequal element count causes problems")
 
-    def test_k_lcstr(self):
+    def test_k_lcstr_not_normalized(self):
         # should detect "fuel"
         str1 = "qwerfueltzuio"
         str2 = "yxfxelnnmkl"
-        result = utils.k_lcstr(str1, str2)
+        result = utils.k_lcstr(str1, str2, normalized=False)
         self.assertEqual(4, result)
+
+    def test_k_lcstr_normalized(self):
+        # should detect "fuel"
+        str1 = "qwerfueltzuio"
+        str2 = "yxfxelnnmkl"
+        result = utils.k_lcstr(str1, str2, normalized=True)
+        expected = 4 / len(str2)
+        self.assertEqual(expected, result)
 
 
 class TestCurveSDL(unittest.TestCase):
@@ -127,6 +135,7 @@ class TestCurveSDL(unittest.TestCase):
         node4.y_off = 10
         node4.roadtype = TYPE_STRAIGHT
 
+        # do not change these, this arrangement is needed for some tests
         self.nodes0_list = [node0, node1, node2, node3, node4]
         self.nodes1_list = [node0, node1, node2, node35, node4]
         road0_dict = {utils.DicConst.NODES.value: self.nodes0_list}
@@ -268,13 +277,23 @@ class TestCurveSDL(unittest.TestCase):
         expected_error = 1.0 * len(sdl_road_1)
         self.assertAlmostEqual(expected_error, result, msg="The error should be maxed, check the weights!")
 
-    def test_lcs_curve_sdl(self):
-        result = utils.lcs(self.nodes0_list, self.nodes1_list)
+    def test_lcs_curve_sdl_not_normalized(self):
+        result = utils.lcs(self.nodes0_list, self.nodes1_list, normalized=False)
         self.assertEqual(4, result)
 
-    def test_lcstr_curve_sdl(self):
-        result = utils.LCSubStr(self.nodes0_list, self.nodes1_list)
+    def test_lcs_curve_sdl_normalized(self):
+        result = utils.lcs(self.nodes0_list, self.nodes1_list, normalized=True)
+        expected = 4/len(self.nodes0_list)
+        self.assertAlmostEqual(expected, result)
+
+    def test_lcstr_curve_sdl_not_normalized(self):
+        result = utils.LCSubStr(self.nodes0_list, self.nodes1_list, normalized=False)
         self.assertEqual(3, result)
+
+    def test_lcstr_curve_sdl_normalized(self):
+        result = utils.LCSubStr(self.nodes0_list, self.nodes1_list, normalized=True)
+        expected = 3/len(self.nodes0_list)
+        self.assertEqual(expected, result)
 
     def test_all_roads_to_curvature_sdl(self):
         with unittest.mock.patch.object(self.str_comparer, "_compute_length", new=mocked_compute_length):
