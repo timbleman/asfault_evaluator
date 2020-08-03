@@ -173,7 +173,17 @@ def entropy_compute_2d(a: np.ndarray):
     return entropy_compute_1d(new_a)
 
 
-def whole_suite_statistics(dataset_dict: dict, feature: str, desired_percentile: int = 0, plot: bool = False) -> dict:
+def extend_arrays_globally(data_dict: dict, feature: str) -> list:
+    global_array = []
+    for test in data_dict.values():
+        local_arr = test.get(feature, None)
+        assert local_arr is not None, "The feature" + feature + "has not been found in the dict!"
+        global_array.extend(local_arr)
+    return global_array
+
+
+def whole_suite_statistics(dataset_dict: dict, feature: str, desired_percentile: int = 0, plot: bool = False,
+                           title: str = None) -> dict:
     """ Calculates common statistics on numerical feature of each road in the dataset.
     This could be a certain coverage or the length.
 
@@ -183,7 +193,6 @@ def whole_suite_statistics(dataset_dict: dict, feature: str, desired_percentile:
     :param plot: Draw a box plot and print a message
     :return: dict that includes quartiles, avg and standard deviation
     """
-    import matplotlib.pyplot as plt
     all_values = []
     for key, test in dataset_dict.items():
         val = test.get(feature, None)
@@ -191,26 +200,34 @@ def whole_suite_statistics(dataset_dict: dict, feature: str, desired_percentile:
         assert isinstance(val, (int, float)), "Value has to be a number (e.g. coverage or length)!"
         all_values.append(val)
 
+    return list_statistics(data_list=all_values, desired_percentile=desired_percentile, plot=plot, title=title)
+
+
+def list_statistics(data_list = list, desired_percentile: int = 0, plot: bool = False,
+                           title: str = None) -> dict:
+    import matplotlib.pyplot as plt
+
     if plot:
-        plt.boxplot(all_values)
+        plt.boxplot(data_list)
+        if title != None:
+            plt.title(title)
         plt.show()
 
-    stat_dict = {'median': np.percentile(all_values, 50),
-                 'lower_quartile': np.percentile(all_values, 25),
-                 'higher_quartile': np.percentile(all_values, 75),
-                 'min': np.min(all_values),
-                 'max': np.max(all_values),
-                 'avg': np.average(all_values),
-                 'std_dev': np.std(all_values)}
+    stat_dict = {'median': np.percentile(data_list, 50),
+                 'lower_quartile': np.percentile(data_list, 25),
+                 'higher_quartile': np.percentile(data_list, 75),
+                 'min': np.min(data_list),
+                 'max': np.max(data_list),
+                 'avg': np.average(data_list),
+                 'std_dev': np.std(data_list)}
 
     if desired_percentile != 0:
-        desired_percentile_val = np.percentile(all_values, desired_percentile)
+        desired_percentile_val = np.percentile(data_list, desired_percentile)
         stat_dict['desired_percentile'] = desired_percentile_val
 
     if plot:
-        print("Stats for", feature, stat_dict)
+        print("Stats for", title, stat_dict)
     return stat_dict
-
 
 def lcs(X, Y, normalized: bool = True):
     """ longest common subsequence problem dynamic programming approach
