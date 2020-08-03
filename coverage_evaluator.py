@@ -80,7 +80,6 @@ def get_obes_dict(executions):
     print("obe data ", obe_data)
     return obe_data
 
-# TODO create callable method that returns results of a execution
 
 def cov_evaluate_set(set_path: Path):
     # Local import to main
@@ -113,22 +112,11 @@ def cov_evaluate_set(set_path: Path):
 
         test_file = path.join(asfault_environment.get_execs_path(), test_file_name)
 
-        # todo remove
-        # print("test_file_name", test_file_name)
-        # print("test_file", test_file)
-
         # Load test object from file
         with open(test_file , 'r') as in_file:
             test_dict = json.loads(in_file.read())
 
         the_test = RoadTest.from_dict(test_dict)
-        '''print("the_test.get_path()", the_test.get_path())
-        num_segments = len(the_test.get_path())
-        print("number of segments", num_segments)
-        print("the_test.get_path_polyline()", the_test.get_path_polyline())
-        print("the_test.seg_dist", the_test.seg_dist)
-        print(the_test.get_full_seg_distribution(num_segments))
-        print()'''
 
         executions.append(the_test.execution)
         executions_dict[test_file_name] = the_test.execution
@@ -153,95 +141,6 @@ def main():
     import csv
     str_path = sys.argv[1]
     cov_evaluate_set(Path(str_path))
-    """
-    setup_logging(l.INFO)
-    # ENV DIR
-    #   Contains CONFIGURATION (TO LOAD)
-    #   Contains EXEC folder to look for test executions
-    env_directory = sys.argv[1]
-
-    l.info("Start evaluation of OBEs from %s", env_directory)
-
-    # Load the configuration from the given env and store in the "global" asfault configurations ev, ex
-    from asfault.app import read_environment
-    read_environment(env_directory)
-
-    from asfault.config import rg as asfault_environment
-    from asfault.config import ev as asfault_evolution_config
-    # from asfault.config import ex as asfault_execution_config
-
-    # Read all the execution data of this experiment
-    l.info("Reading execution data from %s", str(asfault_environment.get_execs_path()))
-
-    executions = list()
-
-    for test_file_name in [f for f in listdir(asfault_environment.get_execs_path()) if isfile(join(asfault_environment.get_execs_path(), f))]:
-
-        test_file = path.join(asfault_environment.get_execs_path(), test_file_name)
-
-        # Load test object from file
-        with open(test_file , 'r') as in_file:
-            test_dict = json.loads(in_file.read())
-
-        the_test = RoadTest.from_dict(test_dict)
-        executions.append(the_test.execution)
-
-    print("executions ", executions)
-
-    voc_evaluator = CoverageEvaluator(executions)
-    """
-    '''
-    # Instantiate the OBE Evaluator
-    obe_evaluator = OBEEvaluator(executions)
-
-    obe_data = list()
-    for global_id, obe in enumerate(obe_evaluator.obes):
-        obe_dict = OBE.to_dict(obe)
-        # Extend obe information with additional features
-        obe_dict['global_id'] = global_id
-
-        l.info("\tPlotting OBE %i %s", global_id, obe.test.test_id)
-        # Return the id of the figures to chose which one to save to pdf
-        obe_plot_id, polar_plot_id, vector_plot_id = obe_evaluator.plot_obe(obe, theta_bins, speed_bins)
-        # Load the figure
-        plt.figure(obe_plot_id)
-        # Store it file
-        obe_plot_file = os.path.abspath(path.join(asfault_environment.get_plots_path(), ''.join([str(global_id).zfill(3), '_', 'obe', '.png'])))
-        obe_dict['obe_plot_file'] = obe_plot_file
-        plt.savefig(obe_plot_file)
-
-        # Load the  next figure
-        plt.figure(polar_plot_id)
-        # Store it
-        polar_plot_file = os.path.abspath(
-            path.join(asfault_environment.get_plots_path(), ''.join([str(global_id).zfill(3), '_', 'polar', '.png'])))
-        obe_dict['polar_plot_file'] = polar_plot_file
-        plt.savefig(polar_plot_file)
-
-        obe_data.append(obe_dict)
-    '''
-    '''
-    html_index_file= path.join(os.path.dirname(os.path.abspath(env_directory)), 'index.html')
-    l.info("Generate HTML report %s", html_index_file)
-    html_index = generate_html_index(obe_data)
-    with open(html_index_file, 'w') as out:
-        out.write(html_index )
-
-
-    csv_file = path.join(os.path.dirname(os.path.abspath(env_directory)), '.obes')
-    l.info("Generate CSV file %s", csv_file)
-    # Taken from: https://www.tutorialspoint.com/How-to-save-a-Python-Dictionary-to-CSV-file
-    # 'obe_id' is the unique id of the obe
-    csv_columns = ['global_id', 'test_id', 'obe_id', 'speed', 'heading_angle', 'road_angle']
-    try:
-        with open(csv_file, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
-            writer.writeheader()
-            for data in obe_data:
-                writer.writerow(data)
-    except IOError:
-        print("I/O error")
-    '''
 
 
 class CoverageEvaluator:
@@ -249,9 +148,11 @@ class CoverageEvaluator:
         self.speed_arr = []
         self.steering_arr = []
         self.distance_arr = []
-        speed_steering_2d = []
         self.obe_speed_arr = []
         self.obe_angle_arr = []
+
+        # needed for infinite speeds
+        self.broken_speed_tests = []
 
         self.suite_bins = {}
         self.global_name = global_name
@@ -261,30 +162,10 @@ class CoverageEvaluator:
         obe_dict = get_obes_dict(executions)
 
         for name in executions_dict:
-            """
-            # TODO what happens if there are multiple obes?
-            obe_list = [d for d in obe_dict if d['test_id'] == execution.test.test_id]
-            for obe in obe_list:
-                obe_speed = obe['speed']
-                self.obe_speed_arr.append(obe_speed)
-                obe_angle = (obe['road_angle'] - obe['heading_angle']) % 360
-                self.obe_angle_arr.append(obe_angle)
-            print("single obe ", obe_list)
-            """
             self._fill_bins(name, executions_dict[name], obe_dict)
-            '''
-            obes = self._extract_obes_from_test(execution)
 
-            self._fill_bins(execution)
-            #
-            self.obe_speed.extend([obe.get_speed() for obe in obes])
-            # Angles must be given in radiants
-            self.theta.extend([obe.get_heading_angle() for obe in obes])
-            self.obes.extend(obes)
-
-            # This is the same for each execution !
-            self.bounds = execution.test.network.bounds
-            '''
+    def get_broken_speed_tests(self) -> list:
+        return self.broken_speed_tests
 
     def _fill_bins(self, test_file_name: str, execution, obe_dict):
         """ fills the bins for a single execution
@@ -299,13 +180,16 @@ class CoverageEvaluator:
         self.speed_arr = []
         self.steering_arr = []
         self.distance_arr = []
-        speed_steering_2d = []
         self.obe_speed_arr = []
         self.obe_angle_arr = []
+        broken_speed = False
         num_states = len(execution.states)
         for state in execution.states:
             state_dict = CarState.to_dict(state)
-            self.speed_arr.append(np.linalg.norm([state.vel_x, state.vel_y]) * 3.6)
+            speed_kph = np.linalg.norm([state.vel_x, state.vel_y]) * 3.6
+            self.speed_arr.append(speed_kph)
+            if speed_kph >= 500:
+                broken_speed = True
             self.steering_arr.append(state_dict['steering'])
             self.distance_arr.append(state.get_centre_distance())
 
@@ -319,6 +203,7 @@ class CoverageEvaluator:
         road_nodes = execution.test.get_path()
         road_polyline = execution.test.get_path_polyline()
         test_path = path.join(asfault_environment.get_execs_path(), test_file_name)  # test_file_name #""# execution.test
+        self.broken_speed_tests.append(test_path)
         # .testid instead of whole execution object?
         bins = {'test_id': execution.test.test_id, 'test_path': test_path, 'speed_bins': self.get_speed_bins(),
                 'steering_bins': self.get_steering_bins(), "distance_bins": self.get_distance_bins((0, 100)),

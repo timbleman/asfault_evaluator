@@ -179,6 +179,11 @@ def extend_arrays_globally(data_dict: dict, feature: str) -> list:
         local_arr = test.get(feature, None)
         assert local_arr is not None, "The feature" + feature + "has not been found in the dict!"
         global_array.extend(local_arr)
+
+    # remove outliers
+    outlier_border = 300
+    #global_array[:] = [x for x in global_array if x <= outlier_border]
+    print("global_array", global_array)
     return global_array
 
 
