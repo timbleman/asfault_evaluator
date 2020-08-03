@@ -4,6 +4,7 @@ from os.path import isfile, join
 from typing import List
 # replace os.path
 from pathlib import Path
+import time
 
 import coverage_evaluator
 import utils
@@ -74,20 +75,25 @@ def main():
     # FIXME there is an defective road in C:\Users\fraun\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env
     #print(all_paths.pop(2))
 
-
-    env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
+    start_gathering = time.time()
+    #env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
     #env_directory = Path(r"C:\Users\fraun\experiments-driver-ai\own-asfault-own-asfault--1\.own-asfault-own-asfault--1")
-    data_bins_dict = coverage_evaluator.cov_evaluate_set(env_directory)
+    #cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
+    #data_bins_dict = cov_eval.get_all_bins()
 
-    """
+
     # commented for testing purposes
     data_bins_dict = {}
+    broken_tests = []
     for env_directory in all_paths:
         print("Start evaluation of OBEs from %s", env_directory)
         # TODO check whether identifier already exists in dict
-        data_bins_dict.update(coverage_evaluator.cov_evaluate_set(env_directory))
-    #print("partial_bins ", partial_bins)
-    """
+        cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
+        data_bins_dict.update(cov_eval.get_all_bins())
+        broken_tests.extend(cov_eval.get_broken_speed_tests())
+    print(len(broken_tests), "broken_tests have to be ignored because of broken speeds", broken_tests)
+    end_gathering = time.time()
+    print(end_gathering - start_gathering, "seconds to gather the data")
 
     sbh = SuiteBehaviourComputer(data_bins_dict)
     print("speed coverage", sbh.calculate_suite_coverage_1d('speed_bins'))
@@ -98,11 +104,16 @@ def main():
     # unnecessary, pass by reference
     #partial_bins = sbh.get_test_dict()
 
+
+    start_str = time.time()
     str_comparer = StringComparer(data_dict=data_bins_dict)
     str_comparer.all_roads_to_curvature_sdl()
     str_comparer.sdl_all_to_all_unoptimized()
     str_comparer.all_roads_average_curvature()
+    end_str = time.time()
+    print(end_str - start_str, "seconds to compute the string representation")
 
+    start_csv = time.time()
     csv_creator = CSVCreator(data_dict=data_bins_dict)
     csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_DIST.value)
     csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCS_DIST.value)
@@ -110,6 +121,8 @@ def main():
     #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
     #csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
     #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
+    end_csv = time.time()
+    print(end_csv - start_csv, "seconds to write the csvs")
 
     #print(list(data_bins_dict.values())[2]["curve_sdl"])
 

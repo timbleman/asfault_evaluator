@@ -1,24 +1,14 @@
 from os import listdir, path
 from os.path import isfile, join
 
-import sys
-import matplotlib.pyplot as plt
-
 import logging as l
 
-import csv
-
 import numpy as np
-import numpy.linalg as la
 import json
 from asfault.tests import RoadTest, TestExecution, CarState
-from asfault.tests import has_path
-import math
 
 from scipy import stats
-
-from shapely.geometry import LineString
-
+import colorama
 from pathlib import Path
 
 from code_obe_evaluator import OBEEvaluator, OBE
@@ -81,70 +71,18 @@ def get_obes_dict(executions):
     return obe_data
 
 
-def cov_evaluate_set(set_path: Path):
-    # Local import to main
-    import os
-    import csv
-
-    setup_logging(l.INFO)
-    # ENV DIR
-    #   Contains CONFIGURATION (TO LOAD)
-    #   Contains EXEC folder to look for test executions
-    env_directory = str(set_path)# sys.argv[1]
-
-    l.info("Start evaluation of OBEs from %s", env_directory)
-
-    # Load the configuration from the given env and store in the "global" asfault configurations ev, ex
-    from asfault.app import read_environment
-    read_environment(env_directory)
-
-    from asfault.config import rg as asfault_environment
-    from asfault.config import ev as asfault_evolution_config
-    # from asfault.config import ex as asfault_execution_config
-
-    # Read all the execution data of this experiment
-    l.info("Reading execution data from %s", str(asfault_environment.get_execs_path()))
-
-    executions = list()
-    executions_dict = {}
-
-    for test_file_name in [f for f in listdir(asfault_environment.get_execs_path()) if isfile(join(asfault_environment.get_execs_path(), f))]:
-
-        test_file = path.join(asfault_environment.get_execs_path(), test_file_name)
-
-        # Load test object from file
-        with open(test_file , 'r') as in_file:
-            test_dict = json.loads(in_file.read())
-
-        the_test = RoadTest.from_dict(test_dict)
-
-        executions.append(the_test.execution)
-        executions_dict[test_file_name] = the_test.execution
-
-    print("executions ", executions)
-    print("executions_dict ", list(executions_dict.values()))
-
-    # TODO find meaningful global name
-    set_name = get_set_name(set_path)
-    cov_evaluator = CoverageEvaluator(executions_dict, set_name)
-    all_bins_of_a_folder = cov_evaluator.get_all_bins()
-    # print("all_bins_of_a_folder ", all_bins_of_a_folder)
-
-    return all_bins_of_a_folder
-
-    # obe_dict = get_obes_dict(executions)
-
-
-def main():
-    # Local import to main
-    import os
-    import csv
-    str_path = sys.argv[1]
-    cov_evaluate_set(Path(str_path))
-
-
 class CoverageEvaluator:
-    def __init__(self, executions_dict, global_name):
+    def __init__(self, set_path: Path):
+        env_directory = str(set_path)
+        print()
+        l.info("Start evaluation of OBEs from %s", env_directory)
+        print(colorama.Fore.BLUE + "Start evaluation of OBEs from %s", str(env_directory), colorama.Style.RESET_ALL)
+
+        executions, executions_dict = self._get_execution_list_and_dict(env_directory)
+
+        set_name = get_set_name(set_path)
+
+        '''from here on the old constructor'''
         self.speed_arr = []
         self.steering_arr = []
         self.distance_arr = []
@@ -155,7 +93,7 @@ class CoverageEvaluator:
         self.broken_speed_tests = []
 
         self.suite_bins = {}
-        self.global_name = global_name
+        self.global_name = set_name
 
         executions = list(executions_dict.values())
 
@@ -164,8 +102,32 @@ class CoverageEvaluator:
         for name in executions_dict:
             self._fill_bins(name, executions_dict[name], obe_dict)
 
-    def get_broken_speed_tests(self) -> list:
-        return self.broken_speed_tests
+    def _get_execution_list_and_dict(self, env_directory):
+        # Load the configuration from the given env and store in the "global" asfault configurations ev, ex
+        from asfault.app import read_environment
+        read_environment(env_directory)
+        from asfault.config import rg as asfault_environment
+
+        # Read all the execution data of this experiment
+        l.info("Reading execution data from %s", str(asfault_environment.get_execs_path()))
+
+        executions = list()
+        executions_dict = {}
+
+        for test_file_name in [f for f in listdir(asfault_environment.get_execs_path()) if
+                               isfile(join(asfault_environment.get_execs_path(), f))]:
+            test_file = path.join(asfault_environment.get_execs_path(), test_file_name)
+
+            # Load test object from file
+            with open(test_file, 'r') as in_file:
+                test_dict = json.loads(in_file.read())
+
+            the_test = RoadTest.from_dict(test_dict)
+
+            executions.append(the_test.execution)
+            executions_dict[test_file_name] = the_test.execution
+
+        return (executions, executions_dict)
 
     def _fill_bins(self, test_file_name: str, execution, obe_dict):
         """ fills the bins for a single execution
@@ -222,6 +184,9 @@ class CoverageEvaluator:
     def get_all_bins(self):
         return self.suite_bins
 
+    def get_broken_speed_tests(self) -> list:
+        return self.broken_speed_tests
+
     def get_bins(self, data: list, bounds):
         """ Returns a list of bins for an array, the bins are non-binary but counting
 
@@ -255,7 +220,3 @@ class CoverageEvaluator:
         histogram, speed_edges, angle_edges = np.histogram2d(self.obe_speed_arr, self.obe_angle_arr, bins=NUM_BINS,
                                                                 range=(SPEED_RANGE, ANGLE_RANGE), normed=False)
         return histogram
-
-
-if __name__ == "__main__":
-    main()
