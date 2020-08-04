@@ -147,7 +147,6 @@ class CSVCreator:
                 writer.writeheader()
                 for tup in name_value_tuple_list:
                     dic = {first_row_name: tup[0], 'value': tup[1]}
-                    print("dic", dic)
                     writer.writerow(dic)
                 print(colorama.Fore.GREEN + " wrote " + file_name + " csv_file to ", csv_file + colorama.Style.RESET_ALL)
         except IOError:

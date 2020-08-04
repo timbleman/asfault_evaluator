@@ -63,6 +63,34 @@ class SuiteBehaviourComputer:
         print("The suite covered ", self.coverage_dict["whole_suite_" + feature + "_coverage"], "% of", feature)
         return cov
 
+    def calculate_whole_suite_sum(self, feature: str):
+        """ Extracts all values of a feature and adds them up, has to be numeric
+
+        :param feature: the feature name across the coverage is calculated
+        :return: sum over the feature
+        """
+        sum1 = 0
+        for key, test in self.test_dict.items():
+            cov_col = test.get(feature, None)
+            assert cov_col is not None, "The bin " + feature + " has not been added or spelling is incorrect"
+            sum1 += cov_col
+        return sum1
+
+    def calculate_whole_suite_time(self):
+        """ Extracts all execution times and adds them up
+
+        :return: sum of execution times
+        """
+        all_keys = list(self.test_dict.keys())
+        first_test = self.test_dict.get(all_keys[0])
+        sum = first_test.get(utils.RoadDicConst.EXEC_TIME.value)
+        for i in range(1, len(all_keys)):
+            test = self.test_dict.get(all_keys[i])
+            t = test.get(utils.RoadDicConst.EXEC_TIME.value)
+            sum += t
+        return sum
+
+
     def behavior_compare_1d(self, road_to_compare: str, measure: str, function: str = 'binary'):
         """ compares the coverage of a single-dimensional feature of a road to all others in the suite
 

@@ -112,6 +112,13 @@ def main():
     #print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
     #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
 
+    other_data_tuples_list = []
+    total_time = sbh.calculate_whole_suite_time()
+    other_data_tuples_list.append(("total_time", total_time))
+    print("total_time", total_time)
+    num_obes = sbh.calculate_whole_suite_sum(feature=utils.RoadDicConst.NUM_OBES.value)
+    other_data_tuples_list.append(("num_obes", num_obes))
+    print("num_obes", num_obes)
     # unnecessary, pass by reference
     #partial_bins = sbh.get_test_dict()
 
@@ -127,6 +134,7 @@ def main():
     start_csv = time.time()
     csv_creator = CSVCreator(data_dict=data_bins_dict, root_path=parent_dir)
     csv_creator.write_whole_suite_multiple_values("whole_suite_coverages", coverage_tuple_list)
+    csv_creator.write_whole_suite_multiple_values("other_numerics", other_data_tuples_list, first_row_name="measures")
     #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_DIST.value)
     #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCS_DIST.value)
     #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCSTR_DIST.value)

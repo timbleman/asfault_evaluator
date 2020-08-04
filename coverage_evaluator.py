@@ -174,6 +174,7 @@ class CoverageEvaluator:
         road_nodes = execution.test.get_path()
         road_polyline = execution.test.get_path_polyline()
         test_path = path.join(asfault_environment.get_execs_path(), test_file_name)  # test_file_name #""# execution.test
+        exec_time = execution.end_time - execution.start_time
         if broken_speed:
             self.broken_speed_tests.append(test_path)
         # .testid instead of whole execution object?
@@ -184,6 +185,7 @@ class CoverageEvaluator:
                 utils.RoadDicConst.SPEED_STEERING_2D.value: self.get_speed_steering_2d(),
                 utils.RoadDicConst.OBE_2D.value: self.get_obe_speed_angle_bins(),
                 "nodes": road_nodes, utils.RoadDicConst.UNDER_MIN_LEN_SEGS.value: utils.road_has_min_segs(road_nodes),
+                utils.RoadDicConst.EXEC_TIME.value: exec_time, utils.RoadDicConst.NUM_OBES.value: len(obe_list),
                 "polyline": road_polyline, "road_len": road_polyline.length, "num_states": num_states,
                 "ex_result": execution.result}
 
