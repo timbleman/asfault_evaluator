@@ -13,6 +13,11 @@ import evaluator_config as econf
 
 
 class RoadDicConst(Enum):
+    SPEED_BINS = "speed_bins"
+    STEERING_BINS = 'steering_bins'
+    DISTANCE_BINS = "distance_bins"
+    SPEED_STEERING_2D = "speed_steering_2d"
+    OBE_2D = "obe_2d"
     EXEC_TIME = "exec_time"
     NUM_OBES = "num_obes"
     UNDER_MIN_LEN_SEGS = "under_min_len_segs"

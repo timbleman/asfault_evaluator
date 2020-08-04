@@ -8,6 +8,7 @@ import time
 
 import coverage_evaluator
 import utils
+import evaluator_config as econf
 from string_comparison import StringComparer
 from suite_behaviour_computer import SuiteBehaviourComputer
 from csv_creator import CSVCreator
@@ -66,7 +67,7 @@ def main():
     import os
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
     """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
-    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
+    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test")
     # unnecessary
     # parent_dir = utils.get_root_of_test_suite(parent_dir)
     all_paths = get_all_paths(parent_dir)
@@ -77,13 +78,12 @@ def main():
     broken_tests = []
 
     start_gathering = time.time()
-    #env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
-    #env_directory = Path(r"C:\Users\fraun\experiments-driver-ai\own-asfault-own-asfault--1\.own-asfault-own-asfault--1")
-    #cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
-    #data_bins_dict = cov_eval.get_all_bins()
-    #broken_tests.extend(cov_eval.get_broken_speed_tests())
+    env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
+    cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
+    data_bins_dict = cov_eval.get_all_bins()
+    broken_tests.extend(cov_eval.get_broken_speed_tests())
 
-
+    """
     # commented for testing purposes
     data_bins_dict = {}
     for env_directory in all_paths:
@@ -95,12 +95,14 @@ def main():
     print(len(broken_tests), "broken_tests have to be ignored because of broken speeds", broken_tests)
     end_gathering = time.time()
     print(end_gathering - start_gathering, "seconds to gather the data")
-
+    """
 
 
     sbh = SuiteBehaviourComputer(data_bins_dict)
-    print("speed coverage", sbh.calculate_suite_coverage_1d('speed_bins'))
-    print("obe coverage", sbh.calculate_suite_2d_coverage('obe_2d'))
+    for measure in econf.coverages_1d_to_analyse:
+        print(str(measure) + " coverage", sbh.calculate_suite_coverage_1d(feature=measure, add_for_each=False))
+    for measure in econf.coverages_2d_to_analyse:
+        print(str(measure) + "coverage", sbh.calculate_suite_2d_coverage(feature=measure, add_for_each=False))
     #print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
     #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
 
@@ -111,8 +113,8 @@ def main():
     start_str = time.time()
     str_comparer = StringComparer(data_dict=data_bins_dict)
     str_comparer.all_roads_to_curvature_sdl()
-    #str_comparer.sdl_all_to_all_unoptimized()
-    #str_comparer.all_roads_average_curvature()
+    str_comparer.sdl_all_to_all_unoptimized()
+    str_comparer.all_roads_average_curvature()
     end_str = time.time()
     print(end_str - start_str, "seconds to compute the string representation")
 
@@ -139,8 +141,10 @@ def main():
 
     suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=parent_dir)
     import operator
-    suite_trimmer.trim_dataset_list(unworthy_paths=broken_tests, description="Broken tests with infinite speed removed")
-    suite_trimmer.trim_dataset(feature=utils.RoadDicConst.UNDER_MIN_LEN_SEGS.value, op=operator.eq, threshold=True)
+    # remove broken tests
+    #suite_trimmer.trim_dataset_list(unworthy_paths=broken_tests, description="Broken tests with infinite speed removed")
+    #suite_trimmer.trim_dataset(feature=utils.RoadDicConst.UNDER_MIN_LEN_SEGS.value, op=operator.eq, threshold=True)
+
     #print("unworthy paths:", suite_trimmer.get_unworthy_paths(feature="num_states", op=operator.le, threshold=300))
     #suite_trimmer.trim_dataset(feature="num_states", op=operator.le, threshold=300)
     #suite_trimmer.trim_dataset_percentile(feature="num_states", op=operator.le, threshold_percentile=2)

@@ -21,7 +21,7 @@ import utils
 
 NUM_BINS = 16
 STEERING_RANGE = (-1, 1)
-SPEED_RANGE = (0, 100)
+SPEED_RANGE = (0, 85)
 # fixme 180 instead of 360 ?
 ANGLE_RANGE = (-360, 360)
 
@@ -177,9 +177,12 @@ class CoverageEvaluator:
         if broken_speed:
             self.broken_speed_tests.append(test_path)
         # .testid instead of whole execution object?
-        bins = {'test_id': execution.test.test_id, 'test_path': test_path, 'speed_bins': self.get_speed_bins(),
-                'steering_bins': self.get_steering_bins(), "distance_bins": self.get_distance_bins((0, 100)),
-                "speed_steering_2d": self.get_speed_steering_2d(), "obe_2d": self.get_obe_speed_angle_bins(),
+        bins = {'test_id': execution.test.test_id, 'test_path': test_path,
+                utils.RoadDicConst.SPEED_BINS.value: self.get_speed_bins(),
+                utils.RoadDicConst.STEERING_BINS.value: self.get_steering_bins(),
+                utils.RoadDicConst.DISTANCE_BINS.value: self.get_distance_bins((0, 20)),  #TODO is (0, 20) a good range?
+                utils.RoadDicConst.SPEED_STEERING_2D.value: self.get_speed_steering_2d(),
+                utils.RoadDicConst.OBE_2D.value: self.get_obe_speed_angle_bins(),
                 "nodes": road_nodes, utils.RoadDicConst.UNDER_MIN_LEN_SEGS.value: utils.road_has_min_segs(road_nodes),
                 "polyline": road_polyline, "road_len": road_polyline.length, "num_states": num_states,
                 "ex_result": execution.result}

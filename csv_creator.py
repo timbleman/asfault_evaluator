@@ -122,7 +122,9 @@ class CSVCreator:
         except IOError:
             print("I/O error")
 
-
+    def write_whole_suite_coverages(self, coverages_1d: List[str]=econf.coverages_1d_to_analyse,
+                                    coverages_2d: List[str]=econf.coverages_2d_to_analyse):
+        self.data_dict
 
     def write_single_road_to_all_dists(self, road_name: str, measures: List[str]):
         assert measures, "There have to be measures declared"
