@@ -2,10 +2,20 @@ import numpy as np
 from scipy import stats
 from enum import Enum
 from os import path
+from typing import List
 
 import colorama
+import math
+
+from asfault.network import NetworkNode
 
 import evaluator_config as econf
+
+
+class RoadDicConst(Enum):
+    EXEC_TIME = "exec_time"
+    NUM_OBES = "num_obes"
+    UNDER_MIN_LEN_SEGS = "under_min_len_segs"
 
 
 class DicConst(Enum):
@@ -172,6 +182,63 @@ def entropy_compute_2d(a: np.ndarray):
     new_a = list(a.flatten('C'))
     return entropy_compute_1d(new_a)
 
+
+def road_has_min_segs(nodes: List) -> bool:
+    """returns whether a road has too short segments"""
+    for node in nodes:
+        if compute_length(node) < econf.MINIMUM_SEG_LEN:
+            return True
+    return False
+
+# copied from https://gitlab.infosun.fim.uni-passau.de/gambi/esec-fse-20/-/blob/master/code/profiles_estimator.py#L516
+def compute_length(road_segment: NetworkNode):
+    from asfault.network import TYPE_STRAIGHT, TYPE_L_TURN, TYPE_R_TURN
+    if road_segment.roadtype == TYPE_L_TURN or road_segment.roadtype == TYPE_R_TURN:
+        # https: // www.wikihow.com / Find - Arc - Length
+        # Length of the segment "is" the length of the arc defined for the turn
+        xc, yc, radius = compute_radius_turn(road_segment)
+        angle = road_segment.angle
+        return 2 * math.pi * radius * (abs(angle) / 360.0)
+
+    if road_segment.roadtype == TYPE_STRAIGHT:
+        # Apparently this might be 0, not sure why so we need to "compute" the lenght which is the value of y
+        return road_segment.y_off
+
+# copied from https://gitlab.infosun.fim.uni-passau.de/gambi/esec-fse-20/-/blob/master/code/profiles_estimator.py#L516
+# Since there are some quirks in how AsFault implements turn generation using angle, pivot offset and such we adopt the
+# direct strategy to compute the radius of the turn: sample three points on the turn (spine), use triangulation to find
+# out where's the center of the turn is, and finally compute the radius as distance between any of the points on the
+# circle and the center
+def compute_radius_turn(road_segment: NetworkNode):
+    from asfault.network import TYPE_STRAIGHT, TYPE_L_TURN, TYPE_R_TURN
+    from shapely.geometry import Point
+
+    if road_segment.roadtype == TYPE_STRAIGHT:
+        return math.inf
+
+    spine_coord = list(road_segment.get_spine().coords)
+
+    # Use triangulation.
+    p1 = Point(spine_coord[0])
+    x1 = p1.x
+    y1 = p1.y
+
+    p2 = Point(spine_coord[-1])
+    x2 = p2.x
+    y2 = p2.y
+
+    # This more or less is the middle point, not that should matters
+    p3 = Point(spine_coord[int(len(spine_coord) / 2)])
+    x3 = p3.x
+    y3 = p3.y
+
+    center_x = ((x1 ** 2 + y1 ** 2) * (y2 - y3) + (x2 ** 2 + y2 ** 2) * (y3 - y1) + (x3 ** 2 + y3 ** 2) * (
+            y1 - y2)) / (2 * (x1 * (y2 - y3) - y1 * (x2 - x3) + x2 * y3 - x3 * y2))
+    center_y = ((x1 ** 2 + y1 ** 2) * (x3 - x2) + (x2 ** 2 + y2 ** 2) * (x1 - x3) + (x3 ** 2 + y3 ** 2) * (
+            x2 - x1)) / (2 * (x1 * (y2 - y3) - y1 * (x2 - x3) + x2 * y3 - x3 * y2))
+    radius = math.sqrt((center_x - x1) ** 2 + (center_y - y1) ** 2)
+
+    return (center_x, center_y, radius)
 
 def extend_arrays_globally(data_dict: dict, feature: str) -> list:
     global_array = []

@@ -15,6 +15,8 @@ from code_obe_evaluator import OBEEvaluator, OBE
 
 import evaluator_config as econf
 
+import utils
+
 # TODO OBE Coverage
 
 NUM_BINS = 16
@@ -149,10 +151,17 @@ class CoverageEvaluator:
         for state in execution.states:
             state_dict = CarState.to_dict(state)
             speed_kph = np.linalg.norm([state.vel_x, state.vel_y]) * 3.6
-            self.speed_arr.append(speed_kph)
             if speed_kph >= 500:
-                broken_speed = True
-            self.steering_arr.append(state_dict['steering'])
+                if econf.rm_broken_speed_roads:
+                    print("Broken speed detected")
+                    broken_speed = True
+                    self.speed_arr.append(speed_kph)
+                    self.steering_arr.append(state_dict['steering'])
+                else:
+                    print("Broken speed detected, state not added")
+            else:
+                self.speed_arr.append(speed_kph)
+                self.steering_arr.append(state_dict['steering'])
             self.distance_arr.append(state.get_centre_distance())
 
         obe_list = [d for d in obe_dict if d['test_id'] == execution.test.test_id]
@@ -165,13 +174,15 @@ class CoverageEvaluator:
         road_nodes = execution.test.get_path()
         road_polyline = execution.test.get_path_polyline()
         test_path = path.join(asfault_environment.get_execs_path(), test_file_name)  # test_file_name #""# execution.test
-        self.broken_speed_tests.append(test_path)
+        if broken_speed:
+            self.broken_speed_tests.append(test_path)
         # .testid instead of whole execution object?
         bins = {'test_id': execution.test.test_id, 'test_path': test_path, 'speed_bins': self.get_speed_bins(),
                 'steering_bins': self.get_steering_bins(), "distance_bins": self.get_distance_bins((0, 100)),
                 "speed_steering_2d": self.get_speed_steering_2d(), "obe_2d": self.get_obe_speed_angle_bins(),
-                "nodes": road_nodes, "polyline": road_polyline, "road_len": road_polyline.length,
-                "num_states": num_states, "ex_result": execution.result}
+                "nodes": road_nodes, utils.RoadDicConst.UNDER_MIN_LEN_SEGS.value: utils.road_has_min_segs(road_nodes),
+                "polyline": road_polyline, "road_len": road_polyline.length, "num_states": num_states,
+                "ex_result": execution.result}
 
         #print("bins: ", bins)
         road_name = self.global_name + str(execution.test.test_id)

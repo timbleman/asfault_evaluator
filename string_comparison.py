@@ -8,8 +8,6 @@ from asfault import network
 from asfault.network import NetworkNode, TYPE_STRAIGHT, TYPE_L_TURN, TYPE_R_TURN
 from typing import List
 
-from shapely.geometry import Point
-
 # for box plots
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -17,8 +15,6 @@ import matplotlib.pyplot as plt
 import colorama
 import math
 import evaluator_config as econf
-
-MINIMUM_SEG_LEN = 5
 
 """has to be symmetric around zero"""
 NUM_ALPHABET = 7
@@ -110,7 +106,7 @@ class StringComparer:
 
         if compress_neighbours:
             for node in nodes:
-                if self._compute_length(node) >= MINIMUM_SEG_LEN:
+                if utils.compute_length(node) >= econf.MINIMUM_SEG_LEN:
                     current_angle = self.get_const_for_angle(node.angle)
                     if current_angle != curve_sdl:
                         curve_sdl.append(current_angle)
@@ -413,49 +409,3 @@ class StringComparer:
                and self.percentile_values[int(np.ceil(NUM_ALPHABET / 2)) - 1] <= 0 <= self.percentile_values[
                    int(np.ceil(NUM_ALPHABET / 2)) + 1], \
             "the curve distribution of the dataset is not balanced!"
-
-    # copied from https://gitlab.infosun.fim.uni-passau.de/gambi/esec-fse-20/-/blob/master/code/profiles_estimator.py#L516
-    def _compute_length(self, road_segment: NetworkNode):
-        if road_segment.roadtype == TYPE_L_TURN or road_segment.roadtype == TYPE_R_TURN:
-            # https: // www.wikihow.com / Find - Arc - Length
-            # Length of the segment "is" the length of the arc defined for the turn
-            xc, yc, radius = self._compute_radius_turn(road_segment)
-            angle = road_segment.angle
-            return 2 * math.pi * radius * (abs(angle) / 360.0)
-
-        if road_segment.roadtype == TYPE_STRAIGHT:
-            # Apparently this might be 0, not sure why so we need to "compute" the lenght which is the value of y
-            return road_segment.y_off
-
-    # copied from https://gitlab.infosun.fim.uni-passau.de/gambi/esec-fse-20/-/blob/master/code/profiles_estimator.py#L516
-    # Since there are some quirks in how AsFault implements turn generation using angle, pivot offset and such we adopt the
-    # direct strategy to compute the radius of the turn: sample three points on the turn (spine), use triangulation to find
-    # out where's the center of the turn is, and finally compute the radius as distance between any of the points on the
-    # circle and the center
-    def _compute_radius_turn(self, road_segment: NetworkNode):
-        if road_segment.roadtype == TYPE_STRAIGHT:
-            return math.inf
-
-        spine_coord = list(road_segment.get_spine().coords)
-
-        # Use triangulation.
-        p1 = Point(spine_coord[0])
-        x1 = p1.x
-        y1 = p1.y
-
-        p2 = Point(spine_coord[-1])
-        x2 = p2.x
-        y2 = p2.y
-
-        # This more or less is the middle point, not that should matters
-        p3 = Point(spine_coord[int(len(spine_coord) / 2)])
-        x3 = p3.x
-        y3 = p3.y
-
-        center_x = ((x1 ** 2 + y1 ** 2) * (y2 - y3) + (x2 ** 2 + y2 ** 2) * (y3 - y1) + (x3 ** 2 + y3 ** 2) * (
-                y1 - y2)) / (2 * (x1 * (y2 - y3) - y1 * (x2 - x3) + x2 * y3 - x3 * y2))
-        center_y = ((x1 ** 2 + y1 ** 2) * (x3 - x2) + (x2 ** 2 + y2 ** 2) * (x1 - x3) + (x3 ** 2 + y3 ** 2) * (
-                x2 - x1)) / (2 * (x1 * (y2 - y3) - y1 * (x2 - x3) + x2 * y3 - x3 * y2))
-        radius = math.sqrt((center_x - x1) ** 2 + (center_y - y1) ** 2)
-
-        return (center_x, center_y, radius)
