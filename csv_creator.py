@@ -9,7 +9,8 @@ import colorama
 import evaluator_config as econf
 
 class CSVCreator:
-    def __init__(self, data_dict):
+    def __init__(self, data_dict, root_path):
+        self.root_path = root_path
         self.data_dict = data_dict
 
     def write_all_two_roads_dists(self, road_1_name: str, measures: List[str]) -> None:
@@ -83,7 +84,7 @@ class CSVCreator:
                 for i in range(0, len(measures)):
                     dic = _get_dict_to_write(i)
                     writer.writerow(dic)
-            # print(colorama.Fore.GREEN + "wrote csv_file to", csv_file + colorama.Style.RESET_ALL)
+            # print(colorama.Fore.GREEN + " wrote csv_file to ", csv_file + colorama.Style.RESET_ALL)
         except IOError:
             print("I/O error")
 
@@ -118,13 +119,40 @@ class CSVCreator:
                     road = self.data_dict.get(key)
                     dic = _get_dict_to_write(key, road)
                     writer.writerow(dic)
-                print(colorama.Fore.GREEN + "wrote" + measure + "csv_file to", csv_file + colorama.Style.RESET_ALL)
+                print(colorama.Fore.GREEN + " wrote " + measure + " csv_file to", csv_file + colorama.Style.RESET_ALL)
         except IOError:
             print("I/O error")
 
     def write_whole_suite_coverages(self, coverages_1d: List[str]=econf.coverages_1d_to_analyse,
                                     coverages_2d: List[str]=econf.coverages_2d_to_analyse):
         self.data_dict
+
+    def write_whole_suite_multiple_values(self, file_name: str, name_value_tuple_list: List[tuple],
+                                          first_row_name: str = 'coverage_measure'):
+        """
+
+        :param file_name: Name of the file in the root dict
+        :param name_value_tuple_list: List of tuples with (name of measure, value of measure)
+        :return: None
+        """
+        root_folder = self.root_path
+
+        csv_columns = [first_row_name, 'value']
+
+        csv_file = path.join(root_folder, file_name + '.csv')
+
+        try:
+            with open(csv_file, 'w') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
+                writer.writeheader()
+                for tup in name_value_tuple_list:
+                    dic = {first_row_name: tup[0], 'value': tup[1]}
+                    print("dic", dic)
+                    writer.writerow(dic)
+                print(colorama.Fore.GREEN + " wrote " + file_name + " csv_file to ", csv_file + colorama.Style.RESET_ALL)
+        except IOError:
+            print("I/O error")
+
 
     def write_single_road_to_all_dists(self, road_name: str, measures: List[str]):
         assert measures, "There have to be measures declared"
@@ -171,7 +199,7 @@ class CSVCreator:
                 for i in range(0, len(measures)):
                     dic = _get_dict_to_write(i)
                     writer.writerow(dic)
-            print(colorama.Fore.GREEN + "wrote csv_file to", csv_file + colorama.Style.RESET_ALL)
+            print(colorama.Fore.GREEN + "wrote csv_file to ", csv_file + colorama.Style.RESET_ALL)
         except IOError:
             print("I/O error")
 

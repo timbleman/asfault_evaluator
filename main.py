@@ -99,10 +99,16 @@ def main():
 
 
     sbh = SuiteBehaviourComputer(data_bins_dict)
+    coverage_tuple_list = []
     for measure in econf.coverages_1d_to_analyse:
-        print(str(measure) + " coverage", sbh.calculate_suite_coverage_1d(feature=measure, add_for_each=False))
+        cov_value = sbh.calculate_suite_coverage_1d(feature=measure, add_for_each=False)
+        coverage_tuple_list.append((measure, cov_value))
+        print(str(measure) + " coverage", cov_value)
     for measure in econf.coverages_2d_to_analyse:
-        print(str(measure) + "coverage", sbh.calculate_suite_2d_coverage(feature=measure, add_for_each=False))
+        cov_value = sbh.calculate_suite_2d_coverage(feature=measure, add_for_each=False)
+        coverage_tuple_list.append((measure, cov_value))
+        print(str(measure) + "coverage", cov_value)
+    print("coverage_tuple_list", coverage_tuple_list)
     #print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
     #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
 
@@ -119,7 +125,8 @@ def main():
     print(end_str - start_str, "seconds to compute the string representation")
 
     start_csv = time.time()
-    csv_creator = CSVCreator(data_dict=data_bins_dict)
+    csv_creator = CSVCreator(data_dict=data_bins_dict, root_path=parent_dir)
+    csv_creator.write_whole_suite_multiple_values("whole_suite_coverages", coverage_tuple_list)
     #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_DIST.value)
     #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCS_DIST.value)
     #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCSTR_DIST.value)
@@ -138,6 +145,9 @@ def main():
     print("all roads ", names_of_all)
     print(colorama.Fore.GREEN + "Computed following measures for each road", data_bins_dict[names_of_all[0]].keys(), "" + colorama.Style.RESET_ALL)
     #print("all roads ", data_bins_dict)
+
+    #print("data_bins_dict['random--la52']", data_bins_dict['random--la52'])
+    #print("data_bins_dict['random--la54']['speed_steering_2d']", data_bins_dict['random--la54']['speed_steering_2d'])
 
     suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=parent_dir)
     import operator
