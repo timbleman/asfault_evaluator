@@ -40,6 +40,7 @@ class DicConst(Enum):
     SDL_2D_LCS_DIST = "sdl_2d_lcs_dist"
     SDL_2D_LCSTR_DIST = "sdl_2d_lcstr_dist"
     SDL_2D_K_LCSTR_DIST = "sdl_2d_k_lcstr_dist"
+    JACCARD = "jaccard"
 
 
 

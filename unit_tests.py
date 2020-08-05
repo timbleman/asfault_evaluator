@@ -108,32 +108,49 @@ class TestCurveSDL(unittest.TestCase):
         node0.length = 10
         node0.y_off = 10
         node0.roadtype = TYPE_STRAIGHT
+        self.node0 = node0
 
         node1 = MagicMock()
         node1.angle = 3
         node1.length = 15
         node1.roadtype = TYPE_R_TURN
+        self.node1 = node1
 
         node2 = MagicMock()
         node2.angle = -120
         node2.length = 25
         node2.roadtype = TYPE_L_TURN
+        self.node2 = node2
 
         node3 = MagicMock()
         node3.angle = -120
         node3.length = 15
         node3.roadtype = TYPE_L_TURN
+        self.node3 = node3
 
         node35 = MagicMock()
         node35.angle = -3
         node35.length = 15
         node35.roadtype = TYPE_L_TURN
+        self.node35 = node35
 
         node4 = MagicMock()
         node4.angle = 0
         node4.length = 20
         node4.y_off = 10
         node4.roadtype = TYPE_STRAIGHT
+        self.node4 = node4
+
+        max_cur = string_comparison.DEFAULT_PERCENTILE_VALUES_CUR[-1]
+        self.node_SL = MagicMock()
+        self.node_SL.angle = -max_cur
+        self.node_SL.length = string_comparison.DEFAULT_PERCENTILE_VALUES_LEN[0]
+        self.node_SL.roadtype = TYPE_L_TURN
+
+        self.node_SR = MagicMock()
+        self.node_SR.angle = max_cur
+        self.node_SR.length = string_comparison.DEFAULT_PERCENTILE_VALUES_LEN[-1] + 50
+        self.node_SR.roadtype = TYPE_R_TURN
 
         # do not change these, this arrangement is needed for some tests
         self.nodes0_list = [node0, node1, node2, node3, node4]
@@ -255,19 +272,9 @@ class TestCurveSDL(unittest.TestCase):
         self.assertAlmostEqual(expected_error, result, msg="The error should be maxed!")
 
     def test__sdl_2d_error_at_startpoint(self):
-        max_cur = string_comparison.DEFAULT_PERCENTILE_VALUES_CUR[-1]
-        node_SL = MagicMock()
-        node_SL.angle = -max_cur
-        node_SL.length = string_comparison.DEFAULT_PERCENTILE_VALUES_LEN[0]
-        node_SL.roadtype = TYPE_L_TURN
-
-        node_SR = MagicMock()
-        node_SR.angle = max_cur
-        node_SR.length = string_comparison.DEFAULT_PERCENTILE_VALUES_LEN[-1] + 50
-        node_SR.roadtype = TYPE_R_TURN
-
-        node_alt_list_0 = [node_SL, node_SR, node_SL, node_SR]
-        node_alt_list_1 = [node_SR, node_SL, node_SR, node_SL]
+        node_alt_list_0 = [self.node_SL, self.node_SR, self.node_SL, self.node_SR]
+        node_alt_list_1 = [self.node_SR, self.node_SL, self.node_SR, self.node_SL]
+        print(self.node_SR)
 
         sdl_road_0 = self.str_comparer.nodes_to_sdl_2d(node_alt_list_0)
         sdl_road_1 = self.str_comparer.nodes_to_sdl_2d(node_alt_list_1)
@@ -276,6 +283,39 @@ class TestCurveSDL(unittest.TestCase):
         # errors are summed up --> 4
         expected_error = 1.0 * len(sdl_road_1)
         self.assertAlmostEqual(expected_error, result, msg="The error should be maxed, check the weights!")
+
+    def test_jaccard_sdl_2d_one_to_one_3(self):
+        node_list_0 = [self.node_SR, self.node0, self.node1, self.node2]
+        node_list_1 = [self.node_SL, self.node4, self.node_SR, self.node_SL, self.node35]
+
+        sdl_road_0 = self.str_comparer.nodes_to_sdl_2d(node_list_0)
+        sdl_road_1 = self.str_comparer.nodes_to_sdl_2d(node_list_1)
+
+        result = self.str_comparer.jaccard_sdl_2d_one_to_one(sdl_road_0, sdl_road_1)
+        expected = 3 / 5
+        self.assertAlmostEqual(expected, result)
+
+    def test_jaccard_sdl_2d_one_to_one_no_matches(self):
+        node_list_0 = [self.node_SR, self.node_SL, self.node_SR]
+        node_list_1 = [self.node4, self.node4, self.node1, self.node35]
+
+        sdl_road_0 = self.str_comparer.nodes_to_sdl_2d(node_list_0)
+        sdl_road_1 = self.str_comparer.nodes_to_sdl_2d(node_list_1)
+
+        result = self.str_comparer.jaccard_sdl_2d_one_to_one(sdl_road_0, sdl_road_1)
+        expected = 0
+        self.assertAlmostEqual(expected, result)
+
+    def test_jaccard_sdl_2d_one_to_one_all_matches(self):
+        node_list_0 = [self.node_SR, self.node_SL, self.node4, self.node3]
+        node_list_1 = [self.node4, self.node_SR, self.node3, self.node_SR, self.node_SL]
+
+        sdl_road_0 = self.str_comparer.nodes_to_sdl_2d(node_list_0)
+        sdl_road_1 = self.str_comparer.nodes_to_sdl_2d(node_list_1)
+
+        result = self.str_comparer.jaccard_sdl_2d_one_to_one(sdl_road_0, sdl_road_1)
+        expected = 1
+        self.assertAlmostEqual(expected, result)
 
     def test_lcs_curve_sdl_not_normalized(self):
         result = utils.lcs(self.nodes0_list, self.nodes1_list, normalized=False)

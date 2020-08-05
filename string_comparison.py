@@ -106,7 +106,7 @@ class StringComparer:
 
         if compress_neighbours:
             for node in nodes:
-                if utils.compute_length(node) >= econf.MINIMUM_SEG_LEN:
+                if utils.compute_length(node) >= utils.MINIMUM_SEG_LEN:
                     current_angle = self.get_const_for_angle(node.angle)
                     if current_angle != curve_sdl:
                         curve_sdl.append(current_angle)
@@ -175,6 +175,10 @@ class StringComparer:
                                                                representation=utils.DicConst.SDL_2D.value)
             self.data_dict[name][utils.DicConst.SDL_2D_K_LCSTR_DIST.value] = distance_arr
 
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.jaccard_sdl_2d_one_to_one,
+                                                               representation=utils.DicConst.SDL_2D.value)
+            self.data_dict[name][utils.DicConst.JACCARD.value] = distance_arr
+
 
 
     # these three should be one
@@ -189,7 +193,35 @@ class StringComparer:
             distance_dict[name] = dist
         return distance_dict
 
-    def cur_sdl_one_to_one(self, curve1_sdl, curve2_sdl, normalized: bool = True, invert: bool = True):
+    def jaccard_sdl_2d_one_to_one(self, curve1_sdl: list, curve2_sdl: list) -> float:
+        """ Set-based jaccard index
+        Only works with sdl 2d representation
+        # TODO there has to be a more efficient way
+
+        :param curve1_sdl: sdl representation of one road
+        :param curve2_sdl: sdl representation of the other road
+        :return: Jaccard index
+        """
+        shared = []
+        union = []
+
+        def _symbol_in_list(symbol: tuple, li: list) -> bool:
+            result = any(elem == symbol for elem in li)
+            return result
+
+        for symbol in curve1_sdl:
+            if not _symbol_in_list(symbol, union):
+                union.append(symbol)
+            if not _symbol_in_list(symbol, shared):
+                if _symbol_in_list(symbol, curve2_sdl):
+                    shared.append(symbol)
+        for symbol in curve2_sdl:
+            if not _symbol_in_list(symbol, union):
+                union.append(symbol)
+
+        return len(shared) / len(union)
+
+    def cur_sdl_one_to_one(self, curve1_sdl: list, curve2_sdl: list, normalized: bool = True, invert: bool = True):
         best_similarity = float('inf')
         best_startpoint = 0
         if len(curve1_sdl) < len(curve2_sdl):
