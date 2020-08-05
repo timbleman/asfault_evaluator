@@ -180,7 +180,7 @@ class TestCurveSDL(unittest.TestCase):
         self.assertEqual(string_comparison.cur(-max_val), const)
 
     def test_nodes_to_curvature_sdl(self):
-        with unittest.mock.patch.object(self.str_comparer, "_compute_length", new=mocked_compute_length):
+        with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):
             # self.str_comparer.nodes_to_curvature_sdl(self.nodes0_list)
             curve_sdl = []
             for node in self.nodes0_list:
@@ -296,14 +296,14 @@ class TestCurveSDL(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_all_roads_to_curvature_sdl(self):
-        with unittest.mock.patch.object(self.str_comparer, "_compute_length", new=mocked_compute_length):
+        with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):
             self.str_comparer.all_roads_to_curvature_sdl()
             road_dict = list(self.str_comparer.data_dict.values())[0]
             self.assertTrue(utils.DicConst.SDL_2D.value in road_dict, "two dimensional sdl has not been added")
             self.assertTrue(utils.DicConst.CUR_SDL.value in road_dict, "one dimensional sdl has not been added")
 
     def test_sdl_all_to_all_execution(self):
-        with unittest.mock.patch.object(self.str_comparer, "_compute_length", new=mocked_compute_length):
+        with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):
             self.str_comparer.all_roads_to_curvature_sdl()
             self.str_comparer.sdl_all_to_all_unoptimized()
             road_dict = list(self.str_comparer.data_dict.values())[0]
@@ -317,7 +317,7 @@ class TestCurveSDL(unittest.TestCase):
             self.assertAlmostEqual(0, sdl_error["0"], msg="Ones own 2d sdl error has to be 0")
 
     def test_nodes_to_sdl_2d_segment_compression(self):
-        with unittest.mock.patch.object(self.str_comparer, "_compute_length", new=mocked_compute_length):
+        with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):
             max_len = string_comparison.DEFAULT_PERCENTILE_VALUES_LEN[-1]
 
             # create a node that has a little over the quarter length of the last segment
@@ -339,7 +339,7 @@ class TestCurveSDL(unittest.TestCase):
             self.assertEqual(4, len(result))
 
     def test_get_const_for_length_min_len(self):
-        with unittest.mock.patch.object(self.str_comparer, "_compute_length", new=mocked_compute_length):
+        with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):
             min_len = string_comparison.DEFAULT_PERCENTILE_VALUES_LEN[0]
 
             # expects the shortest symbol

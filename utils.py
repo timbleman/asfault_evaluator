@@ -8,8 +8,11 @@ import colorama
 import math
 
 from asfault.network import NetworkNode
+#import evaluator_config as econf
 
-import evaluator_config as econf
+START_OF_PARENT_DIR = "experiments-"
+# if a segment is under this length it is considered invalid
+MINIMUM_SEG_LEN = 5
 
 
 class RoadDicConst(Enum):
@@ -54,7 +57,7 @@ def get_root_of_test_suite(test_path: path) -> path:
     """
     suite_dir_path = path.split(test_path)
     print(suite_dir_path[1])
-    while not suite_dir_path[1].startswith(econf.START_OF_PARENT_DIR):
+    while not suite_dir_path[1].startswith(START_OF_PARENT_DIR):
         suite_dir_path = path.split(suite_dir_path[0])
     # suite_dir_path = path.split(suite_dir_path[0])
     suite_dir_path = path.join(suite_dir_path[0], suite_dir_path[1])
@@ -191,7 +194,7 @@ def entropy_compute_2d(a: np.ndarray):
 def road_has_min_segs(nodes: List) -> bool:
     """returns whether a road has too short segments"""
     for node in nodes:
-        if compute_length(node) < econf.MINIMUM_SEG_LEN:
+        if compute_length(node) < MINIMUM_SEG_LEN:
             return True
     return False
 
