@@ -66,6 +66,56 @@ def get_root_of_test_suite(test_path: path) -> path:
     return suite_dir_path
 
 
+def list_matrix_measure(data_dict: dict, measure: str) -> list:
+    """ puts each one to all list in a 2d list, needed for clustering algorithms
+
+    :param data_dict: dict off all roads
+    :param measure: measure like jaccard
+    :return: 2d list, distance matrix
+    """
+    list_2d = []
+    for test in data_dict.values():
+        ar = test.get(measure, None)
+        assert ar is not None, "The measure " + measure + " has not been found in the dict!"
+        list_2d.append(list(ar.values()))
+    return list_2d
+
+
+def dict_of_dicts_matrix_measure(data_dict: dict, measure: str) -> dict:
+    """ puts each one to all list in a 2d list, needed for clustering algorithms
+
+    :param data_dict: dict off all roads
+    :param measure: measure like jaccard
+    :return: 2d list, distance matrix
+    """
+    dict_2d = {}
+    #print("data_dict.keys", data_dict.keys())
+    for key2, test in data_dict.items():
+        ar = test.get(measure, None)
+        assert ar is not None, "The measure " + measure + " has not been found in the dict!"
+        new_dic = {}
+        for key1, val in ar.items():
+            new_dic[key1] = {"weight": val}
+        dict_2d.update({key2: new_dic})
+    #print("dict_2d.keys", dict_2d.keys())
+    #print("dict_2d", dict_2d)
+    return dict_2d
+
+
+def dict_of_lists_matrix_measure(data_dict: dict, measure: str) -> dict:
+    """ puts each one to all list in a 2d list, needed for clustering algorithms
+
+    :param data_dict: dict off all roads
+    :param measure: measure like jaccard
+    :return: 2d list, distance matrix
+    """
+    dict_2d = {}
+    for key, test in data_dict.items():
+        ar = test.get(measure, None)
+        assert ar is not None, "The measure " + measure + " has not been found in the dict!"
+        dict_2d[key] = list(ar.values())
+    return dict_2d
+
 
 def list_difference_1d(a: list, b: list, function: str, normalized: bool = True):
     """ Calculates the distance between two one-dimensional lists of bins, is used to find differences in
