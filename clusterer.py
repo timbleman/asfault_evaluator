@@ -23,7 +23,14 @@ class Clusterer:
         #ordering, _, _, _ = compute_optics_graph(X=dist_matrix, metric="precomputed")
         #print("ordering", ordering)
 
-    def networkx_plot_measure(self, measure: str):
+    def networkx_plot_measure(self, measure: str, draw_graphweights: bool = True, draw_edges: bool = False):
+        """ Plots all specimens of the main dict. A measure is selected for the edge weights.
+        Graphvis tries to get the optimal arrangement based on weights, hard to do for 2d space.
+        Use dot, neato and fdp seem to maximize distances and just create a circular arrangement.
+
+        :param measure: distance measure for the edges
+        :return: None
+        """
         import networkx as nx
         from networkx.drawing.nx_agraph import graphviz_layout
         import matplotlib.pyplot as plt
@@ -32,8 +39,15 @@ class Clusterer:
         print("dist_matrix_dict", dist_matrix_dict)
         G = nx.from_dict_of_dicts(d=dist_matrix_dict)
         G.graph['edges']={'arrowsize':'4.0'}
-        pos = graphviz_layout(G, prog="neato")
-        nx.draw_networkx(G, pos=pos)
+        # neato, fdp seem to mazimize --> circle shape
+        # dot works best, however, 2d representation is difficult
+        pos = graphviz_layout(G, prog="dot")
+        if draw_edges:
+            nx.draw_networkx(G, pos=pos)
+        else:
+            nx.draw_networkx_nodes(G, pos=pos)
+        if draw_graphweights:
+            nx.draw_networkx_edge_labels(G, pos=pos)
         plt.tight_layout()
         plt.show()
 
