@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import List
 
 import operator
 import colorama
@@ -16,7 +17,33 @@ class SuiteTrimmer:
         self.data_dict = data_dict
         self.base_path = base_path
 
-    def get_unworthy_paths(self, feature: str, op: operator, threshold: float) -> list:
+    def get_random_percentage_unworthy(self, percentage: int, block_size: int = 10) -> List:
+        """ Remove a certain number of tests that exceed the treshold.
+        If block_size = 10, percentage is only accurate to groups of ten
+        block_size = 10 ensures good mixing
+
+        :param percentage: 0 to 100, how many should be left. May not be exactly accurate based on blocksize.
+        :param block_size: Interval in which will be removed.
+        :return: paths to remove.
+        """
+        assert 0 <= percentage <= 100, "Percentage is out of range!"
+        assert 5 < block_size, "block_size is out of range!"
+
+        unworthy_paths = []
+        key_list = list(self.data_dict.keys())
+        threshold = block_size * (percentage/100)
+        print("threshold", threshold)
+
+        for i in range(0, len(key_list)):
+            if i % block_size >= threshold:
+                road = self.data_dict.get(key_list[i], None)
+                path = road.get(utils.RoadDicConst.TEST_PATH.value, None)
+                assert path is not None, "There has been no path added for " + str(key_list[i])
+                unworthy_paths.append(path)
+
+        return unworthy_paths
+
+    def get_unworthy_paths(self, feature: str, op: operator, threshold: float) -> List:
         """ Returns a list of paths that do meet the criteria
         Only works on single numeric features! (e.g. "num_states")
 
@@ -30,7 +57,7 @@ class SuiteTrimmer:
             val = test.get(feature, None)
             assert val is not None, "The feature has not been added or spelling is incorrect"
             if op(val, threshold):
-                unworthy_paths.append(test['test_path'])
+                unworthy_paths.append(test[utils.RoadDicConst.TEST_PATH.value])
 
         return unworthy_paths
 

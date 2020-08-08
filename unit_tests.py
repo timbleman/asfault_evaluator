@@ -5,8 +5,8 @@ from asfault.network import NetworkNode, TYPE_R_TURN, TYPE_L_TURN, TYPE_STRAIGHT
 
 import utils
 import coverage_evaluator
-
 import string_comparison
+import suite_trimmer
 
 
 def mocked_compute_length(road_segment: NetworkNode):
@@ -386,6 +386,25 @@ class TestCurveSDL(unittest.TestCase):
             result = self.str_comparer.get_const_for_length(min_len)
             expected = string_comparison.len_en(0)
             self.assertEqual(expected, result)
+
+    def test_get_random_percentage_unworthy(self):
+        import os
+        cwd = os.getcwd()
+        fake_road_dict = {"road1": {utils.RoadDicConst.TEST_PATH.value: cwd},
+                          "road2": {utils.RoadDicConst.TEST_PATH.value: cwd},
+                          "road3": {utils.RoadDicConst.TEST_PATH.value: cwd},
+                          "road4": {utils.RoadDicConst.TEST_PATH.value: cwd},
+                          "road5": {utils.RoadDicConst.TEST_PATH.value: cwd},
+                          "road6": {utils.RoadDicConst.TEST_PATH.value: cwd},
+                          "road7": {utils.RoadDicConst.TEST_PATH.value: cwd},
+                          "road8": {utils.RoadDicConst.TEST_PATH.value: cwd},
+                          "road9": {utils.RoadDicConst.TEST_PATH.value: cwd},
+                          "road10": {utils.RoadDicConst.TEST_PATH.value: cwd}}
+
+        st = suite_trimmer.SuiteTrimmer(data_dict=fake_road_dict, base_path=cwd)
+        unworthy_paths = st.get_random_percentage_unworthy(percentage=50, block_size=10)
+        self.assertEqual(5, len(unworthy_paths))
+
 
 
 

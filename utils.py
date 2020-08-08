@@ -16,6 +16,7 @@ MINIMUM_SEG_LEN = 5
 
 
 class RoadDicConst(Enum):
+    TEST_PATH = 'test_path'
     SPEED_BINS = "speed_bins"
     STEERING_BINS = 'steering_bins'
     DISTANCE_BINS = "distance_bins"
