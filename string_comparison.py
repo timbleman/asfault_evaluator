@@ -193,7 +193,7 @@ class StringComparer:
             distance_dict[name] = dist
         return distance_dict
 
-    def jaccard_sdl_2d_one_to_one(self, curve1_sdl: list, curve2_sdl: list) -> float:
+    def jaccard_sdl_2d_one_to_one(self, curve1_sdl: list, curve2_sdl: list, normalized: bool = True) -> float:
         """ Set-based jaccard index
         Only works with sdl 2d representation
         # TODO there has to be a more efficient way
@@ -219,7 +219,11 @@ class StringComparer:
             if not _symbol_in_list(symbol, union):
                 union.append(symbol)
 
-        return len(shared) / len(union)
+        if normalized:
+            jacc = len(shared) / len(union)
+        else:
+            jacc = len(shared)
+        return jacc
 
     def cur_sdl_one_to_one(self, curve1_sdl: list, curve2_sdl: list, normalized: bool = True, invert: bool = True):
         best_similarity = float('inf')
