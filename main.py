@@ -14,6 +14,7 @@ from suite_behaviour_computer import SuiteBehaviourComputer
 from csv_creator import CSVCreator
 from suite_trimmer import SuiteTrimmer
 from clusterer import Clusterer
+from adaptive_random_sampler import AdaptiveRandSampler
 
 import colorama
 
@@ -81,12 +82,12 @@ def main():
     broken_tests = []
 
     start_gathering = time.time()
-    #env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
-    #cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
-    #data_bins_dict = cov_eval.get_all_bins()
-    #broken_tests.extend(cov_eval.get_broken_speed_tests())
+    env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
+    cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
+    data_bins_dict = cov_eval.get_all_bins()
+    broken_tests.extend(cov_eval.get_broken_speed_tests())
 
-
+    """
     # commented for testing purposes
     data_bins_dict = {}
     for env_directory in all_paths:
@@ -98,7 +99,7 @@ def main():
     print(len(broken_tests), "broken_tests have to be ignored because of broken speeds", broken_tests)
     end_gathering = time.time()
     print(end_gathering - start_gathering, "seconds to gather the data")
-
+    """
 
 
     sbh = SuiteBehaviourComputer(data_bins_dict)
@@ -162,6 +163,10 @@ def main():
     print("all roads ", names_of_all)
     print(colorama.Fore.GREEN + "Computed following measures for each road", data_bins_dict[names_of_all[0]].keys(), "" + colorama.Style.RESET_ALL)
     #print("all roads ", data_bins_dict)
+
+    sampler = AdaptiveRandSampler(data_dict=data_bins_dict)
+    sampler.sample_of_n(measure=utils.DicConst.JACCARD.value, n=5, func=sampler.pick_smallest_max_similarity)
+    print("sampler.get_unworthy_paths()", sampler.get_unworthy_paths())
 
     clusterer = Clusterer(data_dict=data_bins_dict)
     #clusterer.perform_optics(measure=utils.DicConst.JACCARD.value)
