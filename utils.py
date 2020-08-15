@@ -31,6 +31,10 @@ class DicConst(Enum):
     NODES = 'nodes'
     TEST_PATH = 'test_path'
     AVG_CURVATURE = 'avg_curvature'
+    CENTER_DIST_BINARY = "center_dist_binary"
+    CENTER_DIST_SINGLE = "center_dist_single"
+    BINS_STEERING_SPEED_DIST = "speering_speed_dist"
+
     SDL_2D = "sdl_2d"
     CUR_SDL = "curve_sdl"
     CUR_SDL_DIST = "curve_sdl_dist"
@@ -118,12 +122,13 @@ def dict_of_lists_matrix_measure(data_dict: dict, measure: str) -> dict:
     return dict_2d
 
 
-def list_difference_1d(a: list, b: list, function: str, normalized: bool = True):
+def list_difference_1d(a: list, b: list, function: str, normalized: bool = True, inverse: bool = True):
     """ Calculates the distance between two one-dimensional lists of bins, is used to find differences in
         behaviour
         Available measures are binary difference in a bin, the absolute difference and the squared difference
         All the measures can be normalized to lie in between 0 and 1
 
+    :param inverse: inverses the output, only possible if normalized
     :param a: first list
     :param b: second list
     :param function: 'binary', 'single' or 'squared'
@@ -131,6 +136,8 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True)
     :return: the calculated difference as float
     """
     assert a.__len__() == b.__len__(), "Both lists have to be of the same length!"
+    if inverse:
+        assert normalized is True, "Inversing behavior similarity is only possible if data is normalized!"
     # assert b.__len__() * 0.5 <= a.__len__() <= b.__len__() * 2, "Both lists have to be of similar length!"
     sum_a = sum(a)
     sum_b = sum(b)
@@ -151,6 +158,8 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True)
                 binsum += 1
         if normalized:
             binsum /= a.__len__()
+            if inverse:
+                binsum = 1 - binsum
         return binsum
 
     # returns the absolute difference of the bins
@@ -164,6 +173,8 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True)
             # FIXME pretty sure this should be sum_a * 2, in case on is larger than the
             # different_sum /= sum_a + sum_b
             different_sum /= sum_a * 2
+            if inverse:
+                different_sum = 1 - different_sum
         else:
             for i in range(0, a.__len__()):
                 if a[i] != b[i]:
@@ -172,6 +183,7 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True)
 
     # returns the euclidean distance of bins
     # fixme norm has to be calculated globally and normalized
+    # fixme deprecated
     def difference_sqrd():
         dist = 0
         a_minus_b = list(map(int.__sub__, a, b))

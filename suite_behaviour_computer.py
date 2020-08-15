@@ -90,6 +90,20 @@ class SuiteBehaviourComputer:
             sum += t
         return sum
 
+    def behaviour_all_to_all(self):
+        for name in self.test_dict:
+            # TODO schau mal ob da alles passt
+            distance_arr = self.behavior_compare_1d(name, measure=utils.RoadDicConst.DISTANCE_BINS.value,
+                                                               function='binary')
+            self.test_dict[name][utils.DicConst.CENTER_DIST_BINARY.value] = distance_arr
+
+            distance_arr = self.behavior_compare_1d(name, measure=utils.RoadDicConst.DISTANCE_BINS.value,
+                                                    function='single')
+            self.test_dict[name][utils.DicConst.CENTER_DIST_SINGLE.value] = distance_arr
+
+            distance_arr = self.behavior_compare_2d(name, measure=utils.RoadDicConst.SPEED_STEERING_2D.value)
+            self.test_dict[name][utils.DicConst.BINS_STEERING_SPEED_DIST.value] = distance_arr
+
 
     def behavior_compare_1d(self, road_to_compare: str, measure: str, function: str = 'binary'):
         """ compares the coverage of a single-dimensional feature of a road to all others in the suite

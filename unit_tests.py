@@ -37,40 +37,40 @@ class TestUtils(unittest.TestCase):
 
     def test_list_difference_1d_binary_not_normalized(self):
         diff = utils.list_difference_1d(a=self.first_bins, b=self.second_bins, function=utils.DiffFuncConst.BINARY.value,
-                                 normalized=False)
+                                 normalized=False, inverse=False)
         self.assertEqual(4, diff)
 
     def test_list_difference_1d_binary_normalized(self):
         diff = utils.list_difference_1d(a=self.first_bins, b=self.second_bins, function=utils.DiffFuncConst.BINARY.value,
-                                 normalized=True)
+                                 normalized=True, inverse=False)
 
         expected = (4/coverage_evaluator.NUM_BINS)
         self.assertEqual(expected, diff)
 
     def test_list_difference_1d_single_not_normalized(self):
         diff = utils.list_difference_1d(a=self.first_bins, b=self.second_bins, function=utils.DiffFuncConst.SINGLE.value,
-                                 normalized=False)
+                                 normalized=False, inverse=False)
         # 10 (val of list entry) * 4 (number of different bins)
         expected = 10 * 4
         self.assertEqual(expected, diff)
 
     def test_list_difference_1d_single_normalized(self):
         diff = utils.list_difference_1d(a=self.first_bins, b=self.second_bins, function=utils.DiffFuncConst.SINGLE.value,
-                                 normalized=True)
+                                 normalized=True, inverse=False)
         # (10 (val of list entry) * 4 (number of different bins)) / 60 (number of values in total)
         expected = (10 * 4) / 60
         self.assertEqual(expected, diff)
 
     def test_list_difference_1d_single_not_normalized_unequal(self):
         diff = utils.list_difference_1d(a=self.first_bins_halved, b=self.second_bins,
-                                        function=utils.DiffFuncConst.SINGLE.value, normalized=False)
+                                        function=utils.DiffFuncConst.SINGLE.value, normalized=False, inverse=False)
         # 5 (val of list entry) * 2 (number of different bins) + 10 * 2 + 5
         expected = 5 * 2 + 10 * 2 + 5
         self.assertEqual(expected, diff, "Unequal element count causes problems")
 
     def test_list_difference_1d_single_normalized_unequal(self):
         diff = utils.list_difference_1d(a=self.first_bins_halved, b=self.second_bins,
-                                        function=utils.DiffFuncConst.SINGLE.value, normalized=True)
+                                        function=utils.DiffFuncConst.SINGLE.value, normalized=True, inverse=False)
         # 5 (val of list entry) * 2 (number of different bins) + 10 * 2 + 5
         expected = 2/3
         self.assertEqual(expected, diff, "Unequal element count causes problems")

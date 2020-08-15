@@ -68,7 +68,9 @@ def main():
     import os
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
     """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
-    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test")
+    # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
+    # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
+    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
     # unnecessary
     # parent_dir = utils.get_root_of_test_suite(parent_dir)
     all_paths = get_all_paths(parent_dir)
@@ -120,6 +122,8 @@ def main():
     num_obes = sbh.calculate_whole_suite_sum(feature=utils.RoadDicConst.NUM_OBES.value)
     other_data_tuples_list.append(("num_obes", num_obes))
     print("num_obes", num_obes)
+
+    sbh.behaviour_all_to_all()
     # unnecessary, pass by reference
     #partial_bins = sbh.get_test_dict()
 
@@ -136,7 +140,11 @@ def main():
     csv_creator = CSVCreator(data_dict=data_bins_dict, root_path=parent_dir)
     csv_creator.write_whole_suite_multiple_values("whole_suite_coverages", coverage_tuple_list)
     csv_creator.write_whole_suite_multiple_values("other_numerics", other_data_tuples_list, first_row_name="measures")
-    #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_DIST.value)
+    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_DIST.value)
+    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.JACCARD.value)
+    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_LCS_DIST.value)
+    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_LCSTR_DIST.value)
+    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_K_LCSTR_DIST.value)
     #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCS_DIST.value)
     #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCSTR_DIST.value)
     #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
@@ -157,7 +165,7 @@ def main():
 
     clusterer = Clusterer(data_dict=data_bins_dict)
     #clusterer.perform_optics(measure=utils.DicConst.JACCARD.value)
-    clusterer.networkx_plot_measure(measure=utils.DicConst.JACCARD.value)
+    #clusterer.networkx_plot_measure(measure=utils.DicConst.BINS_STEERING_SPEED_DIST.value, draw_edges=True)
 
     #print("data_bins_dict['random--la52']", data_bins_dict['random--la52'])
     #print("data_bins_dict['random--la54']['speed_steering_2d']", data_bins_dict['random--la54']['speed_steering_2d'])
