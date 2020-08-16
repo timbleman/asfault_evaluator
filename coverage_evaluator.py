@@ -20,6 +20,7 @@ import utils
 # TODO OBE Coverage
 
 NUM_BINS = 16
+NUM_OBE_BINS = 10
 STEERING_RANGE = (-1, 1)
 SPEED_RANGE = (0, 85)
 # fixme 180 instead of 360 ?
@@ -233,6 +234,6 @@ class CoverageEvaluator:
         return histogram
 
     def get_obe_speed_angle_bins(self):
-        histogram, speed_edges, angle_edges = np.histogram2d(self.obe_speed_arr, self.obe_angle_arr, bins=NUM_BINS,
+        histogram, speed_edges, angle_edges = np.histogram2d(self.obe_speed_arr, self.obe_angle_arr, bins=NUM_OBE_BINS,
                                                                 range=(SPEED_RANGE, ANGLE_RANGE), normed=False)
         return histogram

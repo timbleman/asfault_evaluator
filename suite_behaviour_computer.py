@@ -4,9 +4,6 @@ import numpy as np
 import coverage_evaluator
 import utils
 
-NUM_BINS = coverage_evaluator.NUM_BINS
-
-
 
 class SuiteBehaviourComputer:
     def __init__(self, t_dict: Dict, start: int = 0, end: int = 0):
@@ -23,7 +20,13 @@ class SuiteBehaviourComputer:
         :param add_for_each: adds the single coverage to each road
         :return: Coverage across the suite
         """
-        global_bins = [0] * NUM_BINS
+        # determine the number of bins dynamically
+        arbitrary_test = next(iter(self.test_dict.values()))
+        bins = arbitrary_test.get(feature, None)
+        assert bins is not None, "No bins were added"
+        num_bins = len(bins)
+        global_bins = [0] * num_bins
+
         for key, test in self.test_dict.items():
             # print("test ", test)
             cov_col = test.get(feature, None)
@@ -48,7 +51,13 @@ class SuiteBehaviourComputer:
         :param add_for_each: adds the single coverage to each road
         :return: Coverage across the suite
         """
-        global_2d_cov = np.zeros((NUM_BINS, NUM_BINS))
+        # determine the number of bins dynamically, bins need to be square
+        arbitrary_test = next(iter(self.test_dict.values()))
+        bins = arbitrary_test.get(feature, None)
+        assert bins is not None, "No bins were added"
+        num_bins = len(bins)
+        global_2d_cov = np.zeros((num_bins, num_bins))
+
         for key, test in self.test_dict.items():
             cov_col = test.get(feature, None)
             assert cov_col is not None, "The bin " + feature + " has not been added or spelling is incorrect"
