@@ -352,9 +352,9 @@ class TestCurveSDL(unittest.TestCase):
             self.assertTrue(utils.DicConst.CUR_SDL_DIST.value in road_dict,
                             "one dimensional sdl dist has not been added")
             sdl_error = self.str_comparer.data_dict["0"].get(utils.DicConst.CUR_SDL_DIST.value)
-            self.assertAlmostEqual(0, sdl_error["0"], msg="Ones own curvature sdl error has to be 0")
+            self.assertAlmostEqual(1.0, sdl_error["0"], msg="Ones own curvature sdl similarity has to be 0")
             sdl_2d_error = self.str_comparer.data_dict["0"].get(utils.DicConst.SDL_2D_DIST.value)
-            self.assertAlmostEqual(0, sdl_error["0"], msg="Ones own 2d sdl error has to be 0")
+            self.assertAlmostEqual(1.0, sdl_error["0"], msg="Ones own 2d sdl similarity has to be 0")
 
     def test_nodes_to_sdl_2d_segment_compression(self):
         with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):

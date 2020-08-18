@@ -247,8 +247,8 @@ class StringComparer:
 
         # FIXME still experimental, might fail
         if invert:
-            error = 1 - best_similarity
-        assert 0 <= best_similarity <= 1, "The error " + str(error) + " is outside the range"
+            best_similarity = 1 - best_similarity
+        assert 0 <= best_similarity <= 1, "The error " + str(best_similarity) + " is outside the range"
         return best_similarity
 
     def _cur_sdl_error_at_startpoint(self, start_point: int, longer_road_sdl: List[cur],
