@@ -123,9 +123,35 @@ class CSVCreator:
         except IOError:
             print("I/O error")
 
-    def write_whole_suite_coverages(self, coverages_1d: List[str]=econf.coverages_1d_to_analyse,
-                                    coverages_2d: List[str]=econf.coverages_2d_to_analyse):
-        self.data_dict
+    def write_all_tests_one_value(self, measure: str = utils.RoadDicConst.NUM_OBES.value):
+        root_folder = self.root_path
+        csv_columns = ["test", measure]
+
+        def _get_dict_to_write(road_name: str) -> dict:
+
+            test = self.data_dict.get(road_name, None)
+            assert test is not None, "The road has not been found in the dict!"
+            val = test.get(measure, None)
+            assert val is not None, "The " + measure + "has not been found for " + road_name + "!"
+
+            dicc = {"test": road_name, measure: val}
+            return dicc
+
+        csv_file = path.join(root_folder, "for_each_" + measure + '.csv')
+
+        try:
+            with open(csv_file, 'w') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
+                writer.writeheader()
+                for key in self.data_dict.keys():
+                    dic = _get_dict_to_write(road_name=key)
+                    writer.writerow(dic)
+                print(colorama.Fore.GREEN + " wrote " + measure + " csv_file to", csv_file + colorama.Style.RESET_ALL)
+
+        except IOError:
+            print("I/O error")
+
+
 
     def write_whole_suite_multiple_values(self, file_name: str, name_value_tuple_list: List[tuple],
                                           first_row_name: str = 'coverage_measure'):
@@ -201,20 +227,3 @@ class CSVCreator:
             print(colorama.Fore.GREEN + "wrote csv_file to ", csv_file + colorama.Style.RESET_ALL)
         except IOError:
             print("I/O error")
-
-
-"""
-    csv_file = path.join(os.path.dirname(os.path.abspath(env_directory)), '.obes')
-    l.info("Generate CSV file %s", csv_file)
-    # Taken from: https://www.tutorialspoint.com/How-to-save-a-Python-Dictionary-to-CSV-file
-    # 'obe_id' is the unique id of the obe
-    csv_columns = ['global_id', 'test_id', 'obe_id', 'speed', 'heading_angle', 'road_angle']
-    try:
-        with open(csv_file, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
-            writer.writeheader()
-            for data in obe_data:
-                writer.writerow(data)
-    except IOError:
-        print("I/O error")
-"""
