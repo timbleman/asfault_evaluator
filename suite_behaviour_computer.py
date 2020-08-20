@@ -110,6 +110,14 @@ class SuiteBehaviourComputer:
                                                     function='single')
             self.test_dict[name][utils.DicConst.CENTER_DIST_SINGLE.value] = distance_arr
 
+            distance_arr = self.behavior_compare_1d(name, measure=utils.RoadDicConst.STEERING_BINS.value,
+                                                    function='binary')
+            self.test_dict[name][utils.DicConst.STEERING_DIST_BINARY.value] = distance_arr
+
+            distance_arr = self.behavior_compare_1d(name, measure=utils.RoadDicConst.STEERING_BINS.value,
+                                                    function='single')
+            self.test_dict[name][utils.DicConst.STEERING_DIST_SINGLE.value] = distance_arr
+
             distance_arr = self.behavior_compare_2d(name, measure=utils.RoadDicConst.SPEED_STEERING_2D.value)
             self.test_dict[name][utils.DicConst.BINS_STEERING_SPEED_DIST.value] = distance_arr
 

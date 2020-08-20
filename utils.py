@@ -33,6 +33,8 @@ class DicConst(Enum):
     AVG_CURVATURE = 'avg_curvature'
     CENTER_DIST_BINARY = "center_dist_binary"
     CENTER_DIST_SINGLE = "center_dist_single"
+    STEERING_DIST_BINARY = "steering_dist_binary"
+    STEERING_DIST_SINGLE = "steering_dist_single"
     BINS_STEERING_SPEED_DIST = "speering_speed_dist"
 
     SDL_2D = "sdl_2d"
