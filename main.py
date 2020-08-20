@@ -82,24 +82,24 @@ def main():
     broken_tests = []
 
     start_gathering = time.time()
-    env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
-    cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
-    data_bins_dict = cov_eval.get_all_bins()
-    broken_tests.extend(cov_eval.get_broken_speed_tests())
-
-    """
-    # commented for testing purposes
-    data_bins_dict = {}
-    for env_directory in all_paths:
-        print("Start evaluation of OBEs from %s", env_directory)
-        # TODO check whether identifier already exists in dict
+    QUICK = True
+    if QUICK:
+        env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
         cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
-        data_bins_dict.update(cov_eval.get_all_bins())
+        data_bins_dict = cov_eval.get_all_bins()
         broken_tests.extend(cov_eval.get_broken_speed_tests())
-    print(len(broken_tests), "broken_tests have to be ignored because of broken speeds", broken_tests)
-    end_gathering = time.time()
-    print(end_gathering - start_gathering, "seconds to gather the data")
-    """
+    else:
+        # commented for testing purposes
+        data_bins_dict = {}
+        for env_directory in all_paths:
+            print("Start evaluation of OBEs from %s", env_directory)
+            # TODO check whether identifier already exists in dict
+            cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
+            data_bins_dict.update(cov_eval.get_all_bins())
+            broken_tests.extend(cov_eval.get_broken_speed_tests())
+        print(len(broken_tests), "broken_tests have to be ignored because of broken speeds", broken_tests)
+        end_gathering = time.time()
+        print(end_gathering - start_gathering, "seconds to gather the data")
 
 
     sbh = SuiteBehaviourComputer(data_bins_dict)
