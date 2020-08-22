@@ -40,8 +40,8 @@ def visualize_centerline(coords_lstr: LineString, road_width: float, path: Path 
     plt.show()
     """
 
-    print("lenghts", len(coords_lstr.coords.xy[0]), len(left_line.coords.xy[0]), len(right_line.coords.xy[0]))
-    print("coords", coords_lstr.coords.xy)
+    #print("lenghts", len(coords_lstr.coords.xy[0]), len(left_line.coords.xy[0]), len(right_line.coords.xy[0]))
+    #print("coords", coords_lstr.coords.xy)
 
     # debugging, own matplot
     xlistl, ylistl = [], []
@@ -65,8 +65,6 @@ def visualize_centerline(coords_lstr: LineString, road_width: float, path: Path 
     for i in range(1, len_m-1):
         index_l = floor(left_to_middle*i)
         index_r = floor(right_to_middle*i)
-        if i == len_m-1:
-            print("index_l, index_r", index_l, index_r)
 
         x_l, y_l = coords_l[0][index_l], coords_l[1][index_l]
 
@@ -105,7 +103,7 @@ def visualize_centerline(coords_lstr: LineString, road_width: float, path: Path 
     plt.ylabel("trimmed list")
     plt.show()
 
-    print("coords_list", coords_list)
+    #print("coords_list", coords_list)
 
     rv = RoadVisualizer(coords_list)
     rv.plot()

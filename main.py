@@ -111,7 +111,7 @@ def main():
     for measure in econf.coverages_2d_to_analyse:
         cov_value = sbh.calculate_suite_2d_coverage(feature=measure, add_for_each=False)
         coverage_tuple_list.append((measure, cov_value))
-        print(str(measure) + "coverage", cov_value)
+        print(str(measure) + " coverage", cov_value)
     print("coverage_tuple_list", coverage_tuple_list)
     #print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
     #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
@@ -119,7 +119,6 @@ def main():
     from road_visualizer.visualize_centerline import visualize_centerline
     road0_lstr = list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value)
     visualize_centerline(road0_lstr, road_width=10)
-    print(list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value))
 
     other_data_tuples_list = []
     total_time = sbh.calculate_whole_suite_time()
@@ -186,7 +185,6 @@ def main():
 
     sampler = AdaptiveRandSampler(data_dict=data_bins_dict)
     sampler.sample_of_n(measure=BehaviorDicConst.JACCARD.value, n=5, func=sampler.pick_smallest_max_similarity)
-    print("sampler.get_unworthy_paths()", sampler.get_unworthy_paths())
 
     clusterer = Clusterer(data_dict=data_bins_dict)
     #clusterer.perform_optics(measure=BehaviorDicConst.JACCARD.value)

@@ -72,7 +72,7 @@ def get_obes_dict(executions):
         # Extend obe information with additional features
         obe_dict['global_id'] = global_id
         obe_data.append(obe_dict)
-    print("obe data ", obe_data)
+    #print("obe data ", obe_data)
     return obe_data
 
 

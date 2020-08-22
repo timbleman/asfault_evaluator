@@ -36,14 +36,14 @@ class AdaptiveRandSampler:
             indices = random.sample(range(0, len(all_keys)), 10)
             for i in indices:
                 candidates.append(all_keys[i])
-            print("candidates: ", candidates)
+            #print("candidates: ", candidates)
 
             best_candidate = func(candidates, measure)
 
             all_keys.pop(all_keys.index(best_candidate))
             self.population.append(best_candidate)
 
-        print(self.population)
+        #print(self.population)
 
     def get_unworthy_paths(self) -> List:
         """ Returns os.paths for each road that is not in the population and shall be removed.
