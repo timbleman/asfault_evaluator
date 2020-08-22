@@ -10,7 +10,7 @@
 #    - THIS IS NOT A METRIC OF COVERAGE, this SHOULD BE A WAY TO UNDERSTAND HOW MANY DIFFERENT OBES ARE ACTUALLY GENERATED
 #       BY COMPARING APPROACHES. WE NEED SET THEORY ?
 #
-#
+"""
 from os import listdir, path
 from os.path import isfile, join
 
@@ -28,7 +28,7 @@ from asfault.tests import RoadTest, TestExecution
 import math
 
 from shapely.geometry import LineString
-
+# # STAGED FOR REMOVAL
 # Mostly a conf parameter ?
 # EPS = 1.2e-16
 EPS = 1e-10
@@ -97,7 +97,6 @@ class SimpleCriticalityEstimator(AbstractCriticalityEstimator):
 
 
 class OBE:
-    """ Compute and store data about OBEs?"""
 
     BORDER = 10
 
@@ -123,7 +122,7 @@ class OBE:
 
     # This might be computed using a factory
     def __init__(self, test, id, state_before_obe, obe_states, segment_before_obe):
-        """ States (tests.CarState objects) contain observation of position and velocity of the car @ OBE"""
+        # States (tests.CarState objects) contain observation of position and velocity of the car @ OBE
         self.test = test
         self.id = id
         self.state_before_obe = state_before_obe
@@ -148,7 +147,7 @@ class OBE:
         return self.state_before_obe.vel_x, self.state_before_obe.vel_y
 
     def get_speed(self):
-        """Return the avg speed of obe in KM/H (3.6)"""
+        #Return the avg speed of obe in KM/H (3.6)
         return np.mean([self.state_before_obe.get_speed(), self.obe_states[0].get_speed()])*3.6
 
     def get_bounding_box(self):
@@ -187,13 +186,13 @@ class OBE:
         return angle
 
     def _pairs(self, lst):
-        """ THere shoulf be something in default libs."""
+        # THere shoulf be something in default libs.
         for i in range(1, len(lst)):
             yield lst[i - 1], lst[i]
 
 
     def get_heading_angle(self):
-        """ Return the heading angle of the car before it went OBE """
+        # Return the heading angle of the car before it went OBE #
         # https://stackoverflow.com/questions/56710732/how-to-efficiently-calculate-full-2pi-angles-between-three-vectors-of-2d-point
         # https://stackoverflow.com/questions/14066933/direct-way-of-computing-clockwise-angle-between-2-vectors
         # https://newtonexcelbach.com/2014/03/01/the-angle-between-two-vectors-python-version/
@@ -313,7 +312,7 @@ class OBEEvaluator:
             self.bounds = execution.test.network.bounds
 
     def _extract_obes_from_test(self, execution):
-        """ This one is inspired by the TestExecution"""
+        # This one is inspired by the TestExecution#
 
         obes = []
         obe_id = 0
@@ -556,24 +555,24 @@ def setup_logging(log_level):
 def generate_html_index(obe_data):
     from jinja2 import Template
     # TODO Fix ME
-    html_index_template = Template("""
-    <hmlt>
-        <body>
-            <table>
-                {% for obe_dict in obe_data %}
-                <tr>
-                    <td>
-                        <img src="{{ obe_dict['obe_plot_file'] }}" height="400" width="400">
-                    </td>
-                    <td>
-                        <img src="{{ obe_dict['polar_plot_file'] }}" height="400" width="400">
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </body>
-    </html>
-    """)
+#    html_index_template = Template(
+#    <hmlt>
+#        <body>
+#            <table>
+#                {% for obe_dict in obe_data %}
+#                <tr>
+#                    <td>
+#                        <img src="{{ obe_dict['obe_plot_file'] }}" height="400" width="400">
+#                    </td>
+#                    <td>
+#                        <img src="{{ obe_dict['polar_plot_file'] }}" height="400" width="400">
+#                    </td>
+#                </tr>
+#                {% endfor %}
+#            </table>
+#        </body>
+#    </html>
+#    )
     return html_index_template.render(obe_data=obe_data)
 
 
@@ -837,3 +836,4 @@ def old_main():
 if __name__ == "__main__":
     main()
 
+"""

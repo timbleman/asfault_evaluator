@@ -6,6 +6,7 @@ import operator
 import colorama
 
 import utils
+from utils import RoadDicConst
 
 
 class SuiteTrimmer:
@@ -37,7 +38,7 @@ class SuiteTrimmer:
         for i in range(0, len(key_list)):
             if i % block_size >= threshold:
                 road = self.data_dict.get(key_list[i], None)
-                path = road.get(utils.RoadDicConst.TEST_PATH.value, None)
+                path = road.get(RoadDicConst.TEST_PATH.value, None)
                 assert path is not None, "There has been no path added for " + str(key_list[i])
                 unworthy_paths.append(path)
 
@@ -57,7 +58,7 @@ class SuiteTrimmer:
             val = test.get(feature, None)
             assert val is not None, "The feature has not been added or spelling is incorrect"
             if op(val, threshold):
-                unworthy_paths.append(test[utils.RoadDicConst.TEST_PATH.value])
+                unworthy_paths.append(test[RoadDicConst.TEST_PATH.value])
 
         return unworthy_paths
 

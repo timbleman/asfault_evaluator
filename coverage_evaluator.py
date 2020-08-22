@@ -16,6 +16,8 @@ from code_obe_evaluator import OBEEvaluator, OBE
 import evaluator_config as econf
 
 import utils
+from utils import RoadDicConst
+from utils import BehaviorDicConst
 
 # TODO OBE Coverage
 
@@ -179,16 +181,21 @@ class CoverageEvaluator:
         if broken_speed:
             self.broken_speed_tests.append(test_path)
         # .testid instead of whole execution object?
-        bins = {'test_id': execution.test.test_id, 'test_path': test_path,
-                utils.RoadDicConst.SPEED_BINS.value: self.get_speed_bins(),
-                utils.RoadDicConst.STEERING_BINS.value: self.get_steering_bins(),
-                utils.RoadDicConst.DISTANCE_BINS.value: self.get_distance_bins((0, 20)),  #TODO is (0, 20) a good range?
-                utils.RoadDicConst.SPEED_STEERING_2D.value: self.get_speed_steering_2d(),
-                utils.RoadDicConst.OBE_2D.value: self.get_obe_speed_angle_bins(),
-                utils.DicConst.NODES.value: road_nodes, utils.RoadDicConst.UNDER_MIN_LEN_SEGS.value: utils.road_has_min_segs(road_nodes),
-                utils.RoadDicConst.EXEC_TIME.value: exec_time, utils.RoadDicConst.NUM_OBES.value: len(obe_list),
-                utils.DicConst.POLYLINE.value: road_polyline, "road_len": road_polyline.length, "num_states": num_states,
-                "ex_result": execution.result}
+        bins = {RoadDicConst.TEST_ID.value: execution.test.test_id,
+                RoadDicConst.TEST_PATH.value: test_path,
+                RoadDicConst.SPEED_BINS.value: self.get_speed_bins(),
+                RoadDicConst.STEERING_BINS.value: self.get_steering_bins(),
+                RoadDicConst.DISTANCE_BINS.value: self.get_distance_bins((0, 20)),  #TODO is (0, 20) a good range?
+                RoadDicConst.SPEED_STEERING_2D.value: self.get_speed_steering_2d(),
+                RoadDicConst.OBE_2D.value: self.get_obe_speed_angle_bins(),
+                RoadDicConst.NODES.value: road_nodes,
+                RoadDicConst.UNDER_MIN_LEN_SEGS.value: utils.road_has_min_segs(road_nodes),
+                RoadDicConst.EXEC_TIME.value: exec_time,
+                RoadDicConst.NUM_OBES.value: len(obe_list),
+                RoadDicConst.POLYLINE.value: road_polyline,
+                RoadDicConst.ROAD_LEN.value: road_polyline.length,
+                BehaviorDicConst.NUM_STATES.value: num_states,
+                BehaviorDicConst.EXEC_RESULT.value: execution.result}
 
         #print("bins: ", bins)
         road_name = self.global_name + str(execution.test.test_id)

@@ -97,7 +97,7 @@ class CSVCreator:
 
         first_road_dict = self.data_dict.get(csv_columns[1], None)
         assert first_road_dict is not None, "There has to be at least one road!"
-        first_path = first_road_dict.get(utils.DicConst.TEST_PATH.value, None)
+        first_path = first_road_dict.get(utils.RoadDicConst.TEST_PATH.value, None)
         assert os.path.exists(first_path), "The path has not been set correctly!"
 
         # get the root of the dataset

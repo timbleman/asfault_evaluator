@@ -1,4 +1,6 @@
 import utils
+from utils import BehaviorDicConst
+from utils import RoadDicConst
 
 from enum import Enum
 import numpy as np
@@ -88,12 +90,12 @@ class StringComparer:
         assert self.data_dict is not None, "There have to be roads added"
         for name in self.data_dict:
             test = self.data_dict[name]
-            nodes = test[utils.DicConst.NODES.value]
+            nodes = test[RoadDicConst.NODES.value]
             assert nodes is not None, "There have to be nodes for each road"
             # save both the curve only and the 2d shape definition language representation
-            self.data_dict[name][utils.DicConst.CUR_SDL.value] = self.nodes_to_curvature_sdl(nodes=nodes,
+            self.data_dict[name][BehaviorDicConst.CUR_SDL.value] = self.nodes_to_curvature_sdl(nodes=nodes,
                                                                                              compress_neighbours=True)
-            self.data_dict[name][utils.DicConst.SDL_2D.value] = self.nodes_to_sdl_2d(nodes=nodes)
+            self.data_dict[name][BehaviorDicConst.SDL_2D.value] = self.nodes_to_sdl_2d(nodes=nodes)
 
     def nodes_to_curvature_sdl(self, nodes: List[asfault.network.NetworkNode], compress_neighbours: bool = False):
         """ curve shape definition language of a single road
@@ -136,48 +138,48 @@ class StringComparer:
             return avg
 
         for road in self.data_dict.values():
-            avg_curve = _average_curvature(road[utils.DicConst.CUR_SDL.value], normalized)
-            road[utils.DicConst.AVG_CURVATURE.value] = avg_curve
+            avg_curve = _average_curvature(road[BehaviorDicConst.CUR_SDL.value], normalized)
+            road[BehaviorDicConst.AVG_CURVATURE.value] = avg_curve
 
     def sdl_all_to_all_unoptimized(self):
         for name in self.data_dict:
             # TODO schau mal ob da alles passt
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.cur_sdl_one_to_one,
-                                                               representation=utils.DicConst.CUR_SDL.value)
-            self.data_dict[name][utils.DicConst.CUR_SDL_DIST.value] = distance_arr
+                                                               representation=BehaviorDicConst.CUR_SDL.value)
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_DIST.value] = distance_arr
 
             # distance_arr = self.sdl_2d_one_to_all_unoptimized(self.data_dict[name][utils.DicConst.SDL_2D.value])
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.sdl_2d_one_to_one,
-                                                               representation=utils.DicConst.SDL_2D.value)
-            self.data_dict[name][utils.DicConst.SDL_2D_DIST.value] = distance_arr
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.SDL_2D_DIST.value] = distance_arr
 
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.lcs,
-                                                               representation=utils.DicConst.CUR_SDL.value)
-            self.data_dict[name][utils.DicConst.CUR_SDL_LCS_DIST.value] = distance_arr
+                                                               representation=BehaviorDicConst.CUR_SDL.value)
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_LCS_DIST.value] = distance_arr
 
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.lcs,
-                                                               representation=utils.DicConst.SDL_2D.value)
-            self.data_dict[name][utils.DicConst.SDL_2D_LCS_DIST.value] = distance_arr
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.SDL_2D_LCS_DIST.value] = distance_arr
 
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.LCSubStr,
-                                                               representation=utils.DicConst.CUR_SDL.value)
-            self.data_dict[name][utils.DicConst.CUR_SDL_LCSTR_DIST.value] = distance_arr
+                                                               representation=BehaviorDicConst.CUR_SDL.value)
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_LCSTR_DIST.value] = distance_arr
 
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.LCSubStr,
-                                                               representation=utils.DicConst.SDL_2D.value)
-            self.data_dict[name][utils.DicConst.SDL_2D_LCSTR_DIST.value] = distance_arr
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.SDL_2D_LCSTR_DIST.value] = distance_arr
 
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
-                                                               representation=utils.DicConst.CUR_SDL.value)
-            self.data_dict[name][utils.DicConst.CUR_SDL_K_LCSTR_DIST.value] = distance_arr
+                                                               representation=BehaviorDicConst.CUR_SDL.value)
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_K_LCSTR_DIST.value] = distance_arr
 
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
-                                                               representation=utils.DicConst.SDL_2D.value)
-            self.data_dict[name][utils.DicConst.SDL_2D_K_LCSTR_DIST.value] = distance_arr
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.SDL_2D_K_LCSTR_DIST.value] = distance_arr
 
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.jaccard_sdl_2d_one_to_one,
-                                                               representation=utils.DicConst.SDL_2D.value)
-            self.data_dict[name][utils.DicConst.JACCARD.value] = distance_arr
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.JACCARD.value] = distance_arr
 
 
 

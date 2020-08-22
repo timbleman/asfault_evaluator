@@ -3,7 +3,8 @@ import numpy as np
 
 import coverage_evaluator
 import utils
-
+from utils import RoadDicConst
+from utils import BehaviorDicConst
 
 class SuiteBehaviourComputer:
     def __init__(self, t_dict: Dict, start: int = 0, end: int = 0):
@@ -92,34 +93,34 @@ class SuiteBehaviourComputer:
         """
         all_keys = list(self.test_dict.keys())
         first_test = self.test_dict.get(all_keys[0])
-        sum = first_test.get(utils.RoadDicConst.EXEC_TIME.value)
+        sum = first_test.get(RoadDicConst.EXEC_TIME.value)
         for i in range(1, len(all_keys)):
             test = self.test_dict.get(all_keys[i])
-            t = test.get(utils.RoadDicConst.EXEC_TIME.value)
+            t = test.get(RoadDicConst.EXEC_TIME.value)
             sum += t
         return sum
 
     def behaviour_all_to_all(self):
         for name in self.test_dict:
             # TODO schau mal ob da alles passt
-            distance_arr = self.behavior_compare_1d(name, measure=utils.RoadDicConst.DISTANCE_BINS.value,
+            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.DISTANCE_BINS.value,
                                                                function='binary')
-            self.test_dict[name][utils.DicConst.CENTER_DIST_BINARY.value] = distance_arr
+            self.test_dict[name][BehaviorDicConst.CENTER_DIST_BINARY.value] = distance_arr
 
-            distance_arr = self.behavior_compare_1d(name, measure=utils.RoadDicConst.DISTANCE_BINS.value,
+            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.DISTANCE_BINS.value,
                                                     function='single')
-            self.test_dict[name][utils.DicConst.CENTER_DIST_SINGLE.value] = distance_arr
+            self.test_dict[name][BehaviorDicConst.CENTER_DIST_SINGLE.value] = distance_arr
 
-            distance_arr = self.behavior_compare_1d(name, measure=utils.RoadDicConst.STEERING_BINS.value,
+            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.STEERING_BINS.value,
                                                     function='binary')
-            self.test_dict[name][utils.DicConst.STEERING_DIST_BINARY.value] = distance_arr
+            self.test_dict[name][BehaviorDicConst.STEERING_DIST_BINARY.value] = distance_arr
 
-            distance_arr = self.behavior_compare_1d(name, measure=utils.RoadDicConst.STEERING_BINS.value,
+            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.STEERING_BINS.value,
                                                     function='single')
-            self.test_dict[name][utils.DicConst.STEERING_DIST_SINGLE.value] = distance_arr
+            self.test_dict[name][BehaviorDicConst.STEERING_DIST_SINGLE.value] = distance_arr
 
-            distance_arr = self.behavior_compare_2d(name, measure=utils.RoadDicConst.SPEED_STEERING_2D.value)
-            self.test_dict[name][utils.DicConst.BINS_STEERING_SPEED_DIST.value] = distance_arr
+            distance_arr = self.behavior_compare_2d(name, measure=RoadDicConst.SPEED_STEERING_2D.value)
+            self.test_dict[name][BehaviorDicConst.BINS_STEERING_SPEED_DIST.value] = distance_arr
 
 
     def behavior_compare_1d(self, road_to_compare: str, measure: str, function: str = 'binary'):

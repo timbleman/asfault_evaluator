@@ -15,8 +15,11 @@ START_OF_PARENT_DIR = "experiments-"
 MINIMUM_SEG_LEN = 5
 
 
+# for selecting entries from the dict while avoiding typos
+# stores more general information about a road and execution
 class RoadDicConst(Enum):
     TEST_PATH = 'test_path'
+    TEST_ID = 'test_id'
     SPEED_BINS = "speed_bins"
     STEERING_BINS = 'steering_bins'
     DISTANCE_BINS = "distance_bins"
@@ -25,18 +28,22 @@ class RoadDicConst(Enum):
     EXEC_TIME = "exec_time"
     NUM_OBES = "num_obes"
     UNDER_MIN_LEN_SEGS = "under_min_len_segs"
-
-
-class DicConst(Enum):
     NODES = 'nodes'
     POLYLINE = 'polyline'
-    TEST_PATH = 'test_path'
+    ROAD_LEN = "road_len"
+
+
+# for selecting entries from the dict while avoiding typos
+# more about behavior and distances
+class BehaviorDicConst(Enum):
+    NUM_STATES = "num_states"
+    EXEC_RESULT = "ex_result"
     AVG_CURVATURE = 'avg_curvature'
     CENTER_DIST_BINARY = "center_dist_binary"
     CENTER_DIST_SINGLE = "center_dist_single"
     STEERING_DIST_BINARY = "steering_dist_binary"
     STEERING_DIST_SINGLE = "steering_dist_single"
-    BINS_STEERING_SPEED_DIST = "speering_speed_dist"
+    BINS_STEERING_SPEED_DIST = "steering_speed_dist"
 
     SDL_2D = "sdl_2d"
     CUR_SDL = "curve_sdl"
@@ -375,6 +382,16 @@ def list_statistics(data_list = list, desired_percentile: int = 0, plot: bool = 
     if plot:
         print("Stats for", title, stat_dict)
     return stat_dict
+
+
+def shape_similarity_measures_all_to_all(data_dict: dict):
+    import similaritymeasures
+
+    for name in data_dict:
+        road = data_dict.get(name)
+        polyline = road.get(RoadDicConst.POLYLINE.value, None)
+        assert polyline is not None, "Polyline has not been added to road " + name
+
 
 def lcs(X, Y, normalized: bool = True):
     """ longest common subsequence problem dynamic programming approach

@@ -4,6 +4,8 @@ from unittest.mock import MagicMock
 from asfault.network import NetworkNode, TYPE_R_TURN, TYPE_L_TURN, TYPE_STRAIGHT
 
 import utils
+from utils import RoadDicConst
+from utils import BehaviorDicConst
 import coverage_evaluator
 import string_comparison
 import suite_trimmer
@@ -155,8 +157,8 @@ class TestCurveSDL(unittest.TestCase):
         # do not change these, this arrangement is needed for some tests
         self.nodes0_list = [node0, node1, node2, node3, node4]
         self.nodes1_list = [node0, node1, node2, node35, node4]
-        road0_dict = {utils.DicConst.NODES.value: self.nodes0_list}
-        road1_dict = {utils.DicConst.NODES.value: self.nodes1_list}
+        road0_dict = {RoadDicConst.NODES.value: self.nodes0_list}
+        road1_dict = {RoadDicConst.NODES.value: self.nodes1_list}
         data_dict = {'0': road0_dict, "1": road1_dict}
 
         self.str_comparer = string_comparison.StringComparer(data_dict=data_dict)
@@ -339,21 +341,21 @@ class TestCurveSDL(unittest.TestCase):
         with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):
             self.str_comparer.all_roads_to_curvature_sdl()
             road_dict = list(self.str_comparer.data_dict.values())[0]
-            self.assertTrue(utils.DicConst.SDL_2D.value in road_dict, "two dimensional sdl has not been added")
-            self.assertTrue(utils.DicConst.CUR_SDL.value in road_dict, "one dimensional sdl has not been added")
+            self.assertTrue(BehaviorDicConst.SDL_2D.value in road_dict, "two dimensional sdl has not been added")
+            self.assertTrue(BehaviorDicConst.CUR_SDL.value in road_dict, "one dimensional sdl has not been added")
 
     def test_sdl_all_to_all_execution(self):
         with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):
             self.str_comparer.all_roads_to_curvature_sdl()
             self.str_comparer.sdl_all_to_all_unoptimized()
             road_dict = list(self.str_comparer.data_dict.values())[0]
-            self.assertTrue(utils.DicConst.SDL_2D_DIST.value in road_dict,
+            self.assertTrue(BehaviorDicConst.SDL_2D_DIST.value in road_dict,
                             "two dimensional sdl dist has not been added")
-            self.assertTrue(utils.DicConst.CUR_SDL_DIST.value in road_dict,
+            self.assertTrue(BehaviorDicConst.CUR_SDL_DIST.value in road_dict,
                             "one dimensional sdl dist has not been added")
-            sdl_error = self.str_comparer.data_dict["0"].get(utils.DicConst.CUR_SDL_DIST.value)
+            sdl_error = self.str_comparer.data_dict["0"].get(BehaviorDicConst.CUR_SDL_DIST.value)
             self.assertAlmostEqual(1.0, sdl_error["0"], msg="Ones own curvature sdl similarity has to be 0")
-            sdl_2d_error = self.str_comparer.data_dict["0"].get(utils.DicConst.SDL_2D_DIST.value)
+            sdl_2d_error = self.str_comparer.data_dict["0"].get(BehaviorDicConst.SDL_2D_DIST.value)
             self.assertAlmostEqual(1.0, sdl_error["0"], msg="Ones own 2d sdl similarity has to be 0")
 
     def test_nodes_to_sdl_2d_segment_compression(self):
@@ -390,16 +392,16 @@ class TestCurveSDL(unittest.TestCase):
     def test_get_random_percentage_unworthy(self):
         import os
         cwd = os.getcwd()
-        fake_road_dict = {"road1": {utils.RoadDicConst.TEST_PATH.value: cwd},
-                          "road2": {utils.RoadDicConst.TEST_PATH.value: cwd},
-                          "road3": {utils.RoadDicConst.TEST_PATH.value: cwd},
-                          "road4": {utils.RoadDicConst.TEST_PATH.value: cwd},
-                          "road5": {utils.RoadDicConst.TEST_PATH.value: cwd},
-                          "road6": {utils.RoadDicConst.TEST_PATH.value: cwd},
-                          "road7": {utils.RoadDicConst.TEST_PATH.value: cwd},
-                          "road8": {utils.RoadDicConst.TEST_PATH.value: cwd},
-                          "road9": {utils.RoadDicConst.TEST_PATH.value: cwd},
-                          "road10": {utils.RoadDicConst.TEST_PATH.value: cwd}}
+        fake_road_dict = {"road1": {RoadDicConst.TEST_PATH.value: cwd},
+                          "road2": {RoadDicConst.TEST_PATH.value: cwd},
+                          "road3": {RoadDicConst.TEST_PATH.value: cwd},
+                          "road4": {RoadDicConst.TEST_PATH.value: cwd},
+                          "road5": {RoadDicConst.TEST_PATH.value: cwd},
+                          "road6": {RoadDicConst.TEST_PATH.value: cwd},
+                          "road7": {RoadDicConst.TEST_PATH.value: cwd},
+                          "road8": {RoadDicConst.TEST_PATH.value: cwd},
+                          "road9": {RoadDicConst.TEST_PATH.value: cwd},
+                          "road10": {RoadDicConst.TEST_PATH.value: cwd}}
 
         st = suite_trimmer.SuiteTrimmer(data_dict=fake_road_dict, base_path=cwd)
         unworthy_paths = st.get_random_percentage_unworthy(percentage=50, block_size=10)
