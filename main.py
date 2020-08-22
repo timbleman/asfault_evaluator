@@ -71,7 +71,7 @@ def main():
     """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
-    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-150-wo-minlen-wo-infspeed")
     # unnecessary
     # parent_dir = utils.get_root_of_test_suite(parent_dir)
     all_paths = get_all_paths(parent_dir)
@@ -116,6 +116,11 @@ def main():
     #print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
     #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
 
+    from road_visualizer.visualize_centerline import visualize_centerline
+    road0_lstr = list(data_bins_dict.values())[0].get(utils.DicConst.POLYLINE.value)
+    visualize_centerline(road0_lstr, road_width=10)
+    print(list(data_bins_dict.values())[0].get(utils.DicConst.POLYLINE.value))
+
     other_data_tuples_list = []
     total_time = sbh.calculate_whole_suite_time()
     other_data_tuples_list.append(("total_time", total_time))
@@ -138,32 +143,34 @@ def main():
     print(end_str - start_str, "seconds to compute the string representation")
 
     start_csv = time.time()
-    csv_creator = CSVCreator(data_dict=data_bins_dict, root_path=parent_dir)
-    csv_creator.write_whole_suite_multiple_values("whole_suite_coverages", coverage_tuple_list)
-    csv_creator.write_whole_suite_multiple_values("other_numerics", other_data_tuples_list, first_row_name="measures")
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_DIST.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.JACCARD.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_LCS_DIST.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_LCSTR_DIST.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_K_LCSTR_DIST.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_DIST.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCS_DIST.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCSTR_DIST.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_K_LCSTR_DIST.value)
+    WRITE_CSV = False
+    if WRITE_CSV:
+        csv_creator = CSVCreator(data_dict=data_bins_dict, root_path=parent_dir)
+        csv_creator.write_whole_suite_multiple_values("whole_suite_coverages", coverage_tuple_list)
+        csv_creator.write_whole_suite_multiple_values("other_numerics", other_data_tuples_list, first_row_name="measures")
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.JACCARD.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_LCS_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.SDL_2D_K_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCS_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_K_LCSTR_DIST.value)
 
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.BINS_STEERING_SPEED_DIST.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.BINS_STEERING_SPEED_DIST.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CENTER_DIST_BINARY.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CENTER_DIST_SINGLE.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.STEERING_DIST_BINARY.value)
-    csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.STEERING_DIST_SINGLE.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.BINS_STEERING_SPEED_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.BINS_STEERING_SPEED_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CENTER_DIST_BINARY.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CENTER_DIST_SINGLE.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.STEERING_DIST_BINARY.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.STEERING_DIST_SINGLE.value)
 
-    csv_creator.write_all_tests_one_value(measure=utils.RoadDicConst.NUM_OBES.value)
-    #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCS_DIST.value)
-    #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCSTR_DIST.value)
-    #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
-    #csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
-    #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
+        csv_creator.write_all_tests_one_value(measure=utils.RoadDicConst.NUM_OBES.value)
+        #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCS_DIST.value)
+        #csv_creator.write_all_to_all_dist_matrix(measure=utils.DicConst.CUR_SDL_LCSTR_DIST.value)
+        #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
+        #csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
+        #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
     end_csv = time.time()
     print(end_csv - start_csv, "seconds to write the csvs")
 
@@ -189,6 +196,11 @@ def main():
     #print("data_bins_dict['random--la54']['speed_steering_2d']", data_bins_dict['random--la54']['speed_steering_2d'])
 
     suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=parent_dir)
+
+    # halving the suite size
+    #unworthy_paths = suite_trimmer.get_random_percentage_unworthy(percentage=50)
+    #suite_trimmer.trim_dataset_list(unworthy_paths=unworthy_paths, description="halving the suite size")
+
     import operator
     # remove broken tests
     #suite_trimmer.trim_dataset_list(unworthy_paths=broken_tests, description="Broken tests with infinite speed removed")

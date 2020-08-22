@@ -185,9 +185,9 @@ class CoverageEvaluator:
                 utils.RoadDicConst.DISTANCE_BINS.value: self.get_distance_bins((0, 20)),  #TODO is (0, 20) a good range?
                 utils.RoadDicConst.SPEED_STEERING_2D.value: self.get_speed_steering_2d(),
                 utils.RoadDicConst.OBE_2D.value: self.get_obe_speed_angle_bins(),
-                "nodes": road_nodes, utils.RoadDicConst.UNDER_MIN_LEN_SEGS.value: utils.road_has_min_segs(road_nodes),
+                utils.DicConst.NODES.value: road_nodes, utils.RoadDicConst.UNDER_MIN_LEN_SEGS.value: utils.road_has_min_segs(road_nodes),
                 utils.RoadDicConst.EXEC_TIME.value: exec_time, utils.RoadDicConst.NUM_OBES.value: len(obe_list),
-                "polyline": road_polyline, "road_len": road_polyline.length, "num_states": num_states,
+                utils.DicConst.POLYLINE.value: road_polyline, "road_len": road_polyline.length, "num_states": num_states,
                 "ex_result": execution.result}
 
         #print("bins: ", bins)

@@ -29,6 +29,7 @@ class RoadDicConst(Enum):
 
 class DicConst(Enum):
     NODES = 'nodes'
+    POLYLINE = 'polyline'
     TEST_PATH = 'test_path'
     AVG_CURVATURE = 'avg_curvature'
     CENTER_DIST_BINARY = "center_dist_binary"
