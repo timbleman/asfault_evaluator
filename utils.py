@@ -355,15 +355,49 @@ def extend_arrays_globally(data_dict: dict, feature: str) -> list:
     return global_array
 
 
+def whole_suite_dist_matrix_statistic_incomplete(dataset_dict: dict, feature: str, random_selection_size: int = 0,
+                                                 desired_percentile: int = 0, plot: bool = False, title: str = None) \
+                                                    -> dict:
+    """ Calculate a boxplot for a similarity matrix, randomly sampled to speed up the process
+
+    :param dataset_dict: The dict that includes all roads
+    :param feature: Feature to extract, has to be a numerical value
+    :param random_selection_size: Number of random dist matrices that get combine
+    :param desired_percentile: Desired percentile to return, optional
+    :param plot: Draw a box plot and print a message
+    :param title: title of the plot
+
+    :return: dict that includes quartiles, avg and standard deviation
+    """
+    import random
+    all_values = []
+    all_keys = list(dataset_dict.keys())
+    if random_selection_size == 0:
+        random_selection_size = len(dataset_dict)
+    keys = random.sample(all_keys, random_selection_size)
+
+    for key in keys:
+        test_dict = dataset_dict.get(key)
+        dists = test_dict.get(feature, None)
+        assert dists is not None, feature + " has not been added to the dict!"
+        for val in dists.values():
+            all_values.append(val)
+            print(val)
+
+    return list_statistics(data_list=all_values, desired_percentile=desired_percentile, plot=plot, title=title)
+
+
 def whole_suite_statistics(dataset_dict: dict, feature: str, desired_percentile: int = 0, plot: bool = False,
                            title: str = None) -> dict:
+
     """ Calculates common statistics on numerical feature of each road in the dataset.
     This could be a certain coverage or the length.
 
     :param dataset_dict: The dict that includes all roads
     :param feature: Feature to extract, has to be a numerical value
-    :param desired_quartile: Desired quartile to return, optional
+    :param desired_percentile: Desired quartile to return, optional
     :param plot: Draw a box plot and print a message
+    :param title: title of the plot
     :return: dict that includes quartiles, avg and standard deviation
     """
     all_values = []

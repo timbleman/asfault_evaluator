@@ -83,7 +83,7 @@ def main():
     broken_tests = []
 
     start_gathering = time.time()
-    QUICK = False
+    QUICK = True
     if QUICK:
         env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
         cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
@@ -119,7 +119,7 @@ def main():
 
     from road_visualizer.visualize_centerline import visualize_centerline
     road0_lstr = list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value)
-    visualize_centerline(road0_lstr, road_width=10)
+    #visualize_centerline(road0_lstr, road_width=10)   # fixme this breaks box plots
     print(list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value).coords.xy[0])  #TODO remove
     print(list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value).coords.xy[1])  #TODO remove
 
@@ -144,6 +144,8 @@ def main():
     end_str = time.time()
     print(end_str - start_str, "seconds to compute the string representation")
 
+    utils.whole_suite_dist_matrix_statistic_incomplete(data_bins_dict, feature=utils.BehaviorDicConst.JACCARD.value,
+                                                       title="Jaccard box plots", plot=True)
 
     start_predefined = time.time()
     utils.add_coord_tuple_representation(data_dict=data_bins_dict)
