@@ -78,11 +78,26 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(expected, diff, "Unequal element count causes problems")
 
     def test_k_lcstr_not_normalized(self):
-        # should detect "fuel"
+        # should detect "fuel" -> 4
         str1 = "qwerfueltzuio"
         str2 = "yxfxelnnmkl"
         result = utils.k_lcstr(str1, str2, normalized=False)
         self.assertEqual(4, result)
+
+    def test_k_2_lcstr_not_normalized_2_wrong_in_series(self):
+        # should detect "rfuelt" -> 6
+        str1 = "qwerfueltzuio"
+        str2 = "yxrfxnltnnmkl"
+        result = utils.k_lcstr(str1, str2, k=2, normalized=False)
+        self.assertEqual(6, result)
+
+    def test_k_2_lcstr_not_normalized_2_wrong_in_between(self):
+        # should detect "rfuelt" -> 6
+        utils.K_LCSTR = 2
+        str1 = "qwerfueltzuio"
+        str2 = "yxrfnentnmkl"
+        result = utils.k_lcstr(str1, str2, normalized=False)
+        self.assertEqual(6, result)
 
     def test_k_lcstr_normalized(self):
         # should detect "fuel"

@@ -144,6 +144,7 @@ class StringComparer:
     def sdl_all_to_all_unoptimized(self):
         for name in self.data_dict:
             # TODO schau mal ob da alles passt
+            # TODO refactor this into a predefined tuple list [(func, representation, dist_name)]
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.cur_sdl_one_to_one,
                                                                representation=BehaviorDicConst.CUR_SDL.value)
             self.data_dict[name][BehaviorDicConst.CUR_SDL_DIST.value] = distance_arr
@@ -169,6 +170,7 @@ class StringComparer:
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_LCSTR_DIST.value] = distance_arr
 
+            """ # default with one mismatch
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
                                                                representation=BehaviorDicConst.CUR_SDL.value)
             self.data_dict[name][BehaviorDicConst.CUR_SDL_K_LCSTR_DIST.value] = distance_arr
@@ -176,6 +178,53 @@ class StringComparer:
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_K_LCSTR_DIST.value] = distance_arr
+            """
+            utils.K_LCSTR = 1
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.CUR_SDL.value)
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_1_LCSTR_DIST.value] = distance_arr
+
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value] = distance_arr
+
+            utils.K_LCSTR = 2
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.CUR_SDL.value)
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_2_LCSTR_DIST.value] = distance_arr
+
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.SDL_2D_2_LCSTR_DIST.value] = distance_arr
+
+            utils.K_LCSTR = 3
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.CUR_SDL.value)
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_3_LCSTR_DIST.value] = distance_arr
+
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.SDL_2D_3_LCSTR_DIST.value] = distance_arr
+
+            utils.K_LCSTR = 5
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.CUR_SDL.value)
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_5_LCSTR_DIST.value] = distance_arr
+
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.SDL_2D_5_LCSTR_DIST.value] = distance_arr
+
+
+            utils.K_LCSTR = 10
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.CUR_SDL.value)
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_10_LCSTR_DIST.value] = distance_arr
+
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+                                                               representation=BehaviorDicConst.SDL_2D.value)
+            self.data_dict[name][BehaviorDicConst.SDL_2D_10_LCSTR_DIST.value] = distance_arr
+
 
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.jaccard_sdl_2d_one_to_one,
                                                                representation=BehaviorDicConst.SDL_2D.value)

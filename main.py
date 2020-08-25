@@ -70,8 +70,9 @@ def main():
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
     """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
+    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
-    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-150-wo-minlen-wo-infspeed")
+    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
     # unnecessary
     # parent_dir = utils.get_root_of_test_suite(parent_dir)
     all_paths = get_all_paths(parent_dir)
@@ -82,7 +83,7 @@ def main():
     broken_tests = []
 
     start_gathering = time.time()
-    QUICK = True
+    QUICK = False
     if QUICK:
         env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
         cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
@@ -119,6 +120,8 @@ def main():
     from road_visualizer.visualize_centerline import visualize_centerline
     road0_lstr = list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value)
     visualize_centerline(road0_lstr, road_width=10)
+    print(list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value).coords.xy[0])  #TODO remove
+    print(list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value).coords.xy[1])  #TODO remove
 
     other_data_tuples_list = []
     total_time = sbh.calculate_whole_suite_time()
@@ -141,8 +144,17 @@ def main():
     end_str = time.time()
     print(end_str - start_str, "seconds to compute the string representation")
 
+
+    start_predefined = time.time()
+    utils.add_coord_tuple_representation(data_dict=data_bins_dict)
+    print(list(data_bins_dict.values())[0].get(RoadDicConst.COORD_TUPLE_REP.value))
+    #utils.shape_similarity_measures_all_to_all_unoptimized(data_dict=data_bins_dict)
+    end_predefined = time.time()
+    print(end_predefined - start_predefined, "seconds to compute the similaritymeasures distances")
+
+
     start_csv = time.time()
-    WRITE_CSV = False
+    WRITE_CSV = True
     if WRITE_CSV:
         csv_creator = CSVCreator(data_dict=data_bins_dict, root_path=parent_dir)
         csv_creator.write_whole_suite_multiple_values("whole_suite_coverages", coverage_tuple_list)
@@ -151,11 +163,19 @@ def main():
         csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.JACCARD.value)
         csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_LCS_DIST.value)
         csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_LCSTR_DIST.value)
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_K_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_2_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_3_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_5_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_10_LCSTR_DIST.value)
         csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_DIST.value)
         csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCS_DIST.value)
         csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCSTR_DIST.value)
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_K_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_1_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_2_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_3_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_5_LCSTR_DIST.value)
+        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_10_LCSTR_DIST.value)
 
         csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.BINS_STEERING_SPEED_DIST.value)
         csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.BINS_STEERING_SPEED_DIST.value)

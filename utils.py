@@ -10,6 +10,9 @@ import math
 from asfault.network import NetworkNode
 #import evaluator_config as econf
 
+# modifiable from the outside, hacky
+K_LCSTR = 1
+
 START_OF_PARENT_DIR = "experiments-"
 # if a segment is under this length it is considered invalid
 MINIMUM_SEG_LEN = 5
@@ -30,6 +33,7 @@ class RoadDicConst(Enum):
     UNDER_MIN_LEN_SEGS = "under_min_len_segs"
     NODES = 'nodes'
     POLYLINE = 'polyline'
+    COORD_TUPLE_REP = "coord_tuple"
     ROAD_LEN = "road_len"
 
 
@@ -45,6 +49,11 @@ class BehaviorDicConst(Enum):
     STEERING_DIST_SINGLE = "steering_dist_single"
     BINS_STEERING_SPEED_DIST = "steering_speed_dist"
 
+    COORD_DTW_DIST = "coord_dtw_dist"
+    COORD_EDR_DIST = "coord_edr_dist"
+    COORD_ERP_DIST = "coord_erp_dist"
+    COORD_FRECHET_DIST = "coord_frechet_dist"
+
     SDL_2D = "sdl_2d"
     CUR_SDL = "curve_sdl"
     CUR_SDL_DIST = "curve_sdl_dist"
@@ -52,9 +61,19 @@ class BehaviorDicConst(Enum):
     CUR_SDL_LCS_DIST = "cur_sdl_lcs_dist"
     CUR_SDL_LCSTR_DIST = "cur_sdl_lcstr_dist"
     CUR_SDL_K_LCSTR_DIST = "cur_sdl_k_lcstr_dist"
+    CUR_SDL_1_LCSTR_DIST = "cur_sdl_1_lcstr_dist"
+    CUR_SDL_2_LCSTR_DIST = "cur_sdl_2_lcstr_dist"
+    CUR_SDL_3_LCSTR_DIST = "cur_sdl_3_lcstr_dist"
+    CUR_SDL_5_LCSTR_DIST = "cur_sdl_5_lcstr_dist"
+    CUR_SDL_10_LCSTR_DIST = "cur_sdl_10_lcstr_dist"
     SDL_2D_LCS_DIST = "sdl_2d_lcs_dist"
     SDL_2D_LCSTR_DIST = "sdl_2d_lcstr_dist"
     SDL_2D_K_LCSTR_DIST = "sdl_2d_k_lcstr_dist"
+    SDL_2D_1_LCSTR_DIST = "sdl_2d_1_lcstr_dist"
+    SDL_2D_2_LCSTR_DIST = "sdl_2d_2_lcstr_dist"
+    SDL_2D_3_LCSTR_DIST = "sdl_2d_3_lcstr_dist"
+    SDL_2D_5_LCSTR_DIST = "sdl_2d_5_lcstr_dist"
+    SDL_2D_10_LCSTR_DIST = "sdl_2d_10_lcstr_dist"
     JACCARD = "jaccard"
 
 
@@ -384,13 +403,59 @@ def list_statistics(data_list = list, desired_percentile: int = 0, plot: bool = 
     return stat_dict
 
 
-def shape_similarity_measures_all_to_all(data_dict: dict):
+def add_coord_tuple_representation(data_dict: dict):
+    """ Turn roads saved as shapely LineStings into a list of 2d cartesian tuples
+    Requires the roads to be saved as polylines
+    Adds the tuples to data_dict
+
+    :param data_dict: Dict containing all the test data
+    :return: None
+    """
+    for road in data_dict.values():
+        polyline = road.get(RoadDicConst.POLYLINE.value, None)
+        assert polyline is not None, "Polyline has not been added to road!"
+        coordsxy = polyline.coords.xy
+        road_coords = np.zeros((len(coordsxy[0]), 2))
+        road_coords[:, 0] = coordsxy[0]
+        road_coords[:, 1] = coordsxy[1]
+
+        road[RoadDicConst.COORD_TUPLE_REP.value] = road_coords
+
+
+def shape_similarity_measures_all_to_all_unoptimized(data_dict: dict):
+    """ Calculates different predefined shape similarity measures from https://pypi.org/project/similaritymeasures/
+    Requires the roads to be saved as polylines
+
+    :param data_dict: Dict containing all the test data
+    :return: None
+    """
     import similaritymeasures
 
-    for name in data_dict:
-        road = data_dict.get(name)
-        polyline = road.get(RoadDicConst.POLYLINE.value, None)
-        assert polyline is not None, "Polyline has not been added to road " + name
+    for name1 in data_dict:
+        road1 = data_dict.get(name1)
+        road1_coords = road1.get(RoadDicConst.COORD_TUPLE_REP.value, None)
+        if road1_coords is None:
+            add_coord_tuple_representation(data_dict=data_dict)
+            road1_coords = road1.get(RoadDicConst.COORD_TUPLE_REP.value, None)
+
+        # TODO more
+        dicc_dtw = {}
+        dicc_dtw_opti = {}
+        dicc_frechet = {}
+        for name2 in data_dict:
+            # TODO optimize
+            road2 = data_dict.get(name2)
+            road2_coords = road2.get(RoadDicConst.COORD_TUPLE_REP.value, None)
+
+            d_dtw, _ = similaritymeasures.dtw(road1_coords, road2_coords)
+            dicc_dtw[name2] = d_dtw
+
+            d_frechet = similaritymeasures.frechet_dist(road1_coords, road2_coords)
+            dicc_frechet[name2] = d_frechet
+
+        road1[BehaviorDicConst.COORD_DTW_DIST.value] = dicc_dtw
+        road1[BehaviorDicConst.COORD_FRECHET_DIST.value] = dicc_frechet
+
 
 
 def lcs(X, Y, normalized: bool = True):
@@ -473,10 +538,10 @@ def LCSubStr(X, Y, normalized: bool = True):
     return result
 
 
-def k_lcstr(X, Y, k:int = 1, normalized: bool = False) -> int:
+def k_lcstr(X, Y, k:int = K_LCSTR, normalized: bool = True) -> int:
     """ Longest common substring with k mismatches
     Implementation of https://doi.org/10.1016/j.ipl.2015.03.006 algorithm
-    TODO experiment with k
+    TODO experiment with k, it seems not change nothing?
 
     :param X: First string
     :param Y: Second string
@@ -484,6 +549,9 @@ def k_lcstr(X, Y, k:int = 1, normalized: bool = False) -> int:
     :param normalized: normalizes in the range [0, 1.0] using the length of the shorter road
     :return: length of longest common substring with k mismatches
     """
+    # hacky, but ok for experiments, assignment needed to avoid compiler optimizations
+    k = K_LCSTR
+    #print("k vs K_LCSTR", k, K_LCSTR)
     n = len(X)
     m = len(Y)
     length = 0
