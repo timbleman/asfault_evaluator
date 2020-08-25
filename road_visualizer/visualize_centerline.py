@@ -5,6 +5,7 @@ from math import floor
 import os
 
 def visualize_centerline(coords_lstr: LineString, road_width: float, path: Path = None):
+    # fixme breaks box plots
     z_val = 0.01
 
     def _calculate_parallel_coords(coords_lstr: LineString, offset: float) \
