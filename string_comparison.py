@@ -18,12 +18,12 @@ import colorama
 import math
 import evaluator_config as econf
 
-"""has to be symmetric around zero"""
-NUM_ALPHABET = 7
-
 DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -75.0, -30.0, -1.0, 1.0, 30.0, 75.0, 120.0]
 
 
+# To change the angle alphabet size, you have to add symbols to the enums
+# Ensure that the enum is balanced
+# Make sure that USE_FIXED_STRONG_BORDERS = False in evaluator config
 class cur(Enum):
     STRONG_LEFT = -3
     LEFT = -2
@@ -33,18 +33,19 @@ class cur(Enum):
     RIGHT = 2
     STRONG_RIGHT = 3
 
+"""has to be symmetric around zero"""
+NUM_ALPHABET = len(cur)
 
 DEFAULT_PERCENTILE_VALUES_LEN = [10.0, 30.0, 50, 100]
 
-NUM_LEN_ALPHABET = 4
-
-
+# TODO easy changes for length alphabet
 class len_en(Enum):
     SHORT = 0
     MEDIUM = 1
     LONG = 2
     VERY_LONG = 3
 
+NUM_LEN_ALPHABET = len(len_en)
 
 class StringComparer:
     def __init__(self, data_dict: dict):
@@ -485,14 +486,20 @@ class StringComparer:
             if percentile_step_sum > 100:
                 percentile_step_sum = 100
 
-        print("percentile values of all roads", self.percentile_values)
-        median = np.percentile(self.all_angles, 50)
-        print("median of all roads", median)
+        # ensure that a very slight curvature gets classified as straight, otherwise nothing is straight
+        self.percentile_values[int(np.floor(NUM_ALPHABET / 2))] = -1
+        self.percentile_values[int(np.ceil(NUM_ALPHABET / 2))] = 1
 
         # TODO remove the check and ensure a good balance
         # <= 0 <= is counter productive, maybe look at the distribution of all right curves with half of the straights
         # and all left curves with half of the straights
         assert -2 < self.percentile_values[int(np.ceil(NUM_ALPHABET / 2))] < 2 \
-               and self.percentile_values[int(np.ceil(NUM_ALPHABET / 2)) - 1] <= 0 <= self.percentile_values[
+                and -2 < self.percentile_values[int(np.floor(NUM_ALPHABET / 2))] < 2, \
+                "Too many curves will be classififed as straights!"
+        assert self.percentile_values[int(np.floor(NUM_ALPHABET / 2))] <= 0 <= self.percentile_values[
                    int(np.ceil(NUM_ALPHABET / 2)) + 1], \
             "the curve distribution of the dataset is not balanced!"
+
+        print("percentile values of all roads", self.percentile_values)
+        median = np.percentile(self.all_angles, 50)
+        print("median of all roads", median)
