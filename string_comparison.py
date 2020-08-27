@@ -474,6 +474,7 @@ class StringComparer:
         # fig1, ax1 = plt.subplots()
         # ax1.set_title('Basic Plot')
         plt.boxplot(self.all_angles)
+        plt.title('Angle distribution')
         plt.show()
 
         percentile_step = 100 / NUM_ALPHABET
