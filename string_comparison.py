@@ -180,6 +180,7 @@ class StringComparer:
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_K_LCSTR_DIST.value] = distance_arr
             """
+            """
             utils.K_LCSTR = 1
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
                                                                representation=BehaviorDicConst.CUR_SDL.value)
@@ -225,7 +226,7 @@ class StringComparer:
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_10_LCSTR_DIST.value] = distance_arr
-
+            """
 
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.jaccard_sdl_2d_one_to_one,
                                                                representation=BehaviorDicConst.SDL_2D.value)
