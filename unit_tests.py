@@ -9,6 +9,7 @@ from utils import BehaviorDicConst
 import coverage_evaluator
 import string_comparison
 import suite_trimmer
+import evaluator_config as econf
 
 
 def mocked_compute_length(road_segment: NetworkNode):
@@ -36,6 +37,9 @@ class TestUtils(unittest.TestCase):
         self.second_bins[2] = 10
         self.second_bins[3] = 10
         self.second_bins[4] = 10
+
+        # this does not work, has to be configured manually, dynamic border creation does not work with small unit tests
+        econf.USE_FIXED_STRONG_BORDERS = True
 
     def test_list_difference_1d_binary_not_normalized(self):
         diff = utils.list_difference_1d(a=self.first_bins, b=self.second_bins, function=utils.DiffFuncConst.BINARY.value,
@@ -79,6 +83,7 @@ class TestUtils(unittest.TestCase):
 
     def test_k_lcstr_not_normalized(self):
         # should detect "fuel" -> 4
+        utils.K_LCSTR = 1
         str1 = "qwerfueltzuio"
         str2 = "yxfxelnnmkl"
         result = utils.k_lcstr(str1, str2, normalized=False)
@@ -86,6 +91,7 @@ class TestUtils(unittest.TestCase):
 
     def test_k_2_lcstr_not_normalized_2_wrong_in_series(self):
         # should detect "rfuelt" -> 6
+        utils.K_LCSTR = 2
         str1 = "qwerfueltzuio"
         str2 = "yxrfxnltnnmkl"
         result = utils.k_lcstr(str1, str2, k=2, normalized=False)
@@ -101,6 +107,7 @@ class TestUtils(unittest.TestCase):
 
     def test_k_lcstr_normalized(self):
         # should detect "fuel"
+        utils.K_LCSTR = 1
         str1 = "qwerfueltzuio"
         str2 = "yxfxelnnmkl"
         result = utils.k_lcstr(str1, str2, normalized=True)
