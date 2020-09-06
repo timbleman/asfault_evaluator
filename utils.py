@@ -48,6 +48,7 @@ class BehaviorDicConst(Enum):
     STEERING_DIST_BINARY = "steering_dist_binary"
     STEERING_DIST_SINGLE = "steering_dist_single"
     BINS_STEERING_SPEED_DIST = "steering_speed_dist"
+    BINS_STEERING_SPEED_DIST_SINGLE = "steering_speed_dist_single"
 
     COORD_DTW_DIST = "coord_dtw_dist"
     COORD_EDR_DIST = "coord_edr_dist"
@@ -91,7 +92,6 @@ def get_root_of_test_suite(test_path: path) -> path:
     :return: The suites root
     """
     suite_dir_path = path.split(test_path)
-    print(suite_dir_path[1])
     while not suite_dir_path[1].startswith(START_OF_PARENT_DIR):
         suite_dir_path = path.split(suite_dir_path[0])
     # suite_dir_path = path.split(suite_dir_path[0])
@@ -351,7 +351,7 @@ def extend_arrays_globally(data_dict: dict, feature: str) -> list:
     # remove outliers
     outlier_border = 300
     #global_array[:] = [x for x in global_array if x <= outlier_border]
-    print("global_array", global_array)
+    #print("global_array", global_array)
     return global_array
 
 
@@ -382,7 +382,7 @@ def whole_suite_dist_matrix_statistic_incomplete(dataset_dict: dict, feature: st
         assert dists is not None, feature + " has not been added to the dict!"
         for val in dists.values():
             all_values.append(val)
-            print(val)
+            #print(val)
 
     return list_statistics(data_list=all_values, desired_percentile=desired_percentile, plot=plot, title=title)
 

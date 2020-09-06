@@ -24,6 +24,7 @@ DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -75.0, -30.0, -1.0, 1.0, 30.0, 75.0, 12
 # To change the angle alphabet size, you have to add symbols to the enums
 # Ensure that the enum is balanced
 # Make sure that USE_FIXED_STRONG_BORDERS = False in evaluator config
+"""
 class cur(Enum):
     STRONG_LEFT = -3
     LEFT = -2
@@ -32,6 +33,23 @@ class cur(Enum):
     SLIGHT_RIGHT = 1
     RIGHT = 2
     STRONG_RIGHT = 3
+"""
+class cur(Enum):
+    SSSSS_LEFT = -7
+    SSSS_LEFT = -6
+    SSS_LEFT = -5
+    SS_LEFT = -4
+    STRONG_LEFT = -3
+    LEFT = -2
+    SLIGHT_LEFT = -1
+    STRAIGHT = 0
+    SLIGHT_RIGHT = 1
+    RIGHT = 2
+    STRONG_RIGHT = 3
+    SS_RIGHT = 4
+    SSS_RIGHT = 5
+    SSSS_RIGHT = 6
+    SSSSS_RIGHT = 7
 
 """has to be symmetric around zero"""
 NUM_ALPHABET = len(cur)

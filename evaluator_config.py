@@ -5,7 +5,7 @@ first_chars_of_experiments_subfolder = 10
 
 # False if you want a custom sized angle alphabet
 # Has to be True for unit tests, otherwise borders are off
-USE_FIXED_STRONG_BORDERS = True
+USE_FIXED_STRONG_BORDERS = False
 
 # Use a seed for adaptive random sampling if it should be deterministic
 SEED_ADAPTIVE_RANDOM = None
