@@ -8,7 +8,7 @@ first_chars_of_experiments_subfolder = 10
 USE_FIXED_STRONG_BORDERS = False
 
 # Use a seed for adaptive random sampling if it should be deterministic
-SEED_ADAPTIVE_RANDOM = None
+SEED_ADAPTIVE_RANDOM = 1234
 
 # remove tests with broken speed, otherwise these segments get ignored
 rm_broken_speed_roads = True
