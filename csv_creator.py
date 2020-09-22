@@ -89,6 +89,11 @@ class CSVCreator:
             print("I/O error")
 
     def write_all_to_all_dist_matrix(self, measure: str):
+        """ Writes 2d distance matrices (like jaccard) as csv
+
+        :param measure: Name of the metric
+        :return: None
+        """
         assert measure, "There has to be a measure declared"
 
         csv_columns = list(self.data_dict.keys())
@@ -103,56 +108,49 @@ class CSVCreator:
         # get the root of the dataset
         root_folder = utils.get_root_of_test_suite(test_path=first_path)
 
-        def _get_dict_to_write(road_name: str, road_dict: dict) -> dict:
-            dicc = {"road": road_name}
+        def _get_dict_to_write(test_name: str, csv_columns: list) -> dict:
+            road_dict = self.data_dict.get(test_name)
+            dicc = {"road": test_name}
             values = road_dict.get(measure, None)
-            assert values is not None, str(measure) + "has not been found for" + road_name
+            assert values is not None, str(measure) + "has not been found for" + test_name
             dicc.update(values)
             return dicc
 
         csv_file = path.join(root_folder, measure + '.csv')
-        try:
-            with open(csv_file, 'w') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
-                writer.writeheader()
-                for key in self.data_dict.keys():
-                    road = self.data_dict.get(key)
-                    dic = _get_dict_to_write(key, road)
-                    writer.writerow(dic)
-                print(colorama.Fore.GREEN + " wrote " + measure + " csv_file to", csv_file + colorama.Style.RESET_ALL)
-        except IOError:
-            print("I/O error")
+
+        self.generic_all_tests_csv_writing(measure, csv_columns, _get_dict_to_write, csv_file)
+
 
     def write_all_tests_one_value(self, measure: str = utils.RoadDicConst.NUM_OBES.value):
+        """ Writes a csv containing a single value (like num_obe) for each test
+
+        :param measure: Name of the metric
+        :return: None
+        """
         root_folder = self.root_path
         csv_columns = ["test", measure]
 
-        def _get_dict_to_write(road_name: str) -> dict:
-
-            test = self.data_dict.get(road_name, None)
+        def _get_dict_to_write(test_name: str, csv_columns: list) -> dict:
+            measure = csv_columns[1]
+            test = self.data_dict.get(test_name, None)
             assert test is not None, "The road has not been found in the dict!"
             val = test.get(measure, None)
-            assert val is not None, "The " + measure + "has not been found for " + road_name + "!"
+            assert val is not None, "The " + measure + "has not been found for " + test_name + "!"
 
-            dicc = {"test": road_name, measure: val}
+            dicc = {"test": test_name, measure: val}
             return dicc
 
         csv_file = path.join(root_folder, "for_each_" + measure + '.csv')
 
-        try:
-            with open(csv_file, 'w') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
-                writer.writeheader()
-                for key in self.data_dict.keys():
-                    dic = _get_dict_to_write(road_name=key)
-                    writer.writerow(dic)
-                print(colorama.Fore.GREEN + " wrote " + measure + " csv_file to", csv_file + colorama.Style.RESET_ALL)
-
-        except IOError:
-            print("I/O error")
+        self.generic_all_tests_csv_writing(measure, csv_columns, _get_dict_to_write, csv_file)
 
 
     def write_whole_suite_1d_coverages(self, measure: str):
+        """ For writing 1d counting bins (like steering_bins) for each test.
+
+        :param measure: Name of the bins
+        :return: None
+        """
         root_folder = self.root_path
 
         first_test = self.data_dict.get(list(self.data_dict.keys())[0])
@@ -174,21 +172,15 @@ class CSVCreator:
 
         csv_file = path.join(root_folder, measure + '.csv')
 
-        """
-        try:
-            with open(csv_file, 'w') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
-                writer.writeheader()
-                for key in self.data_dict.keys():
-                    dic = _get_dict_to_write(test_name=key, csv_columns=csv_columns)
-                    writer.writerow(dic)
-                print(colorama.Fore.GREEN + " wrote " + measure + " csv_file to", csv_file + colorama.Style.RESET_ALL)
-
-        except IOError:
-            print("I/O error")"""
         self.generic_all_tests_csv_writing(measure, csv_columns, _get_dict_to_write, csv_file)
 
     def write_whole_suite_2d_coverages(self, measure: str):
+        """ For writing 2d counting bins (like steering_speed_matrix) for each test.
+        Flattens the 2d matrix.
+
+        :param measure: Name of the bins
+        :return: None
+        """
         root_folder = self.root_path
 
         first_test = self.data_dict.get(list(self.data_dict.keys())[0])
@@ -206,7 +198,6 @@ class CSVCreator:
             assert val_2d is not None, "The " + measure + "has not been found for " + test_name + "!"
 
             flattened_2d = val_2d.flatten()
-            print("flattened_2d", flattened_2d)
             dicc = dict((zip(csv_columns[1:-1], flattened_2d)))
             dicc[csv_columns[0]] = test_name
             return dicc
@@ -217,6 +208,14 @@ class CSVCreator:
 
     def generic_all_tests_csv_writing(self, measure: str, csv_columns: list, _get_dict_to_write_func,
                                       csv_file: path):
+        """ Generic all csv writing for arbitratry get_dict funtions
+
+        :param measure: measure to select from the dict with all tests
+        :param csv_columns: the names of the csv columns
+        :param _get_dict_to_write_func: the function that computes the dict
+        :param csv_file: the path to the file
+        :return: None
+        """
         # TODO refactor them all
         try:
             with open(csv_file, 'w') as csvfile:
