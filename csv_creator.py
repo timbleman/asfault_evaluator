@@ -152,6 +152,84 @@ class CSVCreator:
             print("I/O error")
 
 
+    def write_whole_suite_1d_coverages(self, measure: str):
+        root_folder = self.root_path
+
+        first_test = self.data_dict.get(list(self.data_dict.keys())[0])
+        first_bins = first_test.get(measure, None)
+        assert first_bins is not None, measure + " has not been found in the dict!"
+        num_bins = len(first_bins)
+        csv_columns = [str(el) for el in range(0, num_bins)]
+        csv_columns.insert(0, 'names')
+
+        def _get_dict_to_write(test_name: str, csv_columns: list) -> dict:
+            test = self.data_dict.get(test_name, None)
+            assert test is not None, "The road has not been found in the dict!"
+            val_1d = test.get(measure, None)
+            assert val_1d is not None, "The " + measure + "has not been found for " + test_name + "!"
+
+            dicc = dict((zip(csv_columns[1:-1], val_1d)))
+            dicc[csv_columns[0]] = test_name
+            return dicc
+
+        csv_file = path.join(root_folder, measure + '.csv')
+
+        """
+        try:
+            with open(csv_file, 'w') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
+                writer.writeheader()
+                for key in self.data_dict.keys():
+                    dic = _get_dict_to_write(test_name=key, csv_columns=csv_columns)
+                    writer.writerow(dic)
+                print(colorama.Fore.GREEN + " wrote " + measure + " csv_file to", csv_file + colorama.Style.RESET_ALL)
+
+        except IOError:
+            print("I/O error")"""
+        self.generic_all_tests_csv_writing(measure, csv_columns, _get_dict_to_write, csv_file)
+
+    def write_whole_suite_2d_coverages(self, measure: str):
+        root_folder = self.root_path
+
+        first_test = self.data_dict.get(list(self.data_dict.keys())[0])
+        first_bins = first_test.get(measure, None)
+        assert first_bins is not None, measure + " has not been found in the dict!"
+        num_bins_outer = len(first_bins)
+        num_bins_inner = len(first_bins[0])
+        csv_columns = [str(el) for el in range(0, num_bins_outer * num_bins_inner)]
+        csv_columns.insert(0, 'names')
+
+        def _get_dict_to_write(test_name: str, csv_columns: list) -> dict:
+            test = self.data_dict.get(test_name, None)
+            assert test is not None, "The road has not been found in the dict!"
+            val_2d = test.get(measure, None)
+            assert val_2d is not None, "The " + measure + "has not been found for " + test_name + "!"
+
+            flattened_2d = val_2d.flatten()
+            print("flattened_2d", flattened_2d)
+            dicc = dict((zip(csv_columns[1:-1], flattened_2d)))
+            dicc[csv_columns[0]] = test_name
+            return dicc
+
+        csv_file = path.join(root_folder, measure + '.csv')
+
+        self.generic_all_tests_csv_writing(measure, csv_columns, _get_dict_to_write, csv_file)
+
+    def generic_all_tests_csv_writing(self, measure: str, csv_columns: list, _get_dict_to_write_func,
+                                      csv_file: path):
+        # TODO refactor them all
+        try:
+            with open(csv_file, 'w') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
+                writer.writeheader()
+                for key in self.data_dict.keys():
+                    dic = _get_dict_to_write_func(test_name=key, csv_columns=csv_columns)
+                    writer.writerow(dic)
+                print(colorama.Fore.GREEN + " wrote " + measure + " csv_file to", csv_file + colorama.Style.RESET_ALL)
+
+        except IOError:
+            print("I/O error")
+
 
     def write_whole_suite_multiple_values(self, file_name: str, name_value_tuple_list: List[tuple],
                                           first_row_name: str = 'coverage_measure'):
