@@ -198,7 +198,7 @@ class CSVCreator:
             assert val_2d is not None, "The " + measure + "has not been found for " + test_name + "!"
 
             flattened_2d = val_2d.flatten()
-            dicc = dict((zip(csv_columns[1:-1], flattened_2d)))
+            dicc = dict((zip(csv_columns[1:], flattened_2d)))
             dicc[csv_columns[0]] = test_name
             return dicc
 
