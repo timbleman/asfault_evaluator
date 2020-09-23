@@ -166,7 +166,7 @@ class CSVCreator:
             val_1d = test.get(measure, None)
             assert val_1d is not None, "The " + measure + "has not been found for " + test_name + "!"
 
-            dicc = dict((zip(csv_columns[1:-1], val_1d)))
+            dicc = dict((zip(csv_columns[1:], val_1d)))
             dicc[csv_columns[0]] = test_name
             return dicc
 
