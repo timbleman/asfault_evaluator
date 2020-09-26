@@ -197,6 +197,7 @@ def main():
         #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_FRECHET_DIST.value)
 
         csv_creator.write_all_tests_one_value(measure=RoadDicConst.NUM_OBES.value)
+        csv_creator.write_all_tests_one_value(measure=BehaviorDicConst.NUM_STATES.value)
         #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCS_DIST.value)
         #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCSTR_DIST.value)
         #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
@@ -204,7 +205,10 @@ def main():
         #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
 
         csv_creator.write_whole_suite_1d_coverages(RoadDicConst.STEERING_BINS.value)
+        csv_creator.write_whole_suite_1d_coverages(RoadDicConst.SPEED_BINS.value)
+        csv_creator.write_whole_suite_1d_coverages(RoadDicConst.STEERING_BINS.value)
         csv_creator.write_whole_suite_2d_coverages(RoadDicConst.SPEED_STEERING_2D.value)
+        csv_creator.write_whole_suite_2d_coverages(RoadDicConst.OBE_2D.value)
     end_csv = time.time()
     print(end_csv - start_csv, "seconds to write the csvs")
 
@@ -218,9 +222,17 @@ def main():
     print(colorama.Fore.GREEN + "Computed following measures for each road", data_bins_dict[names_of_all[0]].keys(), "" + colorama.Style.RESET_ALL)
     #print("all roads ", data_bins_dict)
 
-    sampler = AdaptiveRandSampler(data_dict=data_bins_dict)
-    #sampler.sample_of_n(measure=BehaviorDicConst.JACCARD.value, n=30, first_test="random--la311", func=sampler.pick_highest_min_similarity)
-    #unworthy_paths = sampler.get_unworthy_paths()
+    suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=parent_dir)
+
+    ADAPTIVE_RAND_SAMPLE = False
+    if ADAPTIVE_RAND_SAMPLE:
+        sampler = AdaptiveRandSampler(data_dict=data_bins_dict) # mini suite: "random--la53", regular: "random--la311"
+        sampler.sample_of_n(measure=BehaviorDicConst.JACCARD.value, n=5, first_test="random--la311", func=sampler.pick_highest_min_similarity)
+        unworthy_paths = sampler.get_unworthy_paths()
+        rem = suite_trimmer.trim_dataset_list(unworthy_paths=unworthy_paths, description="diversity suite")
+        if WRITE_CSV and rem:
+            csv_creator.write_all_tests_one_value(BehaviorDicConst.ADAPT_RAND_INDEX.value)
+
 
     clusterer = Clusterer(data_dict=data_bins_dict)
     #clusterer.perform_optics(measure=BehaviorDicConst.JACCARD.value)
@@ -229,12 +241,9 @@ def main():
     #print("data_bins_dict['random--la52']", data_bins_dict['random--la52'])
     #print("data_bins_dict['random--la54']['speed_steering_2d']", data_bins_dict['random--la54']['speed_steering_2d'])
 
-    suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=parent_dir)
-
     # halving the suite size
     #unworthy_paths = suite_trimmer.get_random_percentage_unworthy(percentage=50)
     #suite_trimmer.trim_dataset_list(unworthy_paths=unworthy_paths, description="halving the suite size")
-    #suite_trimmer.trim_dataset_list(unworthy_paths=unworthy_paths, description="high diversity suite")
     import operator
     # remove broken tests
     #suite_trimmer.trim_dataset_list(unworthy_paths=broken_tests, description="Broken tests with infinite speed removed")

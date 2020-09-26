@@ -78,13 +78,13 @@ class SuiteTrimmer:
         reason = feature + " " + str(op) + " " + str(threshold)
         self.trim_dataset_list(unworthy_paths=unworthy_paths, description=reason, force=force)
 
-    def trim_dataset_list(self, unworthy_paths: list, description: str, force: bool = False):
+    def trim_dataset_list(self, unworthy_paths: list, description: str, force: bool = False) -> bool:
         """ Trimms the dataset given a list of paths to remove
 
         :param unworthy_paths: List of paths or names of tests to remove
         :param description: description for removal of these tests, will be written in the parent dict
         :param force: Force remove or wait for user input
-        :return: None
+        :return: Bool if suite has been trimmed
         """
         print(colorama.Fore.RED + "A total of", len(unworthy_paths), "tests will be removed from the set:",
               unworthy_paths, colorama.Style.RESET_ALL)
@@ -94,7 +94,7 @@ class SuiteTrimmer:
             answer = str(input())
             if answer != 'y' and answer != 'Y':
                 print(colorama.Fore.BLUE + "Aborted test deletion" + colorama.Style.RESET_ALL)
-                return
+                return False
 
         # remove all paths that fit the criteria
         for p in unworthy_paths:
@@ -103,10 +103,12 @@ class SuiteTrimmer:
             except OSError as error:
                 print(error)
                 print(colorama.Fore.RED + "Could not remove" + str(p) + colorama.Style.RESET_ALL)
+                return False
 
         print(colorama.Fore.BLUE + "Successfully removed the tests!" + colorama.Style.RESET_ALL)
 
         self._write_info(removed_paths=unworthy_paths, reason=description)
+        return True
 
     def _write_info(self, removed_paths: list, reason: str):
         """ Writes a file that gives Details what has been removed and why

@@ -4,6 +4,7 @@ import random
 import utils
 import colorama
 
+from utils import BehaviorDicConst
 
 class AdaptiveRandSampler:
     def __init__(self, data_dict: dict):
@@ -31,10 +32,14 @@ class AdaptiveRandSampler:
         random.seed = econf.SEED_ADAPTIVE_RANDOM
         if first_test is not None and first_test in all_keys:
             first_one = first_test
+            all_keys.remove(first_one)
         else:
             first_one = all_keys.pop(random.randrange(0, len(all_keys)))
         print(colorama.Fore.BLUE + "Picked " + first_one + " to be first in the population!" + colorama.Style.RESET_ALL)
         self.population = [first_one]
+        # index instead of m in order to be easier to adapt in the future
+        test_index = 0
+        self.data_dict[first_one][BehaviorDicConst.ADAPT_RAND_INDEX.value] = test_index
 
         assert n < len(all_keys) - size_candidate_list
 
@@ -51,7 +56,17 @@ class AdaptiveRandSampler:
             all_keys.pop(all_keys.index(best_candidate))
             self.population.append(best_candidate)
 
-        #print(self.population)
+            test_index += 1
+            self.data_dict[best_candidate][BehaviorDicConst.ADAPT_RAND_INDEX.value] = test_index
+
+        self.add_value_for_undefineds(measure=BehaviorDicConst.ADAPT_RAND_INDEX.value, default_value=-1)
+
+
+    def add_value_for_undefineds(self, measure: str, default_value=-1):
+        for key, test in self.data_dict.items():
+            val = test.get(measure, None)
+            if val is None:
+                self.data_dict[key][measure] = default_value
 
     def get_unworthy_paths(self) -> List:
         """ Returns os.paths for each road that is not in the population and shall be removed.
