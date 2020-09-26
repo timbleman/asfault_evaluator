@@ -3,6 +3,9 @@ import utils
 # detemines how many chars of a subfolder name to look at for a unique name
 first_chars_of_experiments_subfolder = 10
 
+# save obe plots, requires a lot of disk io, disk space and is slow
+OBE_WRITE = True
+
 # False if you want a custom sized angle alphabet
 # Has to be True for unit tests, otherwise borders are off
 USE_FIXED_STRONG_BORDERS = False

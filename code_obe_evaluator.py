@@ -29,6 +29,8 @@ import math
 
 from shapely.geometry import LineString
 
+import evaluator_config as econf
+
 # Mostly a conf parameter ?
 # EPS = 1.2e-16
 EPS = 1e-10
@@ -654,7 +656,8 @@ def main():
         # Store it file
         obe_plot_file = os.path.abspath(path.join(asfault_environment.get_plots_path(), ''.join([str(global_id).zfill(3), '_', 'obe', '.png'])))
         obe_dict['obe_plot_file'] = obe_plot_file
-        # plt.savefig(obe_plot_file)
+        if econf.OBE_WRITE:
+            plt.savefig(obe_plot_file)
 
         # Load the  next figure
         plt.figure(polar_plot_id)
@@ -662,7 +665,8 @@ def main():
         polar_plot_file = os.path.abspath(
             path.join(asfault_environment.get_plots_path(), ''.join([str(global_id).zfill(3), '_', 'polar', '.png'])))
         obe_dict['polar_plot_file'] = polar_plot_file
-        # plt.savefig(polar_plot_file)
+        if econf.OBE_WRITE:
+            plt.savefig(polar_plot_file)
 
         obe_data.append(obe_dict)
     print("obe data ", obe_data)
