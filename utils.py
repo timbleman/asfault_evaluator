@@ -10,8 +10,7 @@ import math
 from asfault.network import NetworkNode
 #import evaluator_config as econf
 
-# modifiable from the outside, hacky
-K_LCSTR = 1
+
 
 START_OF_PARENT_DIR = "experiments-"
 # if a segment is under this length it is considered invalid
@@ -312,7 +311,7 @@ def compute_length(road_segment: NetworkNode):
 # out where's the center of the turn is, and finally compute the radius as distance between any of the points on the
 # circle and the center
 def compute_radius_turn(road_segment: NetworkNode):
-    from asfault.network import TYPE_STRAIGHT, TYPE_L_TURN, TYPE_R_TURN
+    from asfault.network import TYPE_STRAIGHT
     from shapely.geometry import Point
 
     if road_segment.roadtype == TYPE_STRAIGHT:
@@ -491,128 +490,7 @@ def shape_similarity_measures_all_to_all_unoptimized(data_dict: dict):
         road1[BehaviorDicConst.COORD_DTW_DIST.value] = dicc_dtw
         road1[BehaviorDicConst.COORD_FRECHET_DIST.value] = dicc_frechet
 
-
-
-def lcs(X, Y, normalized: bool = True):
-    """ longest common subsequence problem dynamic programming approach
-    copied form here: https://www.geeksforgeeks.org/python-program-for-longest-common-subsequence/
-
-    :param X: First string
-    :param Y: Second string
-    :param normalized: normalizes in the range [0, 1.0] using the length of the shorter road
-    :return: lcs
-    """
-    # find the length of the strings
-    m = len(X)
-    n = len(Y)
-
-    # declaring the array for storing the dp values
-    L = [[None] * (n + 1) for i in range(m + 1)]
-
-    """Following steps build L[m + 1][n + 1] in bottom up fashion 
-    Note: L[i][j] contains length of LCS of X[0..i-1] 
-    and Y[0..j-1]"""
-    for i in range(m + 1):
-        for j in range(n + 1):
-            if i == 0 or j == 0:
-                L[i][j] = 0
-            elif X[i - 1] == Y[j - 1]:
-                L[i][j] = L[i - 1][j - 1] + 1
-            else:
-                L[i][j] = max(L[i - 1][j], L[i][j - 1])
-
-                # L[m][n] contains the length of LCS of X[0..n-1] & Y[0..m-1]
-    length = L[m][n]
-    # end of function lcs
-    if normalized:
-        length = length / min(m, n)
-        # TODO remove this if it does not break anything
-        assert 0.0 <= length <= 1.0, "length " + str(length) + " is out of bounds!"
-    return length
-
-
 # Returns length of longest common
 # substring of X[0..m-1] and Y[0..n-1]
-def LCSubStr(X, Y, normalized: bool = True):
-    # Create a table to store lengths of
-    # longest common suffixes of substrings.
-    # Note that LCSuff[i][j] contains the
-    # length of longest common suffix of
-    # X[0...i-1] and Y[0...j-1]. The first
-    # row and first column entries have no
-    # logical meaning, they are used only
-    # for simplicity of the program.
-    m = len(X)
-    n = len(Y)
-    # LCSuff is the table with zero
-    # value initially in each cell
-    LCSuff = [[0 for k in range(n + 1)] for l in range(m + 1)]
-
-    # To store the length of
-    # longest common substring
-    result = 0
-
-    # Following steps to build
-    # LCSuff[m+1][n+1] in bottom up fashion
-    for i in range(m + 1):
-        for j in range(n + 1):
-            if (i == 0 or j == 0):
-                LCSuff[i][j] = 0
-            elif (X[i - 1] == Y[j - 1]):
-                # seems to work for both enums and tuples
-                # print(X[i - 1], "and", Y[j - 1], "match!")
-                LCSuff[i][j] = LCSuff[i - 1][j - 1] + 1
-                result = max(result, LCSuff[i][j])
-            else:
-                LCSuff[i][j] = 0
-
-    if normalized:
-        result = result / min(m, n)
-        # TODO remove this if it does not break anything
-        assert 0.0 <= result <= 1.0, "length " + str(result) + " is out of bounds!"
-    return result
 
 
-def k_lcstr(X, Y, k:int = K_LCSTR, normalized: bool = True) -> int:
-    """ Longest common substring with k mismatches
-    Implementation of https://doi.org/10.1016/j.ipl.2015.03.006 algorithm
-    TODO experiment with k, it seems not change nothing?
-
-    :param X: First string
-    :param Y: Second string
-    :param k: number of mismatches
-    :param normalized: normalizes in the range [0, 1.0] using the length of the shorter road
-    :return: length of longest common substring with k mismatches
-    """
-    # hacky, but ok for experiments, assignment needed to avoid compiler optimizations
-    k = K_LCSTR
-    #print("k vs K_LCSTR", k, K_LCSTR)
-    n = len(X)
-    m = len(Y)
-    length = 0
-    offset_1 = 0
-    offset_2 = 0
-    for d in range(-m + 1, n):
-        i = max(-d, 0) + d
-        j = max(-d, 0)
-        # using a list as a queue
-        queue = []
-        s = 0
-        p = 0
-        while p <= min(n-i, m-j) - 1:
-            if X[i+p] != Y[j+p]:
-                if len(queue) == k:
-                    s = min(queue) + 1
-                    queue.pop(0)
-                queue.append(p)
-            p += 1
-            if (p - s) > length:
-                length = p - s
-                offset_1 = i + s
-                offset_2 = j + s
-
-    if normalized:
-        length = length / min(m, n)
-        # TODO remove this if it does not break anything
-        assert 0.0 <= length <= 1.0, "length " + str(length) + " is out of bounds!"
-    return length

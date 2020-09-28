@@ -83,34 +83,34 @@ class TestUtils(unittest.TestCase):
 
     def test_k_lcstr_not_normalized(self):
         # should detect "fuel" -> 4
-        utils.K_LCSTR = 1
+        string_comparison.K_LCSTR = 1
         str1 = "qwerfueltzuio"
         str2 = "yxfxelnnmkl"
-        result = utils.k_lcstr(str1, str2, normalized=False)
+        result = string_comparison.k_lcstr(str1, str2, normalized=False)
         self.assertEqual(4, result)
 
     def test_k_2_lcstr_not_normalized_2_wrong_in_series(self):
         # should detect "rfuelt" -> 6
-        utils.K_LCSTR = 2
+        string_comparison.K_LCSTR = 2
         str1 = "qwerfueltzuio"
         str2 = "yxrfxnltnnmkl"
-        result = utils.k_lcstr(str1, str2, k=2, normalized=False)
+        result = string_comparison.k_lcstr(str1, str2, k=2, normalized=False)
         self.assertEqual(6, result)
 
     def test_k_2_lcstr_not_normalized_2_wrong_in_between(self):
         # should detect "rfuelt" -> 6
-        utils.K_LCSTR = 2
+        string_comparison.K_LCSTR = 2
         str1 = "qwerfueltzuio"
         str2 = "yxrfnentnmkl"
-        result = utils.k_lcstr(str1, str2, normalized=False)
+        result = string_comparison.k_lcstr(str1, str2, normalized=False)
         self.assertEqual(6, result)
 
     def test_k_lcstr_normalized(self):
         # should detect "fuel"
-        utils.K_LCSTR = 1
+        string_comparison.K_LCSTR = 1
         str1 = "qwerfueltzuio"
         str2 = "yxfxelnnmkl"
-        result = utils.k_lcstr(str1, str2, normalized=True)
+        result = string_comparison.k_lcstr(str1, str2, normalized=True)
         expected = 4 / len(str2)
         self.assertEqual(expected, result)
 
@@ -126,6 +126,9 @@ class TestCurveSDL(unittest.TestCase):
 
         node0 = NetworkNode(key=0, roadtype=None, seg_id=0)
         # @patch()
+        # somehow necessary for pycharm chaching
+        self.num_angle = len(string_comparison.cur)
+        string_comparison.NUM_ALPHABET = self.num_angle
 
         node0 = MagicMock()
         node0.angle = 0
@@ -192,31 +195,32 @@ class TestCurveSDL(unittest.TestCase):
 
     def test_get_const_for_strong_right_angle(self):
         const = self.str_comparer.get_const_for_angle(MAX_ANG)
-        max_val = (string_comparison.NUM_ALPHABET - 1) / 2
+        max_val = (self.num_angle - 1) / 2
         # max_val for strong right, name may depend on size
         self.assertEqual(string_comparison.cur(max_val), const)
 
     def test_get_const_for_right_bounds(self):
         const = self.str_comparer.get_const_for_angle(MAX_ANG + 50)
-        max_val = (string_comparison.NUM_ALPHABET - 1) / 2
+        max_val = (self.num_angle - 1) / 2
         # max_val for strong right, name may depend on size
         self.assertEqual(string_comparison.cur(max_val), const)
 
     def test_get_const_for_strong_left_bounds(self):
         const = self.str_comparer.get_const_for_angle(-MAX_ANG - 50)
-        max_val = (string_comparison.NUM_ALPHABET - 1) / 2
+        max_val = (self.num_angle - 1) / 2
         # -max_val for strong left, name may depend on size
         self.assertEqual(string_comparison.cur(-max_val), const)
 
     def test_get_const_for_slight_right_angle(self):
         const = self.str_comparer.get_const_for_angle(2)
-        max_val = (string_comparison.NUM_ALPHABET - 1) / 2
+        print(const)
+        max_val = (self.num_angle - 1) / 2
         # 1 for Slight right, name may depend on size
         self.assertEqual(string_comparison.cur(1), const)
 
     def test_get_const_for_strong_left_angle(self):
         const = self.str_comparer.get_const_for_angle(-MAX_ANG)
-        max_val = (string_comparison.NUM_ALPHABET - 1) / 2
+        max_val = (self.num_angle - 1) / 2
         # -max_val for strong left, name may depend on size
         self.assertEqual(string_comparison.cur(-max_val), const)
 
@@ -292,7 +296,7 @@ class TestCurveSDL(unittest.TestCase):
         result = self.str_comparer._cur_sdl_error_at_startpoint(start_point=0, longer_road_sdl=sdl_road_0,
                                                                 shorter_road_sdl=sdl_road_1)
         #
-        expected_error = (string_comparison.NUM_ALPHABET - 1) * len(sdl_road_1)
+        expected_error = (self.num_angle - 1) * len(sdl_road_1)
         self.assertAlmostEqual(expected_error, result, msg="The error should be maxed!")
 
     def test__sdl_2d_error_at_startpoint(self):
@@ -342,20 +346,20 @@ class TestCurveSDL(unittest.TestCase):
         self.assertAlmostEqual(expected, result)
 
     def test_lcs_curve_sdl_not_normalized(self):
-        result = utils.lcs(self.nodes0_list, self.nodes1_list, normalized=False)
+        result = string_comparison.lcs(self.nodes0_list, self.nodes1_list, normalized=False)
         self.assertEqual(4, result)
 
     def test_lcs_curve_sdl_normalized(self):
-        result = utils.lcs(self.nodes0_list, self.nodes1_list, normalized=True)
+        result = string_comparison.lcs(self.nodes0_list, self.nodes1_list, normalized=True)
         expected = 4/len(self.nodes0_list)
         self.assertAlmostEqual(expected, result)
 
     def test_lcstr_curve_sdl_not_normalized(self):
-        result = utils.LCSubStr(self.nodes0_list, self.nodes1_list, normalized=False)
+        result = string_comparison.LCSubStr(self.nodes0_list, self.nodes1_list, normalized=False)
         self.assertEqual(3, result)
 
     def test_lcstr_curve_sdl_normalized(self):
-        result = utils.LCSubStr(self.nodes0_list, self.nodes1_list, normalized=True)
+        result = string_comparison.LCSubStr(self.nodes0_list, self.nodes1_list, normalized=True)
         expected = 3/len(self.nodes0_list)
         self.assertEqual(expected, result)
 

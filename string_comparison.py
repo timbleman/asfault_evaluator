@@ -18,8 +18,11 @@ import colorama
 import math
 import evaluator_config as econf
 
-DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -75.0, -30.0, -1.0, 1.0, 30.0, 75.0, 120.0]
+DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -105.0, -75.0, -60.0, -45.0, -30.0, -15.0, -1, 1, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0, 120.0]
+DEFAULT_PERCENTILE_VALUES_CUR_1 = DEFAULT_PERCENTILE_VALUES_CUR
 
+# modifiable from the outside, hacky
+K_LCSTR = 1
 
 # To change the angle alphabet size, you have to add symbols to the enums
 # Ensure that the enum is balanced
@@ -173,19 +176,19 @@ class StringComparer:
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_DIST.value] = distance_arr
 
-            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.lcs,
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=lcs,
                                                                representation=BehaviorDicConst.CUR_SDL.value)
             self.data_dict[name][BehaviorDicConst.CUR_SDL_LCS_DIST.value] = distance_arr
 
-            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.lcs,
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=lcs,
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_LCS_DIST.value] = distance_arr
 
-            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.LCSubStr,
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=LCSubStr,
                                                                representation=BehaviorDicConst.CUR_SDL.value)
             self.data_dict[name][BehaviorDicConst.CUR_SDL_LCSTR_DIST.value] = distance_arr
 
-            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.LCSubStr,
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=LCSubStr,
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_LCSTR_DIST.value] = distance_arr
 
@@ -378,6 +381,7 @@ class StringComparer:
         CURVE_WEIGHT = 0.666
         LENGTH_WEIGHT = 0.333
         error = 0
+        assert NUM_ALPHABET == len(cur), "Pycharm caching messes up alphabet length"
         for i in range(0, len(shorter_road_sdl)):
             error_cur = 0
             error_len = 0
@@ -427,9 +431,9 @@ class StringComparer:
         :param angle: the angle
         :return: cur type
         """
-        # TODO stimmt das überhaupt?
+        # TODO somehow Pycharm chaches the wrong version of DEFAULT_PERCENTILE_VALUES_CUR, flaky tests
         if econf.USE_FIXED_STRONG_BORDERS:
-            percentile_values_cur = DEFAULT_PERCENTILE_VALUES_CUR
+            percentile_values_cur = DEFAULT_PERCENTILE_VALUES_CUR_1
         else:
             percentile_values_cur = self.percentile_values
         assert percentile_values_cur, "percentile values have to be defined"
@@ -492,9 +496,9 @@ class StringComparer:
             self.all_roads_to_curvature_sdl()
         # fig1, ax1 = plt.subplots()
         # ax1.set_title('Basic Plot')
-        plt.boxplot(self.all_angles)
-        plt.title('Angle distribution')
-        plt.show()
+        #plt.boxplot(self.all_angles)
+        #plt.title('Angle distribution')
+        #plt.show()
 
         percentile_step = 100 / NUM_ALPHABET
         percentile_step_sum = 0
@@ -523,3 +527,126 @@ class StringComparer:
         print("percentile values of all roads", self.percentile_values)
         median = np.percentile(self.all_angles, 50)
         print("median of all roads", median)
+
+
+def lcs(X, Y, normalized: bool = True):
+    """ longest common subsequence problem dynamic programming approach
+    copied form here: https://www.geeksforgeeks.org/python-program-for-longest-common-subsequence/
+
+    :param X: First string
+    :param Y: Second string
+    :param normalized: normalizes in the range [0, 1.0] using the length of the shorter road
+    :return: lcs
+    """
+    # find the length of the strings
+    m = len(X)
+    n = len(Y)
+
+    # declaring the array for storing the dp values
+    L = [[None] * (n + 1) for i in range(m + 1)]
+
+    """Following steps build L[m + 1][n + 1] in bottom up fashion 
+    Note: L[i][j] contains length of LCS of X[0..i-1] 
+    and Y[0..j-1]"""
+    for i in range(m + 1):
+        for j in range(n + 1):
+            if i == 0 or j == 0:
+                L[i][j] = 0
+            elif X[i - 1] == Y[j - 1]:
+                L[i][j] = L[i - 1][j - 1] + 1
+            else:
+                L[i][j] = max(L[i - 1][j], L[i][j - 1])
+
+                # L[m][n] contains the length of LCS of X[0..n-1] & Y[0..m-1]
+    length = L[m][n]
+    # end of function lcs
+    if normalized:
+        length = length / min(m, n)
+        # TODO remove this if it does not break anything
+        assert 0.0 <= length <= 1.0, "length " + str(length) + " is out of bounds!"
+    return length
+
+
+def LCSubStr(X, Y, normalized: bool = True):
+    # Create a table to store lengths of
+    # longest common suffixes of substrings.
+    # Note that LCSuff[i][j] contains the
+    # length of longest common suffix of
+    # X[0...i-1] and Y[0...j-1]. The first
+    # row and first column entries have no
+    # logical meaning, they are used only
+    # for simplicity of the program.
+    m = len(X)
+    n = len(Y)
+    # LCSuff is the table with zero
+    # value initially in each cell
+    LCSuff = [[0 for k in range(n + 1)] for l in range(m + 1)]
+
+    # To store the length of
+    # longest common substring
+    result = 0
+
+    # Following steps to build
+    # LCSuff[m+1][n+1] in bottom up fashion
+    for i in range(m + 1):
+        for j in range(n + 1):
+            if (i == 0 or j == 0):
+                LCSuff[i][j] = 0
+            elif (X[i - 1] == Y[j - 1]):
+                # seems to work for both enums and tuples
+                # print(X[i - 1], "and", Y[j - 1], "match!")
+                LCSuff[i][j] = LCSuff[i - 1][j - 1] + 1
+                result = max(result, LCSuff[i][j])
+            else:
+                LCSuff[i][j] = 0
+
+    if normalized:
+        result = result / min(m, n)
+        # TODO remove this if it does not break anything
+        assert 0.0 <= result <= 1.0, "length " + str(result) + " is out of bounds!"
+    return result
+
+
+def k_lcstr(X, Y, k:int = K_LCSTR, normalized: bool = True) -> int:
+    """ Longest common substring with k mismatches
+    Implementation of https://doi.org/10.1016/j.ipl.2015.03.006 algorithm
+    TODO experiment with k, it seems not change nothing?
+
+    :param X: First string
+    :param Y: Second string
+    :param k: number of mismatches
+    :param normalized: normalizes in the range [0, 1.0] using the length of the shorter road
+    :return: length of longest common substring with k mismatches
+    """
+    # hacky, but ok for experiments, assignment needed to avoid compiler optimizations
+    k = K_LCSTR
+    #print("k vs K_LCSTR", k, K_LCSTR)
+    n = len(X)
+    m = len(Y)
+    length = 0
+    offset_1 = 0
+    offset_2 = 0
+    for d in range(-m + 1, n):
+        i = max(-d, 0) + d
+        j = max(-d, 0)
+        # using a list as a queue
+        queue = []
+        s = 0
+        p = 0
+        while p <= min(n-i, m-j) - 1:
+            if X[i+p] != Y[j+p]:
+                if len(queue) == k:
+                    s = min(queue) + 1
+                    queue.pop(0)
+                queue.append(p)
+            p += 1
+            if (p - s) > length:
+                length = p - s
+                offset_1 = i + s
+                offset_2 = j + s
+
+    if normalized:
+        length = length / min(m, n)
+        # TODO remove this if it does not break anything
+        assert 0.0 <= length <= 1.0, "length " + str(length) + " is out of bounds!"
+    return length

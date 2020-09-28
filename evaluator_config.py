@@ -8,7 +8,7 @@ OBE_WRITE = True
 
 # False if you want a custom sized angle alphabet
 # Has to be True for unit tests, otherwise borders are off
-USE_FIXED_STRONG_BORDERS = False
+USE_FIXED_STRONG_BORDERS = True
 
 # Use a seed for adaptive random sampling if it should be deterministic
 SEED_ADAPTIVE_RANDOM = 1234
