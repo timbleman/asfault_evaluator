@@ -28,6 +28,14 @@ SPEED_RANGE = (0, 85)
 # fixme 180 instead of 360 ?
 ANGLE_RANGE = (-360, 360)
 
+# 17 dividers for 16 bins, calculated by utils.optimized_bin_borders_percentiles()
+# These values are computed using the DriverAI set
+# first value -0.68029414 has been replaced by -1.0, The value exists as the car drives on the right side of the road
+adjusted_steering_borders = [-1.0, -0.08968573, -0.05965406, -0.04873885, -0.04021686, -0.03441211,
+                             -0.03070541, -0.02555755, -0.00635312, 0.01986001, 0.02915875, 0.03418135,
+                             0.04203678, 0.04906175, 0.05933272, 0.08456601, 1.0]
+
+
 def get_set_name(set_path: Path) -> str:
     """ tries to find a unique name for each executed set
     combines the first part of the parent folders name and the last number
@@ -48,6 +56,7 @@ def get_set_name(set_path: Path) -> str:
 
     print("set name ", set_name, "for", str(set_path))
     return set_name
+
 
 def setup_logging(log_level):
     level = l.INFO
@@ -72,7 +81,7 @@ def get_obes_dict(executions):
         # Extend obe information with additional features
         obe_dict['global_id'] = global_id
         obe_data.append(obe_dict)
-    #print("obe data ", obe_data)
+    # print("obe data ", obe_data)
     return obe_data
 
 
@@ -87,12 +96,17 @@ class CoverageEvaluator:
 
         set_name = get_set_name(set_path)
 
+        # TODO refactor, remove these
         '''from here on the old constructor'''
         self.speed_arr = []
         self.steering_arr = []
         self.distance_arr = []
         self.obe_speed_arr = []
         self.obe_angle_arr = []
+
+        # do not activate this unless you need all steering angles in a list
+        self.collect_all_angles = False
+        self.all_angles = []
 
         # needed for infinite speeds
         self.broken_speed_tests = []
@@ -167,6 +181,12 @@ class CoverageEvaluator:
                 self.steering_arr.append(state_dict['steering'])
             self.distance_arr.append(state.get_centre_distance())
 
+        # do not do this always
+        if self.collect_all_angles:
+            print("steering arr stats for adjusting, min mean max:", min(self.steering_arr), np.mean(self.steering_arr),
+                  max(self.steering_arr))
+            self.all_angles.extend(self.steering_arr)
+
         obe_list = [d for d in obe_dict if d['test_id'] == execution.test.test_id]
         for obe in obe_list:
             obe_speed = obe['speed']
@@ -176,7 +196,8 @@ class CoverageEvaluator:
 
         road_nodes = execution.test.get_path()
         road_polyline = execution.test.get_path_polyline()
-        test_path = path.join(asfault_environment.get_execs_path(), test_file_name)  # test_file_name #""# execution.test
+        test_path = path.join(asfault_environment.get_execs_path(),
+                              test_file_name)  # test_file_name #""# execution.test
         exec_time = execution.end_time - execution.start_time
         if broken_speed:
             self.broken_speed_tests.append(test_path)
@@ -185,7 +206,8 @@ class CoverageEvaluator:
                 RoadDicConst.TEST_PATH.value: test_path,
                 RoadDicConst.SPEED_BINS.value: self.get_speed_bins(),
                 RoadDicConst.STEERING_BINS.value: self.get_steering_bins(),
-                RoadDicConst.DISTANCE_BINS.value: self.get_distance_bins((0, 20)),  #TODO is (0, 20) a good range?
+                RoadDicConst.STEERING_BINS_ADJUSTED.value: self.get_steering_bins_adjusted(),
+                RoadDicConst.DISTANCE_BINS.value: self.get_distance_bins((0, 20)),  # TODO is (0, 20) a good range?
                 RoadDicConst.SPEED_STEERING_2D.value: self.get_speed_steering_2d(),
                 RoadDicConst.OBE_2D.value: self.get_obe_speed_angle_bins(),
                 RoadDicConst.NODES.value: road_nodes,
@@ -197,7 +219,7 @@ class CoverageEvaluator:
                 BehaviorDicConst.NUM_STATES.value: num_states,
                 BehaviorDicConst.EXEC_RESULT.value: execution.result}
 
-        #print("bins: ", bins)
+        # print("bins: ", bins)
         road_name = self.global_name + str(execution.test.test_id)
         # check if road is included, may need renaming if the road is dífferent
         if road_name in self.suite_bins:
@@ -212,7 +234,7 @@ class CoverageEvaluator:
         return self.broken_speed_tests
 
     def get_bins(self, data: list, bounds):
-        """ Returns a list of bins for an array, the bins are non-binary but counting
+        """ Returns a list of equal width bins for an array, the bins are non-binary but counting.
 
         :param data: List of data points
         :param bounds: Tuple from start to end (start, end), values outside get discard
@@ -221,8 +243,23 @@ class CoverageEvaluator:
         bins, bin_edges, binnum = stats.binned_statistic(data, data, bins=NUM_BINS, range=bounds, statistic='count')
         return bins
 
+    def get_non_uniform_bins(self, data: list, bounds, dividers: list):
+        """ Returns a list of non-equal width bins for an array, the bins are non-binary but counting.
+
+        :param data: List of data points
+        :param bounds: Tuple from start to end (start, end), values outside get discard
+        :param dividers: Points at which to cut, has to be number_of_bins + 1
+        :return: List of bins
+        """
+        bins, bin_edges, binnum = stats.binned_statistic(data, data, bins=dividers, range=bounds, statistic='count')
+        return bins
+
     def get_steering_bins(self):
         return self.get_bins(self.steering_arr, STEERING_RANGE)
+
+    def get_steering_bins_adjusted(self):
+        return self.get_non_uniform_bins(data=self.steering_arr, bounds=STEERING_RANGE,
+                                         dividers=adjusted_steering_borders)
 
     def get_speed_bins(self):
         # TODO change the bounds, find a good compromise, maybe dynamically
@@ -242,5 +279,5 @@ class CoverageEvaluator:
 
     def get_obe_speed_angle_bins(self):
         histogram, speed_edges, angle_edges = np.histogram2d(self.obe_speed_arr, self.obe_angle_arr, bins=NUM_OBE_BINS,
-                                                                range=(SPEED_RANGE, ANGLE_RANGE), normed=False)
+                                                             range=(SPEED_RANGE, ANGLE_RANGE), normed=False)
         return histogram

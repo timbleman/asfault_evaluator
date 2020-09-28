@@ -69,6 +69,7 @@ def main():
     import os
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
     """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
+    # regular, sets, invalid tests removed, including OBE tests
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
     parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
     parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
@@ -150,6 +151,8 @@ def main():
     print(end_str_comp - start_str_comp, "seconds to compute the string distances")
     #str_comparer.all_roads_average_curvature()
 
+    # only do this if all steering angles get collected in the coverage evaluator
+    # utils.optimized_bin_borders_percentiles(cov_eval.all_angles, 16)
 
     #utils.whole_suite_dist_matrix_statistic_incomplete(data_bins_dict, feature=utils.BehaviorDicConst.JACCARD.value,
     #                                                   title="Jaccard box plots", plot=True)
@@ -205,6 +208,7 @@ def main():
         #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
 
         csv_creator.write_whole_suite_1d_coverages(RoadDicConst.STEERING_BINS.value)
+        csv_creator.write_whole_suite_1d_coverages(RoadDicConst.STEERING_BINS_ADJUSTED.value)
         csv_creator.write_whole_suite_1d_coverages(RoadDicConst.SPEED_BINS.value)
         csv_creator.write_whole_suite_1d_coverages(RoadDicConst.STEERING_BINS.value)
         csv_creator.write_whole_suite_2d_coverages(RoadDicConst.SPEED_STEERING_2D.value)

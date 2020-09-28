@@ -24,6 +24,7 @@ class RoadDicConst(Enum):
     TEST_ID = 'test_id'
     SPEED_BINS = "speed_bins"
     STEERING_BINS = 'steering_bins'
+    STEERING_BINS_ADJUSTED = "steering_bins_non_uniform_percentile"
     DISTANCE_BINS = "distance_bins"
     SPEED_STEERING_2D = "speed_steering_2d_bins"
     OBE_2D = "obe_2d"
@@ -490,7 +491,26 @@ def shape_similarity_measures_all_to_all_unoptimized(data_dict: dict):
         road1[BehaviorDicConst.COORD_DTW_DIST.value] = dicc_dtw
         road1[BehaviorDicConst.COORD_FRECHET_DIST.value] = dicc_frechet
 
-# Returns length of longest common
-# substring of X[0..m-1] and Y[0..n-1]
 
+def optimized_bin_borders_percentiles(all_values: list, number_of_bins: int):
+    """ This is used to get better borders with equal distribution for binning.
+    Includes number_of_bins + 1 elements, including the last border.
+    Is used once for all steering angles with 16 bins to have a better distribution of steering bins.
 
+    :param all_values: all values, like all angles
+    :param number_of_bins: number of bins
+    :return: List of borders for binning.
+    """
+    assert all_values, "There have to be values to compute the percentiles"
+    #print("all steering values for adjusting, stats min mean max:", min(all_values), np.mean(all_values),
+    #      max(all_values))
+    # get the percentiles
+    step_size = 100.0/number_of_bins
+    percentiles = np.arange(0, 100, step_size).tolist()
+    percentiles.append(100.0)
+    # calculate the value of the percentiles
+    percentile_res = np.percentile(a=all_values, q=percentiles)
+    assert len(percentile_res) == number_of_bins + 1, "The number of computed percentiles is wrong"
+    #print("percentiles", percentiles)
+    #print("percentile_res", percentile_res)
+    return percentile_res
