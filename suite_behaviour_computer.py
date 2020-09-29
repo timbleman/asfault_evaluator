@@ -153,48 +153,5 @@ class SuiteBehaviourComputer:
         self.test_dict.get(road_to_compare)[road_to_compare + '_' + function + '_' + measure] = road_similarities
         return road_similarities
 
-    """
-    def behavior_compare_1d(self, road_to_compare: str, measure: str, function: str = 'binary'):
-        compares the coverage of a single-dimensional feature of a road to all others in the suite
-
-        :param road_to_compare: the baseline road which is compared to all others
-        :param measure: the feature which is compare, has to be present for each road in the suite dict
-        :param function: "binary" (coverage) or "single" (counting) comparison
-        :return: the road similarities
-        
-        road_similarities = {}
-        # TODO do this everywhere, more pythonic
-        main_bin = self.test_dict.get(road_to_compare, None).get(measure, None)
-        assert main_bin is not None, "The bin " + measure + " has not been added or spelling is incorrect"
-
-        for name in self.test_dict:
-            test_to_compare = self.test_dict[name]
-            road_similarities[name] = utils.list_difference_1d(main_bin,
-                                                               test_to_compare.get(measure),
-                                                               function=function, normalized=True)
-        self.test_dict.get(road_to_compare)[road_to_compare + '_' + function + '_' + measure] = road_similarities
-        return road_similarities
-
-    def behavior_compare_2d(self, road_to_compare: str, measure: str, function: str = "binary"):
-        compares the coverage of a two-dimensional feature of a road to all others in the suite
-
-        :param road_to_compare: the baseline road which is compared to all others
-        :param measure: the feature which is compare, has to be present for each road in the suite dict
-        :param function: "binary" (coverage) or "single" (counting) comparison
-        :return: None
-        
-        road_similarities = {}
-        main_bin = self.test_dict.get(road_to_compare, None).get(measure, None)
-        assert main_bin is not None, "The bin " + measure + " has not been added or spelling is incorrect"
-        # print(main_bin)
-        for name in self.test_dict:
-            test_to_compare = self.test_dict[name]
-            road_similarities[name] = utils.bin_difference_2d(main_bin,
-                                                              test_to_compare.get(measure),
-                                                              function=function, normalized=True)
-        self.test_dict.get(road_to_compare)[road_to_compare + '_' + measure] = road_similarities
-        return road_similarities
-    """
-
     def get_test_dict(self):
         return self.test_dict
