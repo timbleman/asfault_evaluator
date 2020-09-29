@@ -131,42 +131,6 @@ class SuiteBehaviourComputer:
                 distance_arr = self.behavior_compare_1d_2d(name, measure=out_met['bins'],
                                                         function=out_met['fun'])
                 self.test_dict[name][out_met['out_name']] = distance_arr
-            """
-            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.DISTANCE_BINS.value,
-                                                    function='binary')
-            self.test_dict[name][BehaviorDicConst.CENTER_DIST_BINARY.value] = distance_arr
-
-            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.DISTANCE_BINS.value,
-                                                    function='single')
-            self.test_dict[name][BehaviorDicConst.CENTER_DIST_SINGLE.value] = distance_arr
-
-            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.STEERING_BINS.value,
-                                                    function='binary')
-            self.test_dict[name][BehaviorDicConst.STEERING_DIST_BINARY.value] = distance_arr
-
-            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.STEERING_BINS.value,
-                                                    function='single')
-            self.test_dict[name][BehaviorDicConst.STEERING_DIST_SINGLE.value] = distance_arr
-
-            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.SPEED_BINS.value,
-                                                    function='binary')
-            self.test_dict[name][BehaviorDicConst.SPEED_DIST_BINARY.value] = distance_arr
-
-            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.SPEED_BINS.value,
-                                                    function='single')
-            self.test_dict[name][BehaviorDicConst.SPEED_DIST_SINGLE.value] = distance_arr
-
-            distance_arr = self.behavior_compare_2d(name, measure=RoadDicConst.SPEED_STEERING_2D.value)
-            self.test_dict[name][BehaviorDicConst.BINS_STEERING_SPEED_DIST.value] = distance_arr
-
-            distance_arr = self.behavior_compare_2d(name, measure=RoadDicConst.SPEED_STEERING_2D.value,
-                                                    function="binary")
-            self.test_dict[name][BehaviorDicConst.BINS_STEERING_SPEED_DIST.value] = distance_arr
-
-            distance_arr = self.behavior_compare_2d(name, measure=RoadDicConst.SPEED_STEERING_2D.value,
-                                                    function="single")
-            self.test_dict[name][BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value] = distance_arr
-            """
 
     def behavior_compare_1d_2d(self, road_to_compare: str, measure: str, function: str = 'binary'):
         """ compares the coverage of a single-dimensional feature of a road to all others in the suite

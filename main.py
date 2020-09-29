@@ -65,8 +65,6 @@ def get_all_paths(parent_dir: Path) -> List[Path]:
 
 
 def main():
-    # Local import to main
-    import os
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
     """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
     # regular, sets, invalid tests removed, including OBE tests
@@ -75,8 +73,6 @@ def main():
     parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-15-4-low-div")
-    # unnecessary
-    # parent_dir = utils.get_root_of_test_suite(parent_dir)
     all_paths = get_all_paths(parent_dir)
 
     # FIXME the folder structure seems broken sometimes
@@ -176,36 +172,9 @@ def main():
 
         for metr in econf.string_metrics_to_analyse:
             csv_creator.write_all_to_all_dist_matrix(metr)
-            """
-            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_DIST.value)
-            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.JACCARD.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_LCS_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_2_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_3_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_5_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_10_LCSTR_DIST.value)
-            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCS_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_1_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_2_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_3_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_5_LCSTR_DIST.value)
-            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_10_LCSTR_DIST.value)
-            """
 
         for metr in econf.output_metrics_to_analyse:
             csv_creator.write_all_to_all_dist_matrix(measure=metr)
-            """
-            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.BINS_STEERING_SPEED_DIST.value)
-            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value)
-            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CENTER_DIST_BINARY.value)
-            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CENTER_DIST_SINGLE.value)
-            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.STEERING_DIST_BINARY.value)
-            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.STEERING_DIST_SINGLE.value)
-            """
 
         #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_DTW_DIST.value)
         #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_FRECHET_DIST.value)
