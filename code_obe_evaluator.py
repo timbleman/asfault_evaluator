@@ -316,6 +316,24 @@ class OBEEvaluator:
             # This is the same for each execution !
             self.bounds = execution.test.network.bounds
 
+        # has to be activated in econf
+        # writes road plot in the output/plots/ folder
+        if econf.ALL_ROADS_WRITE:
+            from asfault.plotter import TestPlotter
+            from asfault.config import rg as asfault_environment
+            for fi_execution in executions:
+                fig = plt.figure()
+                ax = fig.add_subplot(111)
+                fi_name = fi_execution.test.test_id
+                # get the paths
+                output_path = path.split(asfault_environment.get_execs_path())[0]
+                plots_path = path.join(output_path, 'plots')
+                road_plot_file = path.join(plots_path, str(fi_name) + ".png")
+                asfault_plotter = TestPlotter(ax, "Test of a road", fi_execution.test.network.bounds)
+                asfault_plotter.plot_test(fi_execution.test)
+                # plt.show()
+                plt.savefig(road_plot_file)
+
     def _fill_bins(self, execution):
         # TODO weg?
         speed_arr = []
