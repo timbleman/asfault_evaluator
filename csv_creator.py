@@ -98,7 +98,7 @@ class CSVCreator:
 
         csv_columns = list(self.data_dict.keys())
         csv_columns.insert(0, "road")
-        print("csv_columns", csv_columns)
+        #print("csv_columns", csv_columns)
 
         first_road_dict = self.data_dict.get(csv_columns[1], None)
         assert first_road_dict is not None, "There has to be at least one road!"

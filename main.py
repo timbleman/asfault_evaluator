@@ -168,6 +168,7 @@ def main():
     start_csv = time.time()
     WRITE_CSV = True
     if WRITE_CSV:
+        print()
         csv_creator = CSVCreator(data_dict=data_bins_dict, root_path=parent_dir)
         csv_creator.write_whole_suite_multiple_values("whole_suite_coverages", coverage_tuple_list)
         csv_creator.write_whole_suite_multiple_values("other_numerics", other_data_tuples_list, first_row_name="measures")
@@ -189,12 +190,16 @@ def main():
         #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_5_LCSTR_DIST.value)
         #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_10_LCSTR_DIST.value)
 
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.BINS_STEERING_SPEED_DIST.value)
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value)
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CENTER_DIST_BINARY.value)
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CENTER_DIST_SINGLE.value)
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.STEERING_DIST_BINARY.value)
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.STEERING_DIST_SINGLE.value)
+        for metr in econf.output_metrics_to_analyse:
+            csv_creator.write_all_to_all_dist_matrix(measure=metr)
+            """
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.BINS_STEERING_SPEED_DIST.value)
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value)
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CENTER_DIST_BINARY.value)
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CENTER_DIST_SINGLE.value)
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.STEERING_DIST_BINARY.value)
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.STEERING_DIST_SINGLE.value)
+            """
 
         #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_DTW_DIST.value)
         #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_FRECHET_DIST.value)

@@ -47,6 +47,8 @@ class BehaviorDicConst(Enum):
     CENTER_DIST_SINGLE = "center_dist_single"
     STEERING_DIST_BINARY = "steering_dist_binary"
     STEERING_DIST_SINGLE = "steering_dist_single"
+    SPEED_DIST_BINARY = "speed_dist_binary"
+    SPEED_DIST_SINGLE = "speed_dist_single"
     BINS_STEERING_SPEED_DIST = "steering_speed_dist"
     BINS_STEERING_SPEED_DIST_SINGLE = "steering_speed_dist_single"
 
@@ -152,19 +154,41 @@ def dict_of_lists_matrix_measure(data_dict: dict, measure: str) -> dict:
     return dict_2d
 
 
+def list_difference_1d_2d(a, b, function: str, normalized: bool = True, inverse: bool = True):
+    """
+    Calculates the distance between bins of two roads, is used to find differences in
+    behaviour.
+    Available measures are binary difference in a bin, the absolute difference and the squared difference.
+    All the measures can be normalized to lie in between 0 and 1.
+    Abstraction for the user not to worry about bin shape.
+
+    :param a: bins for first road
+    :param b: bins for second road
+    :param function: 'binary', 'single' or 'squared' ('squared' is deprecated)
+    :param normalized: boolean, if normalized, fits the shape
+    :param inverse: inverses the output, only possible if normalized, then similarity not difference
+    :return: the calculated difference as float
+    """
+    from collections import Sequence
+    if isinstance(a[0], (Sequence, np.ndarray)):
+        return bin_difference_2d(a=a, b=b, function=function, normalized=normalized)
+    else:
+        return list_difference_1d(a=a, b=b, function=function, normalized=normalized, inverse=inverse)
+
 def list_difference_1d(a: list, b: list, function: str, normalized: bool = True, inverse: bool = True):
     """ Calculates the distance between two one-dimensional lists of bins, is used to find differences in
         behaviour
         Available measures are binary difference in a bin, the absolute difference and the squared difference
         All the measures can be normalized to lie in between 0 and 1
 
-    :param inverse: inverses the output, only possible if normalized
     :param a: first list
     :param b: second list
     :param function: 'binary', 'single' or 'squared'
     :param normalized: boolean, if normalized
+    :param inverse: inverses the output, only possible if normalized
     :return: the calculated difference as float
     """
+    # TODO add removal of sparsely populated bins like in the R script
     assert a.__len__() == b.__len__(), "Both lists have to be of the same length!"
     if inverse:
         assert normalized is True, "Inversing behavior similarity is only possible if data is normalized!"
@@ -173,12 +197,6 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True,
     sum_b = sum(b)
     ratio_a_to_b = float(sum(a)) / sum(b)
 
-    # print("ratio_a_to_b", ratio_a_to_b)
-    # assert sum_a == sum_b, "Both lists have to have the same element count!"
-    # TODO different sized bins may cause problems
-    # fixme find a good solution, discard some roads?
-    # assert sum_b * 0.25 <= sum_a <= sum_b * 4, "Both lists have to have similar element count!" + str(sum_a) + " vs " + \
-    #                                          str(sum_b)
 
     # returns the binary difference
     def difference_bin():
@@ -193,15 +211,12 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True,
         return binsum
 
     # returns the absolute difference of the bins
-    # fixme normalize
     def difference_sin():
         different_sum = 0
         if normalized:
             for i in range(0, a.__len__()):
                 if a[i] != b[i]:
                     different_sum += abs(a[i] - b[i] * ratio_a_to_b)
-            # FIXME pretty sure this should be sum_a * 2, in case on is larger than the
-            # different_sum /= sum_a + sum_b
             different_sum /= sum_a * 2
             if inverse:
                 different_sum = 1 - different_sum

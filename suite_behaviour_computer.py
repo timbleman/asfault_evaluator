@@ -1,10 +1,27 @@
 from typing import Dict
 import numpy as np
 
+
+import colorama
+
 import coverage_evaluator
+import evaluator_config as econf
 import utils
 from utils import RoadDicConst
 from utils import BehaviorDicConst
+
+
+# what measures to compute on the output bins
+# adjust these to add new measure computed on different bins
+output_metrics_config = [
+    {'bins': RoadDicConst.DISTANCE_BINS.value, 'fun': 'binary', 'out_name': BehaviorDicConst.CENTER_DIST_BINARY.value},
+    {'bins': RoadDicConst.DISTANCE_BINS.value, 'fun': 'single', 'out_name': BehaviorDicConst.CENTER_DIST_SINGLE.value},
+    {'bins': RoadDicConst.STEERING_BINS.value, 'fun': 'binary', 'out_name': BehaviorDicConst.STEERING_DIST_BINARY.value},
+    {'bins': RoadDicConst.STEERING_BINS.value, 'fun': 'single', 'out_name': BehaviorDicConst.STEERING_DIST_SINGLE.value},
+    {'bins': RoadDicConst.SPEED_BINS.value, 'fun': 'binary', 'out_name': BehaviorDicConst.SPEED_DIST_BINARY.value},
+    {'bins': RoadDicConst.SPEED_BINS.value, 'fun': 'single', 'out_name': BehaviorDicConst.SPEED_DIST_SINGLE.value},
+    {'bins': RoadDicConst.SPEED_STEERING_2D.value, 'fun': 'binary', 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST.value},
+    {'bins': RoadDicConst.SPEED_STEERING_2D.value, 'fun': 'single', 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value}]
 
 
 class SuiteBehaviourComputer:
@@ -13,6 +30,8 @@ class SuiteBehaviourComputer:
         self.coverage_dict = {}
         self.start = start
         self.end = end
+
+        self.output_metrics_to_compute = list(filter(lambda metr: metr['out_name'] in econf.output_metrics_to_analyse, output_metrics_config))
 
     def calculate_suite_coverage_1d(self, feature: str, add_for_each: bool = True):
         """ Calculates the 1d coverage of a selected feature across the whole test suite
@@ -102,8 +121,17 @@ class SuiteBehaviourComputer:
         return sum
 
     def behaviour_all_to_all(self):
+        #output_metrics_to_compute_names =
+        yanda = list(map(lambda mtr: mtr['out_name'], self.output_metrics_to_compute))
+        print(colorama.Fore.BLUE + "Computing difference in the outputs " + str(yanda) + colorama.Style.RESET_ALL)
         for name in self.test_dict:
             # TODO schau mal ob da alles passt
+            for out_met in self.output_metrics_to_compute:
+                #print("bins, fun, name", out_met['bins'], out_met['fun'], out_met['out_name'])
+                distance_arr = self.behavior_compare_1d_2d(name, measure=out_met['bins'],
+                                                        function=out_met['fun'])
+                self.test_dict[name][out_met['out_name']] = distance_arr
+            """
             distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.DISTANCE_BINS.value,
                                                     function='binary')
             self.test_dict[name][BehaviorDicConst.CENTER_DIST_BINARY.value] = distance_arr
@@ -120,6 +148,14 @@ class SuiteBehaviourComputer:
                                                     function='single')
             self.test_dict[name][BehaviorDicConst.STEERING_DIST_SINGLE.value] = distance_arr
 
+            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.SPEED_BINS.value,
+                                                    function='binary')
+            self.test_dict[name][BehaviorDicConst.SPEED_DIST_BINARY.value] = distance_arr
+
+            distance_arr = self.behavior_compare_1d(name, measure=RoadDicConst.SPEED_BINS.value,
+                                                    function='single')
+            self.test_dict[name][BehaviorDicConst.SPEED_DIST_SINGLE.value] = distance_arr
+
             distance_arr = self.behavior_compare_2d(name, measure=RoadDicConst.SPEED_STEERING_2D.value)
             self.test_dict[name][BehaviorDicConst.BINS_STEERING_SPEED_DIST.value] = distance_arr
 
@@ -130,8 +166,9 @@ class SuiteBehaviourComputer:
             distance_arr = self.behavior_compare_2d(name, measure=RoadDicConst.SPEED_STEERING_2D.value,
                                                     function="single")
             self.test_dict[name][BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value] = distance_arr
+            """
 
-    def behavior_compare_1d(self, road_to_compare: str, measure: str, function: str = 'binary'):
+    def behavior_compare_1d_2d(self, road_to_compare: str, measure: str, function: str = 'binary'):
         """ compares the coverage of a single-dimensional feature of a road to all others in the suite
 
         :param road_to_compare: the baseline road which is compared to all others
@@ -146,6 +183,28 @@ class SuiteBehaviourComputer:
 
         for name in self.test_dict:
             test_to_compare = self.test_dict[name]
+            road_similarities[name] = utils.list_difference_1d_2d(main_bin,
+                                                               test_to_compare.get(measure),
+                                                               function=function, normalized=True)
+        self.test_dict.get(road_to_compare)[road_to_compare + '_' + function + '_' + measure] = road_similarities
+        return road_similarities
+
+    """
+    def behavior_compare_1d(self, road_to_compare: str, measure: str, function: str = 'binary'):
+        compares the coverage of a single-dimensional feature of a road to all others in the suite
+
+        :param road_to_compare: the baseline road which is compared to all others
+        :param measure: the feature which is compare, has to be present for each road in the suite dict
+        :param function: "binary" (coverage) or "single" (counting) comparison
+        :return: the road similarities
+        
+        road_similarities = {}
+        # TODO do this everywhere, more pythonic
+        main_bin = self.test_dict.get(road_to_compare, None).get(measure, None)
+        assert main_bin is not None, "The bin " + measure + " has not been added or spelling is incorrect"
+
+        for name in self.test_dict:
+            test_to_compare = self.test_dict[name]
             road_similarities[name] = utils.list_difference_1d(main_bin,
                                                                test_to_compare.get(measure),
                                                                function=function, normalized=True)
@@ -153,13 +212,13 @@ class SuiteBehaviourComputer:
         return road_similarities
 
     def behavior_compare_2d(self, road_to_compare: str, measure: str, function: str = "binary"):
-        """ compares the coverage of a two-dimensional feature of a road to all others in the suite
+        compares the coverage of a two-dimensional feature of a road to all others in the suite
 
         :param road_to_compare: the baseline road which is compared to all others
         :param measure: the feature which is compare, has to be present for each road in the suite dict
         :param function: "binary" (coverage) or "single" (counting) comparison
         :return: None
-        """
+        
         road_similarities = {}
         main_bin = self.test_dict.get(road_to_compare, None).get(measure, None)
         assert main_bin is not None, "The bin " + measure + " has not been added or spelling is incorrect"
@@ -171,6 +230,7 @@ class SuiteBehaviourComputer:
                                                               function=function, normalized=True)
         self.test_dict.get(road_to_compare)[road_to_compare + '_' + measure] = road_similarities
         return road_similarities
+    """
 
     def get_test_dict(self):
         return self.test_dict
