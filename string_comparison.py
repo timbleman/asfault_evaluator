@@ -84,6 +84,20 @@ class StringComparer:
             self.gather_all_angles()
             self.get_curve_distribution()
 
+        self.string_metrics_config = [
+            {'rep': BehaviorDicConst.CUR_SDL.value, 'fun': self.cur_sdl_one_to_one, 'out_name': BehaviorDicConst.CUR_SDL_DIST.value},
+            {'rep': BehaviorDicConst.SDL_2D.value, 'fun': self.sdl_2d_one_to_one, 'out_name': BehaviorDicConst.SDL_2D_DIST.value},
+            {'rep': BehaviorDicConst.CUR_SDL.value, 'fun': lcs, 'out_name': BehaviorDicConst.CUR_SDL_LCS_DIST.value},
+            {'rep': BehaviorDicConst.SDL_2D.value, 'fun': lcs, 'out_name': BehaviorDicConst.SDL_2D_LCS_DIST.value},
+            {'rep': BehaviorDicConst.CUR_SDL.value, 'fun': LCSubStr, 'out_name': BehaviorDicConst.CUR_SDL_LCSTR_DIST.value},
+            {'rep': BehaviorDicConst.SDL_2D.value, 'fun': LCSubStr, 'out_name': BehaviorDicConst.SDL_2D_LCSTR_DIST.value},
+            {'rep': BehaviorDicConst.CUR_SDL.value, 'fun': k_lcstr, 'out_name': BehaviorDicConst.CUR_SDL_1_LCSTR_DIST.value},
+            {'rep': BehaviorDicConst.SDL_2D.value, 'fun': k_lcstr, 'out_name': BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value},
+            {'rep': BehaviorDicConst.SDL_2D.value, 'fun': self.jaccard_sdl_2d_one_to_one, 'out_name': BehaviorDicConst.JACCARD.value}]
+
+        self.string_metrics_to_compute = list(
+            filter(lambda metr: metr['out_name'] in econf.string_metrics_to_analyse, self.string_metrics_config))
+
         # self.gather_all_angles()
         # self.get_curve_distribution()
 
@@ -167,6 +181,11 @@ class StringComparer:
         for name in self.data_dict:
             # TODO schau mal ob da alles passt
             # TODO refactor this into a predefined tuple list [(func, representation, dist_name)]
+            for metr in self.string_metrics_to_compute:
+                distance_arr = self.compare_one_to_all_unoptimized(name, funct=metr['fun'],
+                                                                   representation=metr['rep'])
+                self.data_dict[name][metr['out_name']] = distance_arr
+            """
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.cur_sdl_one_to_one,
                                                                representation=BehaviorDicConst.CUR_SDL.value)
             self.data_dict[name][BehaviorDicConst.CUR_SDL_DIST.value] = distance_arr
@@ -191,6 +210,7 @@ class StringComparer:
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=LCSubStr,
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_LCSTR_DIST.value] = distance_arr
+            """
 
             """ # default with one mismatch
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
@@ -249,10 +269,11 @@ class StringComparer:
             self.data_dict[name][BehaviorDicConst.SDL_2D_10_LCSTR_DIST.value] = distance_arr
             """
 
+            """
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=self.jaccard_sdl_2d_one_to_one,
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.JACCARD.value] = distance_arr
-
+            """
 
 
     # these three should be one

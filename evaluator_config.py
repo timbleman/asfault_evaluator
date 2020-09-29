@@ -26,6 +26,8 @@ coverages_1d_to_analyse = [utils.RoadDicConst.SPEED_BINS.value,
 coverages_2d_to_analyse = [utils.RoadDicConst.SPEED_STEERING_2D.value,
                            utils.RoadDicConst.OBE_2D.value]
 
+# what output metrics should be computed and written out
+# to reconfigure these metrics change output_metrics_config in suite_behaviour_computer.py
 output_metrics_to_analyse = [BehaviorDicConst.CENTER_DIST_BINARY.value,
                              BehaviorDicConst.CENTER_DIST_SINGLE.value,
                              BehaviorDicConst.STEERING_DIST_BINARY.value,
@@ -34,3 +36,14 @@ output_metrics_to_analyse = [BehaviorDicConst.CENTER_DIST_BINARY.value,
                              BehaviorDicConst.SPEED_DIST_SINGLE.value,
                              BehaviorDicConst.BINS_STEERING_SPEED_DIST.value,
                              BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value]
+
+string_metrics_to_analyse = [BehaviorDicConst.CUR_SDL_DIST.value,
+                             BehaviorDicConst.SDL_2D_DIST.value,
+                             #BehaviorDicConst.CUR_SDL_LCS_DIST.value,
+                             #BehaviorDicConst.SDL_2D_LCS_DIST.value,
+                             #BehaviorDicConst.CUR_SDL_LCSTR_DIST.value,
+                             #BehaviorDicConst.SDL_2D_LCSTR_DIST.value,
+                             #BehaviorDicConst.CUR_SDL_1_LCSTR_DIST.value,
+                             #BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value,
+                             BehaviorDicConst.JACCARD.value
+                             ]

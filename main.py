@@ -85,7 +85,7 @@ def main():
     broken_tests = []
 
     start_gathering = time.time()
-    QUICK = False
+    QUICK = True
     if QUICK:
         env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
         parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test")
@@ -169,26 +169,32 @@ def main():
     WRITE_CSV = True
     if WRITE_CSV:
         print()
+        print(colorama.Fore.GREEN + "Writing csvs" + colorama.Style.RESET_ALL)
         csv_creator = CSVCreator(data_dict=data_bins_dict, root_path=parent_dir)
         csv_creator.write_whole_suite_multiple_values("whole_suite_coverages", coverage_tuple_list)
         csv_creator.write_whole_suite_multiple_values("other_numerics", other_data_tuples_list, first_row_name="measures")
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_DIST.value)
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.JACCARD.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_LCS_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_2_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_3_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_5_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_10_LCSTR_DIST.value)
-        csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCS_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_1_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_2_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_3_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_5_LCSTR_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_10_LCSTR_DIST.value)
+
+        for metr in econf.string_metrics_to_analyse:
+            csv_creator.write_all_to_all_dist_matrix(metr)
+            """
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_DIST.value)
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.JACCARD.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_LCS_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_2_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_3_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_5_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.SDL_2D_10_LCSTR_DIST.value)
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCS_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_1_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_2_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_3_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_5_LCSTR_DIST.value)
+            #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_10_LCSTR_DIST.value)
+            """
 
         for metr in econf.output_metrics_to_analyse:
             csv_creator.write_all_to_all_dist_matrix(measure=metr)
