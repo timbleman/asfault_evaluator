@@ -27,6 +27,8 @@ class SuiteBehaviourComputer:
             {'bins': RoadDicConst.DISTANCE_BINS.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.CENTER_DIST_SINGLE.value},
             {'bins': RoadDicConst.STEERING_BINS.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.STEERING_DIST_BINARY.value},
             {'bins': RoadDicConst.STEERING_BINS.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.STEERING_DIST_SINGLE.value},
+            {'bins': RoadDicConst.STEERING_BINS_ADJUSTED.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.STEERING_ADJUSTED_DIST_BINARY.value},
+            {'bins': RoadDicConst.STEERING_BINS_ADJUSTED.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.STEERING_ADJUSTED_DIST_SINGLE.value},
             {'bins': RoadDicConst.SPEED_BINS.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.SPEED_DIST_BINARY.value},
             {'bins': RoadDicConst.SPEED_BINS.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.SPEED_DIST_SINGLE.value},
             {'bins': RoadDicConst.SPEED_STEERING_2D.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST.value},
