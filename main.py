@@ -70,7 +70,7 @@ def main():
     # regular, sets, invalid tests removed, including OBE tests
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
     parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
-    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-15-4-low-div")
     all_paths = get_all_paths(parent_dir)
@@ -102,6 +102,7 @@ def main():
         print(end_gathering - start_gathering, "seconds to gather the data")
 
 
+    start_suite_behaviour = time.time()
     sbh = SuiteBehaviourComputer(data_bins_dict)
     coverage_tuple_list = []
     for measure in econf.coverages_1d_to_analyse:
@@ -115,6 +116,8 @@ def main():
     print("coverage_tuple_list", coverage_tuple_list)
     #print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
     #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
+    end_suite_behaviour = time.time()
+    print(end_suite_behaviour - start_suite_behaviour, "seconds to compute the test behavior")
 
     from road_visualizer.visualize_centerline import visualize_centerline
     road0_lstr = list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value)

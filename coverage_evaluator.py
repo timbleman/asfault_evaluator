@@ -204,6 +204,9 @@ class CoverageEvaluator:
         # .testid instead of whole execution object?
         bins = {RoadDicConst.TEST_ID.value: execution.test.test_id,
                 RoadDicConst.TEST_PATH.value: test_path,
+                RoadDicConst.SPEED_STATES.value: self.driver_states_dtw_friendly(self.speed_arr),
+                RoadDicConst.STEERING_STATES.value: self.driver_states_dtw_friendly(self.steering_arr),
+                RoadDicConst.STEERING_SPEED_STATES.value: self.steering_speed_states_to_2d(self.steering_arr, self.speed_arr),
                 RoadDicConst.SPEED_BINS.value: self.get_speed_bins(),
                 RoadDicConst.STEERING_BINS.value: self.get_steering_bins(),
                 RoadDicConst.STEERING_BINS_ADJUSTED.value: self.get_steering_bins_adjusted(),
@@ -226,6 +229,19 @@ class CoverageEvaluator:
             print("road is already included in the dict!")
         else:
             self.suite_bins[road_name] = bins
+
+    def steering_speed_states_to_2d(self, steering_states: list, speed_states: list) -> np.ndarray:
+        assert len(steering_states) == len(speed_states), "The count of steering and speed states has to be equal!"
+        states_2d = np.zeros((len(steering_states), 2))
+        states_2d[:, 0] = steering_states
+        states_2d[:, 1] = speed_states
+        return states_2d
+
+    def driver_states_dtw_friendly(self, states: list) -> np.ndarray:
+        states_2d = np.zeros((len(states), 2))
+        states_2d[:, 0] = states
+        states_2d[:, 1] = range(0, len(states))
+        return states_2d
 
     def get_all_bins(self):
         return self.suite_bins

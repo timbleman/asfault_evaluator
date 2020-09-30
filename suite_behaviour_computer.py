@@ -1,6 +1,6 @@
 from typing import Dict
 import numpy as np
-
+import time
 
 import colorama
 
@@ -11,17 +11,6 @@ from utils import RoadDicConst
 from utils import BehaviorDicConst
 
 
-# what measures to compute on the output bins
-# adjust these to add new measure computed on different bins
-output_metrics_config = [
-    {'bins': RoadDicConst.DISTANCE_BINS.value, 'fun': 'binary', 'out_name': BehaviorDicConst.CENTER_DIST_BINARY.value},
-    {'bins': RoadDicConst.DISTANCE_BINS.value, 'fun': 'single', 'out_name': BehaviorDicConst.CENTER_DIST_SINGLE.value},
-    {'bins': RoadDicConst.STEERING_BINS.value, 'fun': 'binary', 'out_name': BehaviorDicConst.STEERING_DIST_BINARY.value},
-    {'bins': RoadDicConst.STEERING_BINS.value, 'fun': 'single', 'out_name': BehaviorDicConst.STEERING_DIST_SINGLE.value},
-    {'bins': RoadDicConst.SPEED_BINS.value, 'fun': 'binary', 'out_name': BehaviorDicConst.SPEED_DIST_BINARY.value},
-    {'bins': RoadDicConst.SPEED_BINS.value, 'fun': 'single', 'out_name': BehaviorDicConst.SPEED_DIST_SINGLE.value},
-    {'bins': RoadDicConst.SPEED_STEERING_2D.value, 'fun': 'binary', 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST.value},
-    {'bins': RoadDicConst.SPEED_STEERING_2D.value, 'fun': 'single', 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value}]
 
 
 class SuiteBehaviourComputer:
@@ -31,7 +20,23 @@ class SuiteBehaviourComputer:
         self.start = start
         self.end = end
 
-        self.output_metrics_to_compute = list(filter(lambda metr: metr['out_name'] in econf.output_metrics_to_analyse, output_metrics_config))
+        # what measures to compute on the output bins
+        # adjust these to add new measure computed on different bins
+        self.output_metrics_config = [
+            {'bins': RoadDicConst.DISTANCE_BINS.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.CENTER_DIST_BINARY.value},
+            {'bins': RoadDicConst.DISTANCE_BINS.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.CENTER_DIST_SINGLE.value},
+            {'bins': RoadDicConst.STEERING_BINS.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.STEERING_DIST_BINARY.value},
+            {'bins': RoadDicConst.STEERING_BINS.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.STEERING_DIST_SINGLE.value},
+            {'bins': RoadDicConst.SPEED_BINS.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.SPEED_DIST_BINARY.value},
+            {'bins': RoadDicConst.SPEED_BINS.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.SPEED_DIST_SINGLE.value},
+            {'bins': RoadDicConst.SPEED_STEERING_2D.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST.value},
+            {'bins': RoadDicConst.SPEED_STEERING_2D.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value},
+            {'bins': RoadDicConst.STEERING_STATES.value, 'fun': self.dtw_compare, 'out_name': BehaviorDicConst.STEERING_DTW.value},
+            {'bins': RoadDicConst.SPEED_STATES.value, 'fun': self.dtw_compare, 'out_name': BehaviorDicConst.SPEED_DTW.value},
+            {'bins': RoadDicConst.STEERING_SPEED_STATES.value, 'fun': self.dtw_compare, 'out_name': BehaviorDicConst.STEERING_SPEED_DTW.value}]
+
+        self.output_metrics_to_compute = list(filter(lambda metr: metr['out_name'] in econf.output_metrics_to_analyse, self.output_metrics_config))
+        print("self.output_metrics_to_compute", self.output_metrics_to_compute)
 
     def calculate_suite_coverage_1d(self, feature: str, add_for_each: bool = True):
         """ Calculates the 1d coverage of a selected feature across the whole test suite
@@ -124,13 +129,71 @@ class SuiteBehaviourComputer:
         #output_metrics_to_compute_names =
         yanda = list(map(lambda mtr: mtr['out_name'], self.output_metrics_to_compute))
         print(colorama.Fore.BLUE + "Computing difference in the outputs " + str(yanda) + colorama.Style.RESET_ALL)
+        start_time_loop = time.time()
+        current_ops = 0
+        total_ops = len(self.test_dict)
+        print("In total", total_ops*total_ops, "comparison passes and", total_ops,
+              "loop iterations will have to be completed for output behavior.")
         for name in self.test_dict:
             # TODO schau mal ob da alles passt
             for out_met in self.output_metrics_to_compute:
                 #print("bins, fun, name", out_met['bins'], out_met['fun'], out_met['out_name'])
-                distance_arr = self.behavior_compare_1d_2d(name, measure=out_met['bins'],
-                                                        function=out_met['fun'])
+                #distance_arr = self.behavior_compare_1d_2d(name, measure=out_met['bins'],
+                #                                        function=out_met['fun'])
+                #self.test_dict[name][out_met['out_name']] = distance_arr
+
+                distance_arr = self.compare_one_to_all_unoptimized(road_name=name, funct=out_met['fun'],
+                                                                  representation=out_met['bins'])
                 self.test_dict[name][out_met['out_name']] = distance_arr
+
+
+                #distance_arr = self.compare_one_to_all_unoptimized(road_name=name, funct=self.dtw_compare,
+                #                                                  representation=RoadDicConst.STEERING_STATES.value)
+                #self.test_dict[name][BehaviorDicConst.STEERING_DTW.value] = distance_arr
+            """
+            distance_arr = self.compare_one_to_all_unoptimized(road_name=name, funct=self.dtw_compare,
+                                                               representation=RoadDicConst.SPEED_STATES.value)
+            self.test_dict[name][BehaviorDicConst.SPEED_DTW.value] = distance_arr
+
+            distance_arr = self.compare_one_to_all_unoptimized(road_name=name, funct=self.dtw_compare,
+                                                               representation=RoadDicConst.STEERING_SPEED_STATES.value)
+            self.test_dict[name][BehaviorDicConst.STEERING_SPEED_DTW.value] = distance_arr
+            """
+
+            current_ops += 1
+            utils.print_remaining_time(start_time_loop, current_ops, total_ops)
+
+
+
+    def dtw_compare(self, test_1_states: list, test_2_states: list):
+        """ The dtw function requires at least two dimensional inputs, for that 1d bins need a second axis that
+        represents time.
+
+        :param test_1_states: States for test one, at least 2 dimensions
+        :param test_2_states: States for test two, at least 2 dimensions
+        :return: Value of dtw
+        """
+        import similaritymeasures
+        d_dtw, _ = similaritymeasures.dtw(test_1_states, test_2_states)
+        return d_dtw
+
+    def compare_one_to_all_unoptimized(self, road_name: str, funct, representation: str):
+        """ # TODO this should teplace behavior_compare_1d_2d
+
+        :param road_name:
+        :param funct:
+        :param representation:
+        :return:
+        """
+        distance_dict = {}
+        road_dic = self.test_dict[road_name]
+        assert road_dic is not None, "The road has not been found in the dict!"
+        rep = road_dic.get(representation, None)
+        assert rep is not None, "The representation has not been found!"
+        for name in self.test_dict:
+            dist = funct(rep, self.test_dict[name][representation])
+            distance_dict[name] = dist
+        return distance_dict
 
     def behavior_compare_1d_2d(self, road_to_compare: str, measure: str, function: str = 'binary'):
         """ compares the coverage of a single-dimensional feature of a road to all others in the suite

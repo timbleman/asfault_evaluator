@@ -35,7 +35,10 @@ output_metrics_to_analyse = [BehaviorDicConst.CENTER_DIST_BINARY.value,
                              BehaviorDicConst.SPEED_DIST_BINARY.value,
                              BehaviorDicConst.SPEED_DIST_SINGLE.value,
                              BehaviorDicConst.BINS_STEERING_SPEED_DIST.value,
-                             BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value]
+                             BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value,
+                             BehaviorDicConst.STEERING_DTW.value,
+                             BehaviorDicConst.SPEED_DTW.value,
+                             BehaviorDicConst.STEERING_SPEED_DTW.value]
 
 string_metrics_to_analyse = [BehaviorDicConst.CUR_SDL_DIST.value,
                              BehaviorDicConst.SDL_2D_DIST.value,

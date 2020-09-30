@@ -22,6 +22,9 @@ MINIMUM_SEG_LEN = 5
 class RoadDicConst(Enum):
     TEST_PATH = 'test_path'
     TEST_ID = 'test_id'
+    SPEED_STATES = "speed_states"
+    STEERING_STATES = "steering_states"
+    STEERING_SPEED_STATES = "speed_steering_states"
     SPEED_BINS = "speed_bins"
     STEERING_BINS = 'steering_bins'
     STEERING_BINS_ADJUSTED = "steering_bins_non_uniform_percentile"
@@ -56,6 +59,10 @@ class BehaviorDicConst(Enum):
     COORD_EDR_DIST = "coord_edr_dist"
     COORD_ERP_DIST = "coord_erp_dist"
     COORD_FRECHET_DIST = "coord_frechet_dist"
+
+    STEERING_DTW = "steering_dtw"
+    SPEED_DTW = "speed_dtw"
+    STEERING_SPEED_DTW = "steering_speed_dtw"
 
     SDL_2D = "sdl_2d"
     CUR_SDL = "curve_sdl"
@@ -152,6 +159,14 @@ def dict_of_lists_matrix_measure(data_dict: dict, measure: str) -> dict:
         assert ar is not None, "The measure " + measure + " has not been found in the dict!"
         dict_2d[key] = list(ar.values())
     return dict_2d
+
+
+def list_difference_1d_2d_bin(a, b, normalized: bool = True, inverse: bool = True):
+    return list_difference_1d_2d(a=a, b=b, function='binary', normalized=normalized, inverse=inverse)
+
+
+def list_difference_1d_2d_sin(a, b, normalized: bool = True, inverse: bool = True):
+    return list_difference_1d_2d(a=a, b=b, function='binary', normalized=normalized, inverse=inverse)
 
 
 def list_difference_1d_2d(a, b, function: str, normalized: bool = True, inverse: bool = True):
@@ -505,6 +520,22 @@ def shape_similarity_measures_all_to_all_unoptimized(data_dict: dict):
 
         road1[BehaviorDicConst.COORD_DTW_DIST.value] = dicc_dtw
         road1[BehaviorDicConst.COORD_FRECHET_DIST.value] = dicc_frechet
+
+
+def print_remaining_time(start_time, completed_operations: int, total_operations: int):
+    import time
+    import sys
+    passed_time = time.time() - start_time
+    time_per_iteration = passed_time/completed_operations
+    remaining_operations = total_operations - completed_operations
+    remaining_time = remaining_operations * time_per_iteration
+    #print("time_per_iteration", time_per_iteration, type(time_per_iteration))
+    #print("remaining_time", remaining_time, type(remaining_time))
+    m, s = divmod(remaining_time, 60)
+    h, m = divmod(m, 60)
+    sys.stdout.write("\rRemaining loop iterations %i; remaining time %i h %i m %i s   " % (remaining_operations, h, m, s))
+    sys.stdout.flush()
+    #print("Remaining time", remaining_time, "second", end='\r')
 
 
 def optimized_bin_borders_percentiles(all_values: list, number_of_bins: int):
