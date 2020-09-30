@@ -4,6 +4,7 @@ from utils import RoadDicConst
 
 from enum import Enum
 import numpy as np
+import time
 
 import asfault
 from asfault import network
@@ -159,6 +160,11 @@ class StringComparer:
             road[BehaviorDicConst.AVG_CURVATURE.value] = avg_curve
 
     def sdl_all_to_all_unoptimized(self):
+        start_time_loop = time.time()
+        current_ops = 0
+        total_ops = len(self.data_dict)
+        print("In total", total_ops * total_ops, "comparison passes and", total_ops,
+              "loop iterations will have to be completed for output behavior.")
         for name in self.data_dict:
             # TODO schau mal ob da alles passt
             # TODO refactor this into a predefined tuple list [(func, representation, dist_name)]
@@ -178,6 +184,8 @@ class StringComparer:
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_2_LCSTR_DIST.value] = distance_arr
             """
+            current_ops += 1
+            utils.print_remaining_time(start_time_loop, current_ops, total_ops)
 
 
 
