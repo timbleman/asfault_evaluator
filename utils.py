@@ -37,6 +37,7 @@ class RoadDicConst(Enum):
     NODES = 'nodes'
     POLYLINE = 'polyline'
     COORD_TUPLE_REP = "coord_tuple"
+    COORD_TUPLE_REP_ALLIGNED = "coord_tuple_alligned"
     ROAD_LEN = "road_len"
 
 
@@ -50,6 +51,8 @@ class BehaviorDicConst(Enum):
     CENTER_DIST_SINGLE = "center_dist_single"
     STEERING_DIST_BINARY = "steering_dist_binary"
     STEERING_DIST_SINGLE = "steering_dist_single"
+    STEERING_ADJUSTED_DIST_BINARY = "steering_adjusted_dist_binary"
+    STEERING_ADJUSTED_DIST_SINGLE = "steering_adjusted_dist_single"
     SPEED_DIST_BINARY = "speed_dist_binary"
     SPEED_DIST_SINGLE = "speed_dist_single"
     BINS_STEERING_SPEED_DIST = "steering_speed_dist"
@@ -487,6 +490,135 @@ def add_coord_tuple_representation(data_dict: dict):
         road[RoadDicConst.COORD_TUPLE_REP.value] = road_coords
 
 
+def align_single_road(road_coords: np.ndarray, plot: bool = False):
+    """ Aligns a single road road to the x axis, based on its linear approximation.
+    Can produce a plot for visualization.
+
+    :param road_coords: coordinates [(x1, y1), ..., (xn, yn)]
+    :param plot: show and calculate plot
+    :return: transformed road [(x'1, y'1), ...,(x'n, y'n)]
+    """
+    # configure this if roads do not fit
+    DEFAULT_PLOT_LIM = 500
+    # perform linear approximation
+    lin_approx = np.polyfit(x=road_coords[:, 0], y=road_coords[:, 1], deg=1)
+    m = lin_approx[0]
+    c = lin_approx[1]
+
+    def _line_start_and_end(m: float, c: float, x1=-DEFAULT_PLOT_LIM, x2=DEFAULT_PLOT_LIM):
+        """ Turn offset and gradient of straight line into coordinates.
+
+        :param m: gradient
+        :param c: offset
+        :param x1: first x
+        :param x2: second x
+        :return: [[x1, y1], [x2, y2]]
+        """
+        line_coords = np.zeros((2, 2))
+        line_coords[0, :] = [x1, m * x1 + c]
+        line_coords[1, :] = [x2, m * x2 + c]
+        return line_coords
+
+    def _move_coords(line: np.ndarray, c: float):
+        """ Move the y coordinates so that f(0) = 0
+
+        :param line: coordinates [(x1, y1), ..., (xn, yn)]
+        :param c: offset of the linear interpolation
+        :return: moved coords
+        """
+        transformed_coords = np.zeros((len(line), 2))
+        transformed_coords[:, 0] = line[:, 0]
+        transformed_coords[:, 1] = np.subtract(line[:, 1], c)
+
+        return transformed_coords
+
+    def _rotate_coords(line: np.ndarray, m: float):
+        """ Rotates coordinates based on the gradient of the linear interpolation.
+        f(0) has to be 0 for correct roatation, use _move_coords()
+
+        :param line: coordinates [(x1, y1), ..., (xn, yn)]
+        :param m: gradient of the linear interpolation
+        :return: rotated coords
+        """
+        # has to be transposed for matrix product
+        test_transformed_coords = np.transpose(line)
+        # calculate the angle to rotate by the lines gradient
+        theta = -np.arctan(m)
+        # create a rotational matrix and rotate
+        co, si = np.cos(theta), np.sin(theta)
+        rot_matr = np.array(((co, -si), (si, co)))
+        rot_coords = np.dot(rot_matr, test_transformed_coords)
+        # transpose back
+        rot_coords_t = np.transpose(rot_coords)
+        return rot_coords_t
+
+    def _transform_coords(line: np.ndarray, m: float, c: float):
+        """ Moves amd rotates coordinates, so that they align with the x-axis.
+
+        :param line: coordinates [(x1, y1), ..., (xn, yn)]
+        :param m: gradient of the linear interpolation
+        :param c: offset of the linear interpolation
+        :return: transformed coordinates
+        """
+        moved = _move_coords(line, c)
+        rotated = _rotate_coords(moved, m)
+        return rotated
+
+    transformed_road = _transform_coords(line=road_coords, m=m, c=c)
+
+    # now executed each loop, but who cares
+    if plot:
+        import matplotlib.pyplot as plt
+        fig, axs = plt.subplots(2, 2, sharex='all', sharey='all', figsize=(6.4, 6))
+        # set the limit for each subplot
+        for ax in axs:
+            for a in ax:
+                a.set_xlim(-DEFAULT_PLOT_LIM, DEFAULT_PLOT_LIM)
+                a.set_ylim(-DEFAULT_PLOT_LIM, DEFAULT_PLOT_LIM)
+
+        axs[0, 0].plot(road_coords[:, 0], road_coords[:, 1])
+        axs[0, 0].set_title("Regular road")
+        non_transformed = _line_start_and_end(m=m, c=c)
+        axs[0, 1].plot(non_transformed[:, 0], non_transformed[:, 1])
+        axs[0, 1].set_title("Linear interpolation")
+        transformed_line = _transform_coords(line=non_transformed, m=m, c=c)
+        axs[1, 0].plot(transformed_line[:, 0], transformed_line[:, 1])
+        axs[1, 0].set_title("Line translation and rotation")
+
+        axs[1, 1].plot(transformed_road[:, 0], transformed_road[:, 1])
+        axs[1, 1].set_title("Road translation and rotation")
+        fig.show()
+
+    return transformed_road
+
+
+def align_shape_of_roads(data_dict: dict, example: int=-1):
+    """ Aligns all roads and saves them into the dict.
+    Can plot an example if wanted.
+
+    :param data_dict: Dict containing all roads with COORD_TUPLE_REP
+    :param example: example if wanted, int index
+    :return: Dict containing all roads
+    """
+    keys = list(data_dict.keys())
+    # plot example if wanted
+    if 0 <= example < len(keys):
+        first_one = keys[example]
+        road1 = data_dict.get(first_one)
+        road1_coords = road1.get(RoadDicConst.COORD_TUPLE_REP.value, None)
+
+        align_single_road(road1_coords, plot=True)
+
+    # add aligned coordinates to each test
+    for key in keys:
+        road = data_dict.get(key)
+        road_coords = road.get(RoadDicConst.COORD_TUPLE_REP.value)
+        aligned_road = align_single_road(road_coords, plot=False)
+        data_dict[key][RoadDicConst.COORD_TUPLE_REP_ALLIGNED.value] = aligned_road
+
+    return data_dict
+
+
 def shape_similarity_measures_all_to_all_unoptimized(data_dict: dict):
     """ Calculates different predefined shape similarity measures from https://pypi.org/project/similaritymeasures/
     Requires the roads to be saved as polylines
@@ -495,13 +627,19 @@ def shape_similarity_measures_all_to_all_unoptimized(data_dict: dict):
     :return: None
     """
     import similaritymeasures
+    import time
+    start_time = time.time()
+    current_ops = 0
+    total_ops = len(data_dict)
+    print("In total", total_ops * total_ops, "comparison passes and", total_ops,
+          "loop iterations will have to be completed for shape based input.")
 
     for name1 in data_dict:
         road1 = data_dict.get(name1)
-        road1_coords = road1.get(RoadDicConst.COORD_TUPLE_REP.value, None)
+        road1_coords = road1.get(RoadDicConst.COORD_TUPLE_REP_ALLIGNED.value, None)
         if road1_coords is None:
             add_coord_tuple_representation(data_dict=data_dict)
-            road1_coords = road1.get(RoadDicConst.COORD_TUPLE_REP.value, None)
+            road1_coords = road1.get(RoadDicConst.COORD_TUPLE_REP_ALLIGNED.value, None)
 
         # TODO more
         dicc_dtw = {}
@@ -510,7 +648,7 @@ def shape_similarity_measures_all_to_all_unoptimized(data_dict: dict):
         for name2 in data_dict:
             # TODO optimize
             road2 = data_dict.get(name2)
-            road2_coords = road2.get(RoadDicConst.COORD_TUPLE_REP.value, None)
+            road2_coords = road2.get(RoadDicConst.COORD_TUPLE_REP_ALLIGNED.value, None)
 
             d_dtw, _ = similaritymeasures.dtw(road1_coords, road2_coords)
             dicc_dtw[name2] = d_dtw
@@ -521,21 +659,30 @@ def shape_similarity_measures_all_to_all_unoptimized(data_dict: dict):
         road1[BehaviorDicConst.COORD_DTW_DIST.value] = dicc_dtw
         road1[BehaviorDicConst.COORD_FRECHET_DIST.value] = dicc_frechet
 
+        current_ops += 1
+        print_remaining_time(start_time=start_time, completed_operations=current_ops,
+                             total_operations=total_ops)
+
 
 def print_remaining_time(start_time, completed_operations: int, total_operations: int):
+    """ Estimates the remaining time based on previous loop iterations and their duration.
+
+    :param start_time: time before first iteration, use time.time()
+    :param completed_operations: Already completed iterations
+    :param total_operations: Total number of required operations
+    :return: None
+    """
     import time
     import sys
     passed_time = time.time() - start_time
     time_per_iteration = passed_time/completed_operations
     remaining_operations = total_operations - completed_operations
     remaining_time = remaining_operations * time_per_iteration
-    #print("time_per_iteration", time_per_iteration, type(time_per_iteration))
-    #print("remaining_time", remaining_time, type(remaining_time))
+
     m, s = divmod(remaining_time, 60)
     h, m = divmod(m, 60)
     sys.stdout.write("\rRemaining loop iterations %i; remaining time %i h %i m %i s   " % (remaining_operations, h, m, s))
     sys.stdout.flush()
-    #print("Remaining time", remaining_time, "second", end='\r')
 
 
 def optimized_bin_borders_percentiles(all_values: list, number_of_bins: int):

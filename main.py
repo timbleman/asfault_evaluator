@@ -156,16 +156,19 @@ def main():
     #utils.whole_suite_dist_matrix_statistic_incomplete(data_bins_dict, feature=utils.BehaviorDicConst.JACCARD.value,
     #                                                   title="Jaccard box plots", plot=True)
 
-    start_predefined = time.time()
-    utils.add_coord_tuple_representation(data_dict=data_bins_dict)
-    #print(list(data_bins_dict.values())[0].get(RoadDicConst.COORD_TUPLE_REP.value))
-    #utils.shape_similarity_measures_all_to_all_unoptimized(data_dict=data_bins_dict)
-    end_predefined = time.time()
-    print(end_predefined - start_predefined, "seconds to compute the similaritymeasures distances")
-
+    SHAPE_METRICS = True
+    if SHAPE_METRICS:
+        # predefined shape based metrics
+        start_predefined = time.time()
+        utils.add_coord_tuple_representation(data_dict=data_bins_dict)
+        utils.align_shape_of_roads(data_dict=data_bins_dict)
+        #print(list(data_bins_dict.values())[0].get(RoadDicConst.COORD_TUPLE_REP.value))
+        utils.shape_similarity_measures_all_to_all_unoptimized(data_dict=data_bins_dict)
+        end_predefined = time.time()
+        print(end_predefined - start_predefined, "seconds to compute the similaritymeasures distances")
 
     start_csv = time.time()
-    WRITE_CSV = True
+    WRITE_CSV = False
     if WRITE_CSV:
         print()
         print(colorama.Fore.GREEN + "Writing csvs" + colorama.Style.RESET_ALL)
