@@ -33,6 +33,8 @@ class SuiteBehaviourComputer:
             {'bins': RoadDicConst.SPEED_BINS.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.SPEED_DIST_SINGLE.value},
             {'bins': RoadDicConst.SPEED_STEERING_2D.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST.value},
             {'bins': RoadDicConst.SPEED_STEERING_2D.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST_SINGLE.value},
+            {'bins': RoadDicConst.SPEED_STEERING_2D_ADJ.value, 'fun': utils.list_difference_1d_2d_bin, 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST_ADJUSTED.value},
+            {'bins': RoadDicConst.SPEED_STEERING_2D_ADJ.value, 'fun': utils.list_difference_1d_2d_sin, 'out_name': BehaviorDicConst.BINS_STEERING_SPEED_DIST_ADJUSTED_SINGLE.value},
             {'bins': RoadDicConst.STEERING_STATES.value, 'fun': self.dtw_compare, 'out_name': BehaviorDicConst.STEERING_DTW.value},
             {'bins': RoadDicConst.SPEED_STATES.value, 'fun': self.dtw_compare, 'out_name': BehaviorDicConst.SPEED_DTW.value},
             {'bins': RoadDicConst.STEERING_SPEED_STATES.value, 'fun': self.dtw_compare, 'out_name': BehaviorDicConst.STEERING_SPEED_DTW.value}]

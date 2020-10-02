@@ -69,10 +69,11 @@ def main():
     """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
     # regular, sets, invalid tests removed, including OBE tests
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
-    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
+    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-15-4-low-div")
+    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-no-obe-wo-minlen-wo-infspeed")
     all_paths = get_all_paths(parent_dir)
 
     # FIXME the folder structure seems broken sometimes
@@ -81,7 +82,7 @@ def main():
     broken_tests = []
 
     start_gathering = time.time()
-    QUICK = True
+    QUICK = False
     if QUICK:
         env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
         parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test")
@@ -156,7 +157,7 @@ def main():
     #utils.whole_suite_dist_matrix_statistic_incomplete(data_bins_dict, feature=utils.BehaviorDicConst.JACCARD.value,
     #                                                   title="Jaccard box plots", plot=True)
 
-    SHAPE_METRICS = True
+    SHAPE_METRICS = False
     if SHAPE_METRICS:
         # predefined shape based metrics
         start_predefined = time.time()
@@ -168,7 +169,7 @@ def main():
         print(end_predefined - start_predefined, "seconds to compute the similaritymeasures distances")
 
     start_csv = time.time()
-    WRITE_CSV = False
+    WRITE_CSV = True
     if WRITE_CSV:
         print()
         print(colorama.Fore.GREEN + "Writing csvs" + colorama.Style.RESET_ALL)
@@ -182,8 +183,9 @@ def main():
         for metr in econf.output_metrics_to_analyse:
             csv_creator.write_all_to_all_dist_matrix(measure=metr)
 
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_DTW_DIST.value)
-        #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_FRECHET_DIST.value)
+        if SHAPE_METRICS:
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_DTW_DIST.value)
+            csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_FRECHET_DIST.value)
 
         csv_creator.write_all_tests_one_value(measure=RoadDicConst.NUM_OBES.value)
         csv_creator.write_all_tests_one_value(measure=BehaviorDicConst.NUM_STATES.value)

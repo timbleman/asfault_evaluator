@@ -30,6 +30,7 @@ class RoadDicConst(Enum):
     STEERING_BINS_ADJUSTED = "steering_bins_non_uniform_percentile"
     DISTANCE_BINS = "distance_bins"
     SPEED_STEERING_2D = "speed_steering_2d_bins"
+    SPEED_STEERING_2D_ADJ = "speed_steering_2d_bins_adjusted"
     OBE_2D = "obe_2d"
     EXEC_TIME = "exec_time"
     NUM_OBES = "num_obes"
@@ -57,6 +58,8 @@ class BehaviorDicConst(Enum):
     SPEED_DIST_SINGLE = "speed_dist_single"
     BINS_STEERING_SPEED_DIST = "steering_speed_dist"
     BINS_STEERING_SPEED_DIST_SINGLE = "steering_speed_dist_single"
+    BINS_STEERING_SPEED_DIST_ADJUSTED = "steering_speed_dist_adjusted"
+    BINS_STEERING_SPEED_DIST_ADJUSTED_SINGLE = "steering_speed_dist_adjusted_single"
 
     COORD_DTW_DIST = "coord_dtw_dist"
     COORD_EDR_DIST = "coord_edr_dist"
