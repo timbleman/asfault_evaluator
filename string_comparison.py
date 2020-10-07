@@ -61,16 +61,17 @@ NUM_ALPHABET = len(cur)
 #DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 36.6, 70.0, 147.6, 400]
 DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 14.6, 33.5, 50.0, 69.1, 90.0, 134, 201, 400]
 
-# TODO easy changes for length alphabet
+# Comment the last symbols if a smaller alphabet is needed
+# make sure USE_FIXED_STRONG_BORDERS = False in evaluator_config
 class len_en(Enum):
     SHORT = 0
     MEDIUM = 1
-    LONG = 2
-    VERY_LONG = 3
-    VV_L = 4
-    VVV_L = 5
-    VVVV_L = 6
-    VVVVV_L = 7
+    #LONG = 2
+    #VERY_LONG = 3
+    #VV_L = 4
+    #VVV_L = 5
+    #VVVV_L = 6
+    #VVVVV_L = 7
 
 NUM_LEN_ALPHABET = len(len_en)
 
@@ -208,7 +209,7 @@ class StringComparer:
         current_ops = 0
         total_ops = len(self.data_dict)
         print("In total", total_ops * total_ops, "comparison passes and", total_ops,
-              "loop iterations will have to be completed for output behavior.")
+              "loop iterations will have to be completed for string similarity.")
         for name in self.data_dict:
             # TODO schau mal ob da alles passt
             # TODO refactor this into a predefined tuple list [(func, representation, dist_name)]

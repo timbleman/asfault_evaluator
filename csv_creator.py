@@ -88,10 +88,11 @@ class CSVCreator:
         except IOError:
             print("I/O error")
 
-    def write_all_to_all_dist_matrix(self, measure: str):
+    def write_all_to_all_dist_matrix(self, measure: str, notes: str = ""):
         """ Writes 2d distance matrices (like jaccard) as csv
 
         :param measure: Name of the metric
+        :param notes: add notes to file name (for example the alphabet size)
         :return: None
         """
         assert measure, "There has to be a measure declared"
@@ -116,7 +117,7 @@ class CSVCreator:
             dicc.update(values)
             return dicc
 
-        csv_file = path.join(root_folder, measure + '.csv')
+        csv_file = path.join(root_folder, measure + notes + '.csv')
 
         self.generic_all_tests_csv_writing(measure, csv_columns, _get_dict_to_write, csv_file)
 
