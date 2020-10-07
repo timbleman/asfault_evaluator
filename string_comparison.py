@@ -58,7 +58,8 @@ class cur(Enum):
 """has to be symmetric around zero"""
 NUM_ALPHABET = len(cur)
 
-DEFAULT_PERCENTILE_VALUES_LEN = [10.0, 30.0, 50, 100]
+#DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 36.6, 70.0, 147.6, 400]
+DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 14.6, 33.5, 50.0, 69.1, 90.0, 134, 201, 400]
 
 # TODO easy changes for length alphabet
 class len_en(Enum):
@@ -66,14 +67,27 @@ class len_en(Enum):
     MEDIUM = 1
     LONG = 2
     VERY_LONG = 3
+    VV_L = 4
+    VVV_L = 5
+    VVVV_L = 6
+    VVVVV_L = 7
 
 NUM_LEN_ALPHABET = len(len_en)
+
+# Do not disable this, this is crucial for correct translation, however, has to be toggled for testing
+FIX_NODE_LEGTHS = True
 
 class StringComparer:
     def __init__(self, data_dict: dict):
         self.data_dict = data_dict
         self.all_angles = []
+        self.all_lengths = []
         self.percentile_values = []
+        self.percentile_len_values = []
+
+        # This is absolutely crucial for translation, however, it makes testing harder
+        if FIX_NODE_LEGTHS:
+            self.correct_node_lengths()
 
         # colorama.init(autoreset=True)
         if not self.data_dict:
@@ -84,6 +98,8 @@ class StringComparer:
         if not econf.USE_FIXED_STRONG_BORDERS:
             self.gather_all_angles()
             self.get_curve_distribution()
+            self.gather_all_lengths()
+            self.get_len_distribution()
 
         self.string_metrics_config = [
             {'rep': BehaviorDicConst.CUR_SDL.value, 'fun': self.cur_sdl_one_to_one, 'out_name': BehaviorDicConst.CUR_SDL_DIST.value},
@@ -98,6 +114,18 @@ class StringComparer:
 
         self.string_metrics_to_compute = list(
             filter(lambda metr: metr['out_name'] in econf.string_metrics_to_analyse, self.string_metrics_config))
+
+    def correct_node_lengths(self):
+        """ ABSOLUTELY ESSENTIAL for correct translations. Corrects the length attribute of each node for each road.
+
+        :return: None
+        """
+        for name in self.data_dict:
+            test = self.data_dict[name]
+            nodes = test['nodes']
+            assert nodes is not None, "There have to be nodes for each road"
+            for node in nodes:
+                node.length = utils.compute_length(node)
 
     def all_roads_to_curvature_sdl(self):
         """ Performs shape definition language on all roads represented as asfault nodes
@@ -143,6 +171,11 @@ class StringComparer:
         return curve_sdl
 
     def all_roads_average_curvature(self, normalized: bool = True):
+        """ Calculates the average curvature and saves it for each road.
+
+        :param normalized: Normalized by alphabet length
+        :return: Avg curvature for a road.
+        """
         def _average_curvature(road_sdl: list, normalized: bool) -> float:
             sum = 0
             for seg in road_sdl:
@@ -160,6 +193,10 @@ class StringComparer:
             road[BehaviorDicConst.AVG_CURVATURE.value] = avg_curve
 
     def sdl_all_to_all_unoptimized(self):
+        """ Computes and saves distance metrics for each road
+
+        :return: None
+        """
         start_time_loop = time.time()
         current_ops = 0
         total_ops = len(self.data_dict)
@@ -191,6 +228,13 @@ class StringComparer:
 
     # these three should be one
     def compare_one_to_all_unoptimized(self, road_name: str, funct, representation: str):
+        """ Compares one road to all others and saves similarity in a dict.
+
+        :param road_name: Name of the center road
+        :param funct: function used for comparison
+        :param representation: 2d shape definition language or curve shape definition language
+        :return: dict of similarities
+        """
         distance_dict = {}
         road_dic = self.data_dict[road_name]
         assert road_dic is not None, "The road has not been found in the dict!"
@@ -234,6 +278,14 @@ class StringComparer:
         return jacc
 
     def cur_sdl_one_to_one(self, curve1_sdl: list, curve2_sdl: list, normalized: bool = True, invert: bool = True):
+        """ Compares two curve shape definition language representations
+
+        :param curve1_sdl: cur_sdl list of road1
+        :param curve2_sdl: cur_sdl list of road2
+        :param normalized: normalize between 0 and 1
+        :param invert: similarity instead of distance
+        :return: similarity
+        """
         best_similarity = float('inf')
         best_startpoint = 0
         if len(curve1_sdl) < len(curve2_sdl):
@@ -276,7 +328,14 @@ class StringComparer:
         return error
 
     def sdl_2d_one_to_one(self, sdl_2d_1, sdl_2d_2, normalized: bool = True, invert: bool = True):
+        """ Compares two curve shape definition language representations
 
+        :param sdl_2d_1: cur_sdl list of road1
+        :param sdl_2d_2: cur_sdl list of road2
+        :param normalized: normalize between 0 and 1
+        :param invert: similarity instead of distance
+        :return: similarity
+        """
         best_similarity = float('inf')
         best_startpoint = 0
         if len(sdl_2d_1) < len(sdl_2d_2):
@@ -331,6 +390,11 @@ class StringComparer:
         return error
 
     def nodes_to_sdl_2d(self, nodes: List[asfault.network.NetworkNode]) -> list:
+        """ Translates nodes to 2d sdl representation
+
+        :param nodes: Nodes of a road
+        :return: translation
+        """
         # used to accumulate lengths of previous same curve segments
         lengths = 0
         sdl_2d = []
@@ -392,7 +456,10 @@ class StringComparer:
         :return: cur type
         """
         # TODO stimmt das überhaupt?
-        percentile_values_len = DEFAULT_PERCENTILE_VALUES_LEN
+        if econf.USE_FIXED_STRONG_BORDERS:
+            percentile_values_len = DEFAULT_PERCENTILE_VALUES_LEN
+        else:
+            percentile_values_len = self.percentile_len_values
 
         # start value at the shortest value
         len_i = 0
@@ -405,6 +472,28 @@ class StringComparer:
         else:
             len_i = NUM_LEN_ALPHABET - 1
         return len_en(len_i)
+
+    def print_ang_len_for_road(self, road_name, use_fnc: bool = True):
+        """ Prints angle and length for each node in a selected road
+
+        :param road_name: The road of which nodes are printed
+        :param use_fnc: Whether node.length or utils.compute_length(node) is called.
+        :return: None
+        """
+        road = self.data_dict.get(road_name, None)
+        if road is None:
+            print("Road has not been found, continuing.")
+        else:
+            nodes = road[RoadDicConst.NODES.value]
+            angs_and_lens = []
+            for node in nodes:
+                ang = node.angle
+                if use_fnc:
+                    le = utils.compute_length(node)
+                else:
+                    le = node.length
+                angs_and_lens.append((ang, le))
+            print("All nodes for road", road_name, "(ang, len):", angs_and_lens)
 
     def gather_all_angles(self):
         """ is needed to be able to get the percentiles
@@ -419,8 +508,35 @@ class StringComparer:
             for node in nodes:
                 self.all_angles.append(node.angle)
 
+    def gather_all_lengths(self):
+        """ is needed to be able to get the percentiles
+        has an performance overhead, should be avoided
+
+        :return: None
+        """
+        for name in self.data_dict:
+            test = self.data_dict[name]
+            nodes = test['nodes']
+            assert nodes is not None, "There have to be nodes for each road"
+            for node in nodes:
+                self.all_lengths.append(node.length)
+
+    def get_len_distribution(self):
+        """ Sets equally distributed borders for self.all_lengths
+
+        :return: None
+        """
+        if not self.all_lengths:
+            self.gather_all_lengths()
+
+        self.percentile_len_values = self.get_percentile_values(alphabet_size=NUM_LEN_ALPHABET, all_values=self.all_lengths)
+
+        print("percentile length values of all roads", self.percentile_len_values)
+        assert self.ensure_valid_percentiles(self.percentile_len_values), "The lengths in the set are not valid or unbalanced"
+
     def get_curve_distribution(self):
-        """ draws a box plot and self.percentile_values with bounds of all angles
+        """ Sets equally distributed borders for self.all_angles
+        draws a box plot and self.percentile_values with bounds of all angles
         has to be called after all curves were compressed using shape definition
         has an performance overhead, should be avoided, borders fixed
 
@@ -428,21 +544,14 @@ class StringComparer:
         """
         if not self.all_angles:
             self.all_roads_to_curvature_sdl()
+            self.gather_all_angles()
         # fig1, ax1 = plt.subplots()
         # ax1.set_title('Basic Plot')
         #plt.boxplot(self.all_angles)
         #plt.title('Angle distribution')
         #plt.show()
 
-        percentile_step = 100 / NUM_ALPHABET
-        percentile_step_sum = 0
-        self.percentile_values = []
-        for i in range(0, NUM_ALPHABET + 1):
-            # print("percentile_step_sum", percentile_step_sum)
-            self.percentile_values.append(np.percentile(self.all_angles, percentile_step_sum))
-            percentile_step_sum += percentile_step
-            if percentile_step_sum > 100:
-                percentile_step_sum = 100
+        self.percentile_values = self.get_percentile_values(alphabet_size=NUM_ALPHABET, all_values=self.all_angles)
 
         # ensure that a very slight curvature gets classified as straight, otherwise nothing is straight
         self.percentile_values[int(np.floor(NUM_ALPHABET / 2))] = -1
@@ -459,8 +568,43 @@ class StringComparer:
             "the curve distribution of the dataset is not balanced!"
 
         print("percentile values of all roads", self.percentile_values)
+        assert self.ensure_valid_percentiles(self.percentile_values), "The angles in the set are not valid or unbalanced"
         median = np.percentile(self.all_angles, 50)
         print("median of all roads", median)
+
+    def get_percentile_values(self, alphabet_size: int, all_values: list) -> list:
+        """ Returns alphabet_size many equally distributed percentile values of all_values.
+
+        :param alphabet_size: Number of percentiles to compute
+        :param all_values: Values for which percentiles get computed
+        :return: List of percentiles
+        """
+        percentile_step = 100 / alphabet_size
+        percentile_step_sum = 0
+        percentile_values = []
+        for i in range(0, alphabet_size + 1):
+            percentile_values.append(np.percentile(all_values, percentile_step_sum))
+            percentile_step_sum += percentile_step
+            if percentile_step_sum > 100:
+                percentile_step_sum = 100
+
+        return percentile_values
+
+    def ensure_valid_percentiles(self, percentile_borders: list) -> bool:
+        """ Checks that each border is greater than the previous one.
+        Is used for angle and length percentile borders.
+
+        :param percentile_borders: List of borders, values of percentiles
+        :return: Bool, True if valid
+        """
+        prev_val = -float('inf')
+        valid = True
+        for perc in percentile_borders:
+            if perc < prev_val:
+                valid = False
+                break
+            prev_val = perc
+        return valid
 
 
 def lcs(X, Y, normalized: bool = True):

@@ -18,6 +18,8 @@ def mocked_compute_length(road_segment: NetworkNode):
 
 MAX_ANG = string_comparison.DEFAULT_PERCENTILE_VALUES_CUR[-1]
 
+""" !!! NOTE: USE_FIXED_STRONG_BORDERS IN evaluator_config has to be True, else the small test set results 
+in unbalanced percentiles!!! """
 
 class TestUtils(unittest.TestCase):
 
@@ -120,9 +122,11 @@ class TestCurveSDL(unittest.TestCase):
     def setUp(self) -> None:
         from asfault.network import NetworkNode, TYPE_R_TURN, TYPE_L_TURN, TYPE_STRAIGHT
 
-        string_comparison.NUM_ALPHABET = 7
-        string_comparison.DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -75.0, -30.0, -1.0, 1.0, 30.0, 75.0, 120.0]
+        #string_comparison.NUM_ALPHABET = 7
+        #string_comparison.DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -75.0, -30.0, -1.0, 1.0, 30.0, 75.0, 120.0]
         # string_comparison.DEFAULT_PERCENTILE_VALUES_LEN =
+        # otherwise mocks would have to be much more complex
+        string_comparison.FIX_NODE_LEGTHS = False
 
         node0 = NetworkNode(key=0, roadtype=None, seg_id=0)
         # @patch()
@@ -313,14 +317,14 @@ class TestCurveSDL(unittest.TestCase):
         self.assertAlmostEqual(expected_error, result, msg="The error should be maxed, check the weights!")
 
     def test_jaccard_sdl_2d_one_to_one_3(self):
-        node_list_0 = [self.node_SR, self.node0, self.node1, self.node2]
+        node_list_0 = [self.node_SR, self.node0, self.node1, self.node_SL]
         node_list_1 = [self.node_SL, self.node4, self.node_SR, self.node_SL, self.node35]
 
         sdl_road_0 = self.str_comparer.nodes_to_sdl_2d(node_list_0)
         sdl_road_1 = self.str_comparer.nodes_to_sdl_2d(node_list_1)
 
         result = self.str_comparer.jaccard_sdl_2d_one_to_one(sdl_road_0, sdl_road_1)
-        expected = 3 / 5
+        expected = 2 / 6
         self.assertAlmostEqual(expected, result)
 
     def test_jaccard_sdl_2d_one_to_one_no_matches(self):
