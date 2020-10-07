@@ -70,10 +70,10 @@ def main():
     # regular, sets, invalid tests removed, including OBE tests
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
-    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-15-4-low-div")
-    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-no-obe-wo-minlen-wo-infspeed")
+    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-no-obe-wo-minlen-wo-infspeed")
     all_paths = get_all_paths(parent_dir)
 
     # FIXME the folder structure seems broken sometimes
@@ -82,9 +82,9 @@ def main():
     broken_tests = []
 
     start_gathering = time.time()
-    QUICK = False
+    QUICK = True
     if QUICK:
-        env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--5\.random--lanedist--ext--small--no-repair--with-restart--env")
+        env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--4\.random--lanedist--ext--small--no-repair--with-restart--env")
         parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test")
         cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
         data_bins_dict = cov_eval.get_all_bins()
@@ -142,6 +142,8 @@ def main():
     start_str_trans = time.time()
     str_comparer = StringComparer(data_dict=data_bins_dict)
     str_comparer.all_roads_to_curvature_sdl()
+    str_comparer.print_ang_len_for_road('random--la52')
+    str_comparer.print_ang_len_for_road('random--la52', use_fnc=False)
     end_str_trans = time.time()
     print(end_str_trans - start_str_trans, "seconds to compute the string translation")
 
@@ -178,7 +180,8 @@ def main():
         csv_creator.write_whole_suite_multiple_values("other_numerics", other_data_tuples_list, first_row_name="measures")
 
         for metr in econf.string_metrics_to_analyse:
-            csv_creator.write_all_to_all_dist_matrix(metr)
+            descr = str_comparer.get_configuration_description()
+            csv_creator.write_all_to_all_dist_matrix(metr, notes=descr)
 
         for metr in econf.output_metrics_to_analyse:
             csv_creator.write_all_to_all_dist_matrix(measure=metr)

@@ -127,6 +127,13 @@ class StringComparer:
             for node in nodes:
                 node.length = utils.compute_length(node)
 
+    def get_configuration_description(self) -> str:
+        """ Returns the current configuration to be written to the filename
+
+        :return: string describing configuration
+        """
+        return "_" + str(NUM_ALPHABET) + "ang_" + str(NUM_LEN_ALPHABET) +"len"
+
     def all_roads_to_curvature_sdl(self):
         """ Performs shape definition language on all roads represented as asfault nodes
 
