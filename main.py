@@ -82,7 +82,7 @@ def main():
     broken_tests = []
 
     start_gathering = time.time()
-    QUICK = False
+    QUICK = True
     if QUICK:
         env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--4\.random--lanedist--ext--small--no-repair--with-restart--env")
         parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test")
@@ -110,10 +110,20 @@ def main():
         cov_value = sbh.calculate_suite_coverage_1d(feature=measure, add_for_each=False)
         coverage_tuple_list.append((measure, cov_value))
         print(str(measure) + " coverage", cov_value)
+        if econf.CLEANUP_BINS:
+            m_cl = str(measure) + RoadDicConst.BIN_CLEANUP.value
+            cov_value = sbh.calculate_suite_coverage_1d(feature=m_cl, add_for_each=False)
+            coverage_tuple_list.append((m_cl, cov_value))
+            print(str(m_cl) + " coverage", cov_value)
     for measure in econf.coverages_2d_to_analyse:
         cov_value = sbh.calculate_suite_2d_coverage(feature=measure, add_for_each=False)
         coverage_tuple_list.append((measure, cov_value))
         print(str(measure) + " coverage", cov_value)
+        if econf.CLEANUP_BINS:
+            m_cl = str(measure) + RoadDicConst.BIN_CLEANUP.value
+            cov_value = sbh.calculate_suite_2d_coverage(feature=m_cl, add_for_each=False)
+            coverage_tuple_list.append((m_cl, cov_value))
+            print(str(m_cl) + " coverage", cov_value)
     print("coverage_tuple_list", coverage_tuple_list)
     #print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
     #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
@@ -198,12 +208,11 @@ def main():
         #csv_creator.write_all_two_roads_dists(road_1_name="random--la22", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
         #csv_creator.write_single_road_dists(road_name="1-2", measures=['curve_sdl_dist', '1-2_binary_steering_bins'])
 
-        csv_creator.write_whole_suite_1d_coverages(RoadDicConst.STEERING_BINS.value)
-        csv_creator.write_whole_suite_1d_coverages(RoadDicConst.STEERING_BINS_ADJUSTED.value)
-        csv_creator.write_whole_suite_1d_coverages(RoadDicConst.SPEED_BINS.value)
-        csv_creator.write_whole_suite_1d_coverages(RoadDicConst.STEERING_BINS.value)
-        csv_creator.write_whole_suite_2d_coverages(RoadDicConst.SPEED_STEERING_2D.value)
-        csv_creator.write_whole_suite_2d_coverages(RoadDicConst.OBE_2D.value)
+        for cov_metr in econf.coverages_1d_to_analyse:
+            csv_creator.write_whole_suite_1d_coverages(cov_metr)
+        for cov_metr in econf.coverages_2d_to_analyse:
+            csv_creator.write_whole_suite_1d_coverages(cov_metr)
+
     end_csv = time.time()
     print(end_csv - start_csv, "seconds to write the csvs")
 

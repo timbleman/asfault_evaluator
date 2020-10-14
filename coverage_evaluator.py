@@ -231,6 +231,30 @@ class CoverageEvaluator:
         else:
             self.suite_bins[road_name] = bins
 
+        # Empties bins covered below a certain value
+        if econf.CLEANUP_BINS:
+            for bin in econf.coverages_1d_to_analyse:
+                cl = self.cleanup_bins_abs(bins=self.suite_bins[road_name][bin])
+                cl_name = str(bin) + RoadDicConst.BIN_CLEANUP.value
+                self.suite_bins[road_name][cl_name] = cl
+            for bin in econf.coverages_2d_to_analyse:
+                cl = self.cleanup_bins_abs(bins=self.suite_bins[road_name][bin])
+                cl_name = str(bin) + RoadDicConst.BIN_CLEANUP.value
+                self.suite_bins[road_name][cl_name] = cl
+
+    def cleanup_bins_abs(self, bins: list, threshold: int = 10):
+        """ Set bins 0 that have less than threshold entries
+
+        :param bins: List of counting bins
+        :param threshold: Below how many entries values are removed, default 10 makes sense
+        :return: Cleaned up bins
+        """
+        bins_cpy = bins.copy()
+        for bini in np.nditer(bins_cpy, op_flags=['readwrite']):
+            if bini < 10:
+                bini[...] = 0
+        return bins_cpy
+
     def steering_speed_states_to_2d(self, steering_states: list, speed_states: list) -> np.ndarray:
         assert len(steering_states) == len(speed_states), "The count of steering and speed states has to be equal!"
         states_2d = np.zeros((len(steering_states), 2))
@@ -239,9 +263,15 @@ class CoverageEvaluator:
         return states_2d
 
     def driver_states_dtw_friendly(self, states: list) -> np.ndarray:
+        """ Reordering states for dtw, adds counting time axis at 0
+
+        :param states: Driver states like speed or steering output
+        :return: New states with time axis
+        """
         states_2d = np.zeros((len(states), 2))
-        states_2d[:, 0] = states
+        # TODO reorder this, experiment if it makes a difference!
         states_2d[:, 1] = range(0, len(states))
+        states_2d[:, 0] = states
         return states_2d
 
     def get_all_bins(self):

@@ -10,7 +10,7 @@ ALL_ROADS_WRITE = False
 
 # False if you want a custom sized angle alphabet
 # Has to be True for unit tests, otherwise borders are off
-USE_FIXED_STRONG_BORDERS = False
+USE_FIXED_STRONG_BORDERS = True
 
 # Use a seed for adaptive random sampling if it should be deterministic
 SEED_ADAPTIVE_RANDOM = 1234
@@ -18,12 +18,15 @@ SEED_ADAPTIVE_RANDOM = 1234
 # remove tests with broken speed, otherwise these segments get ignored
 rm_broken_speed_roads = True
 
-# some configration has been moved to utils because cross imports created problems
-
+# some configuration has been moved to utils because cross imports created problems
+# also add bins where sparsely covered bins are removed
+CLEANUP_BINS = True
 coverages_1d_to_analyse = [utils.RoadDicConst.SPEED_BINS.value,
                            utils.RoadDicConst.STEERING_BINS.value,
+                           utils.RoadDicConst.STEERING_BINS_ADJUSTED.value,
                            utils.RoadDicConst.DISTANCE_BINS.value]
 coverages_2d_to_analyse = [utils.RoadDicConst.SPEED_STEERING_2D.value,
+                           utils.RoadDicConst.SPEED_STEERING_2D_ADJ.value,
                            utils.RoadDicConst.OBE_2D.value]
 
 # what output metrics should be computed and written out

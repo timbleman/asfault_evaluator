@@ -28,16 +28,7 @@ K_LCSTR = 1
 # To change the angle alphabet size, you have to add symbols to the enums
 # Ensure that the enum is balanced
 # Make sure that USE_FIXED_STRONG_BORDERS = False in evaluator config
-"""
-class cur(Enum):
-    STRONG_LEFT = -3
-    LEFT = -2
-    SLIGHT_LEFT = -1
-    STRAIGHT = 0
-    SLIGHT_RIGHT = 1
-    RIGHT = 2
-    STRONG_RIGHT = 3
-"""
+"""has to be symmetric around zero"""
 class cur(Enum):
     SSSSS_LEFT = -7
     SSSS_LEFT = -6
@@ -55,19 +46,18 @@ class cur(Enum):
     SSSS_RIGHT = 6
     SSSSS_RIGHT = 7
 
-"""has to be symmetric around zero"""
 NUM_ALPHABET = len(cur)
 
-#DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 36.6, 70.0, 147.6, 400]
-DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 14.6, 33.5, 50.0, 69.1, 90.0, 134, 201, 400]
+DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 36.6, 70.0, 147.6, 400]
+#DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 14.6, 33.5, 50.0, 69.1, 90.0, 134, 201, 400]
 
 # Comment the last symbols if a smaller alphabet is needed
 # make sure USE_FIXED_STRONG_BORDERS = False in evaluator_config
 class len_en(Enum):
     SHORT = 0
     MEDIUM = 1
-    #LONG = 2
-    #VERY_LONG = 3
+    LONG = 2
+    VERY_LONG = 3
     #VV_L = 4
     #VVV_L = 5
     #VVVV_L = 6
@@ -75,7 +65,6 @@ class len_en(Enum):
 
 NUM_LEN_ALPHABET = len(len_en)
 
-# Do not disable this, this is crucial for correct translation, however, has to be toggled for testing
 FIX_NODE_LEGTHS = True
 
 class StringComparer:
@@ -86,7 +75,6 @@ class StringComparer:
         self.percentile_values = []
         self.percentile_len_values = []
 
-        # This is absolutely crucial for translation, however, it makes testing harder
         if FIX_NODE_LEGTHS:
             self.correct_node_lengths()
 
@@ -96,12 +84,14 @@ class StringComparer:
             # dirty hack, maybe avoid
             return
 
+        # compute percentile based borders for sdl translation
         if not econf.USE_FIXED_STRONG_BORDERS:
             self.gather_all_angles()
             self.get_curve_distribution()
             self.gather_all_lengths()
             self.get_len_distribution()
 
+        # configure this to define metrics, add them in evaluator_config
         self.string_metrics_config = [
             {'rep': BehaviorDicConst.CUR_SDL.value, 'fun': self.cur_sdl_one_to_one, 'out_name': BehaviorDicConst.CUR_SDL_DIST.value},
             {'rep': BehaviorDicConst.SDL_2D.value, 'fun': self.sdl_2d_one_to_one, 'out_name': BehaviorDicConst.SDL_2D_DIST.value},
@@ -117,10 +107,6 @@ class StringComparer:
             filter(lambda metr: metr['out_name'] in econf.string_metrics_to_analyse, self.string_metrics_config))
 
     def correct_node_lengths(self):
-        """ ABSOLUTELY ESSENTIAL for correct translations. Corrects the length attribute of each node for each road.
-
-        :return: None
-        """
         for name in self.data_dict:
             test = self.data_dict[name]
             nodes = test['nodes']
@@ -233,8 +219,6 @@ class StringComparer:
             utils.print_remaining_time(start_time_loop, current_ops, total_ops)
 
 
-
-    # these three should be one
     def compare_one_to_all_unoptimized(self, road_name: str, funct, representation: str):
         """ Compares one road to all others and saves similarity in a dict.
 
@@ -426,7 +410,6 @@ class StringComparer:
         lengths += nodes[-1].length
         last_tup = (self.get_const_for_angle(nodes[-1].angle), self.get_const_for_length(lengths))
         sdl_2d.append(last_tup)
-        # print("sdl_2d", sdl_2d)
 
         return sdl_2d
 
@@ -437,7 +420,6 @@ class StringComparer:
         :param angle: the angle
         :return: cur type
         """
-        # TODO somehow Pycharm chaches the wrong version of DEFAULT_PERCENTILE_VALUES_CUR, flaky tests
         if econf.USE_FIXED_STRONG_BORDERS:
             percentile_values_cur = DEFAULT_PERCENTILE_VALUES_CUR_1
         else:
@@ -463,7 +445,6 @@ class StringComparer:
         :param length: the length
         :return: cur type
         """
-        # TODO stimmt das überhaupt?
         if econf.USE_FIXED_STRONG_BORDERS:
             percentile_values_len = DEFAULT_PERCENTILE_VALUES_LEN
         else:
