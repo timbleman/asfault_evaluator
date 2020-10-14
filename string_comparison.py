@@ -65,7 +65,7 @@ class len_en(Enum):
 
 NUM_LEN_ALPHABET = len(len_en)
 
-FIX_NODE_LEGTHS = True
+FIX_NODE_LEGTHS = False
 
 class StringComparer:
     def __init__(self, data_dict: dict):

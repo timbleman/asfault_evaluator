@@ -31,7 +31,7 @@ class RoadDicConst(Enum):
     DISTANCE_BINS = "distance_bins"
     SPEED_STEERING_2D = "speed_steering_2d_bins"
     SPEED_STEERING_2D_ADJ = "speed_steering_2d_bins_adjusted"
-    BIN_CLEANUP = "bin_cleanup"  # has to be concatenated with one bin
+    BIN_CLEANUP = "_cleanup"  # has to be concatenated with one bin
     OBE_2D = "obe_2d"
     EXEC_TIME = "exec_time"
     NUM_OBES = "num_obes"
