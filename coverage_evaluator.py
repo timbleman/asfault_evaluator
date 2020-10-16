@@ -212,7 +212,7 @@ class CoverageEvaluator:
                 RoadDicConst.STEERING_BINS_ADJUSTED.value: self.get_steering_bins_adjusted(),
                 RoadDicConst.DISTANCE_BINS.value: self.get_distance_bins((0, 20)),  # TODO is (0, 20) a good range?
                 RoadDicConst.SPEED_STEERING_2D.value: self.get_speed_steering_2d(),
-                RoadDicConst.SPEED_STEERING_2D_ADJ.value: self.get_steering_bins_adjusted(),
+                RoadDicConst.SPEED_STEERING_2D_ADJ.value: self.get_speed_steering_2d_adjusted(),
                 RoadDicConst.OBE_2D.value: self.get_obe_speed_angle_bins(),
                 RoadDicConst.NODES.value: road_nodes,
                 RoadDicConst.UNDER_MIN_LEN_SEGS.value: utils.road_has_min_segs(road_nodes),
@@ -315,7 +315,7 @@ class CoverageEvaluator:
     def get_distance_bins(self, bounds):
         return self.get_bins(self.distance_arr, bounds)
 
-    def get_speed_steering_2d(self):
+    def get_speed_steering_2d_adjusted(self):
         """ Returns a two dimensional array of bins with the steering input as x-axis and the speed as y-axis
 
         :return: histogram as a two-dimensional array
@@ -325,7 +325,7 @@ class CoverageEvaluator:
                                                                 range=(STEERING_RANGE, SPEED_RANGE), normed=False)
         return histogram
 
-    def get_speed_steering_2d_adjusted(self):
+    def get_speed_steering_2d(self):
         """ Returns a two dimensional array of bins with the steering input as x-axis and the speed as y-axis.
         Adjusted for a more uniform steering distribution
 

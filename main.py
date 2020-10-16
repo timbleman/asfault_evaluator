@@ -83,7 +83,7 @@ def main():
     #print(all_paths.pop(2))
     broken_tests = []
     RECOMPUTE_AFTER_REMOVAL = True
-    ADAPTIVE_RAND_SAMPLE = True
+    ADAPTIVE_RAND_SAMPLE = False
     compute = True
     while compute:
         compute = False
@@ -217,8 +217,11 @@ def main():
 
             for cov_metr in econf.coverages_1d_to_analyse:
                 csv_creator.write_whole_suite_1d_coverages(cov_metr)
+            # check ob das noch stimmt
+            #print("spst 2d", data_bins_dict['random--la11'][RoadDicConst.SPEED_STEERING_2D.value])
+            #print("spst 2d adj", data_bins_dict['random--la11'][RoadDicConst.SPEED_STEERING_2D_ADJ.value])
             for cov_metr in econf.coverages_2d_to_analyse:
-                csv_creator.write_whole_suite_1d_coverages(cov_metr)
+                csv_creator.write_whole_suite_2d_coverages(cov_metr)
 
         end_csv = time.time()
         print(end_csv - start_csv, "seconds to write the csvs")
@@ -249,7 +252,7 @@ def main():
             compute = True
             ADAPTIVE_RAND_SAMPLE = False
             if WRITE_CSV and rem:
-                csv_creator.write_all_tests_one_value(BehaviorDicConst.ADAPT_RAND_INDEX.value)
+                csv_creator.write_all_tests_one_value(BehaviorDicConst.SAMPLING_INDEX.value)
 
 
         clusterer = Clusterer(data_dict=data_bins_dict)

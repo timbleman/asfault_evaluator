@@ -39,7 +39,7 @@ class AdaptiveRandSampler:
         self.population = [first_one]
         # index instead of m in order to be easier to adapt in the future
         test_index = 0
-        self.data_dict[first_one][BehaviorDicConst.ADAPT_RAND_INDEX.value] = test_index
+        self.data_dict[first_one][BehaviorDicConst.SAMPLING_INDEX.value] = test_index
 
         assert n < len(all_keys) - size_candidate_list
 
@@ -57,9 +57,9 @@ class AdaptiveRandSampler:
             self.population.append(best_candidate)
 
             test_index += 1
-            self.data_dict[best_candidate][BehaviorDicConst.ADAPT_RAND_INDEX.value] = test_index
+            self.data_dict[best_candidate][BehaviorDicConst.SAMPLING_INDEX.value] = test_index
 
-        self.add_value_for_undefineds(measure=BehaviorDicConst.ADAPT_RAND_INDEX.value, default_value=-1)
+        self.add_value_for_undefineds(measure=BehaviorDicConst.SAMPLING_INDEX.value, default_value=-1)
 
 
     def add_value_for_undefineds(self, measure: str, default_value=-1):

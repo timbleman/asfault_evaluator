@@ -93,7 +93,7 @@ class BehaviorDicConst(Enum):
     SDL_2D_10_LCSTR_DIST = "sdl_2d_10_lcstr_dist"
     JACCARD = "jaccard"
 
-    ADAPT_RAND_INDEX = "adaptive_random_sampling_index"
+    SAMPLING_INDEX = "sampling_index"
 
 
 class DiffFuncConst(Enum):
