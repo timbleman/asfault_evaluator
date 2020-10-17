@@ -18,8 +18,30 @@ class SuiteTrimmer:
         self.data_dict = data_dict
         self.base_path = base_path
 
+    def get_random_number_unworthy(self, remaining_number: int) -> List:
+        """ Remove a certain number of tests in order to reach a certain subset size.
+
+        :param remaining_number: Number of tests that should remain in the subset.
+        :return: List of paths to remove.
+        """
+        assert remaining_number < len(self.data_dict)
+        import random
+        # TODO check das
+        tests_to_remove_num = len(self.data_dict) - remaining_number
+        all_keys = list(self.data_dict.keys())
+        unworthy_keys = random.sample(all_keys, tests_to_remove_num)
+        unworthy_paths = []
+        for key in unworthy_keys:
+            road = self.data_dict.get(key)
+            path = road.get(RoadDicConst.TEST_PATH.value, None)
+            assert path is not None, "There has been no path added for " + str(key)
+
+            unworthy_paths.append(path)
+
+        return unworthy_paths
+
     def get_random_percentage_unworthy(self, percentage: int, block_size: int = 10) -> List:
-        """ Remove a certain number of tests that exceed the treshold.
+        """ Remove a certain number of tests that exceed the threshold.
         If block_size = 10, percentage is only accurate to groups of ten
         block_size = 10 ensures good mixing
 
