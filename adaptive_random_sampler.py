@@ -3,6 +3,8 @@ import evaluator_config as econf
 import random
 import utils
 import colorama
+from pathlib import Path
+
 
 from utils import BehaviorDicConst
 
@@ -175,3 +177,108 @@ class AdaptiveRandSampler:
 
         assert best_candidate is not None
         return best_candidate
+
+
+def prepare_folders_for_sampling(parent_path: Path, configs: list, destination_path: Path):
+    """ Creates subfolders in destination path that combine the name of the parent_path and a config.
+
+    :param parent_path: Path to the suite including all tests
+    :param configs: List of strings that describe the configurations
+    :param destination_path: Path to to store all the subsets
+    :return: List of folder names
+    """
+    assert parent_path.exists(), "The parent suite to copy the files from does not exist!"
+    import shutil
+
+    if not destination_path.exists():
+        destination_path.mkdir()
+
+    parent_name = parent_path.name # maybe .parts instead of .name
+    folder_names = []
+
+    for cfg in configs:
+        folder_name = str(parent_name) + "-" + cfg
+        folder_path = destination_path.joinpath(folder_name)
+        folder_path.mkdir()
+
+        for fiofo in parent_path.iterdir():
+            if fiofo.is_dir():
+                fo_name = fiofo.name
+                dst_folder = folder_path.joinpath(fo_name)
+                shutil.copytree(src=fiofo, dst=dst_folder)
+        folder_names.append(folder_name)
+
+    return folder_names
+
+
+def apdaptive_rand_sample_multiple_subsets(start_points: list, parent_path: Path, destination_path: Path):
+    """ Creates multiple subfolders in destination path that have logical names and include the full test suite
+    as in parent_path.
+
+    :param start_points: start points for adaptive random sampling, needed for names
+    :param parent_path: Path to the suite including all tests
+    :param destination_path: Path to to store all the subsets
+    :return: [{'folder':, 'diversity':, 'start_point':}], used for adaptive random sampling
+    """
+    print(colorama.Fore.GREEN, "Creating folder names for new test suites", colorama.Style.RESET_ALL)
+    # TODO assert that the start points are part of the parent suite
+    # create appropriate descriptors to folder names
+    configs = []
+    for stp in start_points:
+        configs.append("highdiv-" + stp)
+        configs.append("lowdiv-" + stp)
+
+    # create the folders with appropriate names
+    folder_names = prepare_folders_for_sampling(parent_path, configs, destination_path)
+    print(colorama.Fore.GREEN, "Creating subfolders", folder_names, "in", destination_path, colorama.Style.RESET_ALL)
+    print(colorama.Fore.GREEN, "Copying contents of", parent_path, colorama.Style.RESET_ALL)
+    # create list of [{'folder':, 'diversity':, 'start_point':}]
+    runner_list = []
+    for fldr in folder_names:
+        start_point = fldr.split('-')[-1]
+        if 'highdiv' in fldr:
+            hiorlo = 'high'
+        elif 'lowdiv' in fldr:
+            hiorlo = 'low'
+        else:
+            raise ValueError("highdiv or lowdiv not included in the folder name!")
+        dicc = {'folder': fldr,
+                'diversity': hiorlo,
+                'startpoint': start_point}
+        runner_list.append(dicc)
+    return runner_list
+
+
+def mirror_subsets_only_results(subsets_destination_path: Path):
+    """ Copies all the files (in this case .csvs of experiments) from a set of subsets.
+    Automatically creates a folder that shares the name with the actual one but adds "_only_results".
+
+    :param subsets_destination_path:
+    :return:
+    """
+    assert subsets_destination_path.exists(), "The path for the subsets has to be created"
+    import shutil
+
+    # create and if necessary delete folder for only the results
+    last_part = subsets_destination_path.parts[-1] + "_only_results"
+    only_res_path = subsets_destination_path.parent.joinpath(last_part)
+    if only_res_path.is_dir():
+        shutil.rmtree(only_res_path)
+        print("Removed old only results folder.")
+    only_res_path.mkdir()
+
+    # iterate through all subsets
+    for subset in subsets_destination_path.iterdir():
+        if subset.is_dir():
+            # iterate through all folders and replicate them
+            folder_repl = list(subset.parts)
+            folder_repl[-2] = last_part
+            # print(tuple(folder_repl))
+            outer = Path(*folder_repl)
+            outer.mkdir()
+            for el in subset.iterdir():
+                if el.is_file():
+                    dest_list = list(el.parts)
+                    dest_list[-3] = last_part
+                    dest = Path(*dest_list)
+                    shutil.copy(src=el, dst=dest)

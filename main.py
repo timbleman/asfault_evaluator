@@ -70,7 +70,7 @@ def old_main():
     # regular, sets, invalid tests removed, including OBE tests
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
     parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
-    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-15-4-low-div")
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-no-obe-wo-minlen-wo-infspeed")
@@ -160,8 +160,8 @@ def old_main():
         start_str_trans = time.time()
         str_comparer = StringComparer(data_dict=data_bins_dict)
         str_comparer.all_roads_to_curvature_sdl()
-        str_comparer.print_ang_len_for_road('random--la52')
-        str_comparer.print_ang_len_for_road('random--la52', use_fnc=False)
+        #str_comparer.print_ang_len_for_road('random--la52')
+        #str_comparer.print_ang_len_for_road('random--la52', use_fnc=False)
         end_str_trans = time.time()
         print(end_str_trans - start_str_trans, "seconds to compute the string translation")
 
@@ -277,29 +277,80 @@ def old_main():
         #suite_trimmer.trim_dataset(feature=utils.RoadDicConst.NUM_OBES.value, op=operator.ge, threshold=0.9)
         #suite_trimmer.trim_dataset_percentile(feature="num_states", op=operator.le, threshold_percentile=2)
 
-def adaptive_random_sampling_multiple_subsets(parent_folder=r"C:\Users\fraun\exp-ba\div_bng"):
+def adaptive_random_sampling_multiple_subsets(bng_or_drvr: str, num_per_configuration):
+    if bng_or_drvr == "bng":
+        destination_folder = Path(r"C:\Users\fraun\exp-ba\div_bng5")
+        parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
+        obe_start_points = ["random--la11", "random--la111", "random--la617", "rand-la219", "rand-la811"]
+        non_obe_start_points = ["random--la311", "random--la222", "random--la711", "random--la84", "random--la918"]
+    elif bng_or_drvr == "drvr":
+        destination_folder = Path(r"C:\Users\fraun\exp-ba\div_drvr5")
+        parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+        obe_start_points = ["random--la219", "random--la318", "random--la520", "random--la438", "random--la712"]
+        non_obe_start_points = ["one-plus-o212", "random--la42", "random--la68", "random--la94", "random--la1010"]
+    else:
+        raise ValueError("Select between bng and drvr!")
+
+    start_points = obe_start_points[0:num_per_configuration]
+    start_points.extend(non_obe_start_points[0:num_per_configuration])
     # this should be automatically created
     # name, high or low, startpoint
     # the files have to be filled accordingly, this should be automated and copying files from a source
+    #start_points = ["random--la11", "random--la111", "random--la617", "random--la311", "random--la222", "random--la711"]
+    import adaptive_random_sampler
+    subsets = adaptive_random_sampler.apdaptive_rand_sample_multiple_subsets(start_points=start_points,
+                                                                             destination_path=destination_folder,
+                                                                             parent_path=parent_folder)
+    """
     subsets = [
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-obe-11", 'diversity': "high", 'startpoint': "random--la11"},  # OBE
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-obe-111", 'diversity': "high", 'startpoint': "random--la111"},
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-obe-617", 'diversity': "high", 'startpoint': "random--la617"},
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-noobe-311", 'diversity': "high", 'startpoint': "random--la311"},  # nonOBE
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-noobe-222", 'diversity': "high", 'startpoint': "random--la222"},
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-noobe-711", 'diversity': "high", 'startpoint': "random--la711"},
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-11", 'diversity': "low", 'startpoint': "random--la11"},  # OBE
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-111", 'diversity': "low", 'startpoint': "random--la111"},
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-617", 'diversity': "low", 'startpoint': "random--la617"},
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-311", 'diversity': "low", 'startpoint': "random--la311"},  # nonOBE
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-222", 'diversity': "low", 'startpoint': "random--la222"},
-        {'path': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-711", 'diversity': "low", 'startpoint': "random--la711"}
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-obe-11", 'diversity': "high", 'startpoint': "random--la11"},  # OBE
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-obe-111", 'diversity': "high", 'startpoint': "random--la111"},
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-obe-617", 'diversity': "high", 'startpoint': "random--la617"},
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-noobe-311", 'diversity': "high", 'startpoint': "random--la311"},  # nonOBE
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-noobe-222", 'diversity': "high", 'startpoint': "random--la222"},
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-noobe-711", 'diversity': "high", 'startpoint': "random--la711"},
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-11", 'diversity': "low", 'startpoint': "random--la11"},  # OBE
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-111", 'diversity': "low", 'startpoint': "random--la111"},
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-617", 'diversity': "low", 'startpoint': "random--la617"},
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-311", 'diversity': "low", 'startpoint': "random--la311"},  # nonOBE
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-222", 'diversity': "low", 'startpoint': "random--la222"},
+        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-711", 'diversity': "low", 'startpoint': "random--la711"}
     ]
+    """
+    # perform adaptive random sampling
     for seti in subsets:
-        spath = path.join(parent_folder, seti['path'])
-        adaptive_random_sample_oneset(spath, seti['startpoint'], seti['diversity'])
+        spath = path.join(destination_folder, seti['folder'])
+        adaptive_random_sample_oneset(spath, seti['startpoint'], seti['diversity'], entirely_random=False)
 
-def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str):
+    # copy only the .csv
+    adaptive_random_sampler.mirror_subsets_only_results(destination_folder)
+
+def random_sampling_multiple_subsets(bng_or_drvr, num_subsets):
+    if bng_or_drvr == "bng":
+        destination_folder = Path(r"C:\Users\fraun\exp-ba\div_bng5")
+        parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
+    elif bng_or_drvr == "drvr":
+        destination_folder = Path(r"C:\Users\fraun\exp-ba\div_drvr5")
+        parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+    else:
+        raise ValueError("Select between bng and drvr!")
+    #adaptive_random_sampler.prepare_folders_for_sampling()
+    """subsets = [{'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-rand0"},
+               {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-rand1"},
+               {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-rand2"}
+    ] """
+    # write list of configs for each subset containing "-random0" and further
+    cnfgs = []
+    for i in range(0, num_subsets):
+        cnfgs.append("-random" + str(i))
+    import adaptive_random_sampler
+    subsets = adaptive_random_sampler.prepare_folders_for_sampling(configs=cnfgs, parent_path=parent_folder,
+                                                                   destination_path=destination_folder)
+    for seti in subsets:
+        spath = path.join(parent_folder, seti['folder'])
+        adaptive_random_sample_oneset(spath, None, "", entirely_random=True)
+
+def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entirely_random: False):
     """ Perfoms adaptive random sampling on one subset, forces removal
 
     :param parent_dir:
@@ -442,8 +493,8 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str):
         #print("all roads ", data_bins_dict)
 
         suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=parent_dir)
-
-        if ADAPTIVE_RAND_SAMPLE:
+        # perform adaptive random sampling
+        if ADAPTIVE_RAND_SAMPLE and not entirely_random:
             sampler = AdaptiveRandSampler(data_dict=data_bins_dict) # mini suite: "random--la53", regular: "random--la311"
             # bng obe start: rand--la11/111/617, non obe start: "random--la311"
             # drvr obe start: , non obe start:
@@ -463,8 +514,24 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str):
             if WRITE_CSV and rem:
                 csv_creator.write_all_tests_one_value(BehaviorDicConst.SAMPLING_INDEX.value)
 
+        # perform random sampling
+        if ADAPTIVE_RAND_SAMPLE and entirely_random:
+            unworthy_paths= suite_trimmer.get_random_number_unworthy(remaining_number=30)
+            rem = suite_trimmer.trim_dataset_list(unworthy_paths=unworthy_paths, description="random sampling", force=True)
+            compute = True
+            ADAPTIVE_RAND_SAMPLE = False
 
 
 if __name__ == "__main__":
     #old_main()
-    adaptive_random_sampling_multiple_subsets()
+    adaptive_random_sampling_multiple_subsets('bng', 5)
+    #random_sampling_multiple_subsets()
+    #import adaptive_random_sampler
+    #adaptive_random_sampler.mirror_subsets_only_results(Path(r"C:\Users\fraun\exp-ba\div_bng"))
+    #adaptive_random_sampler.prepare_folders_for_sampling(parent_path=Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed"),
+    #                                                     configs=["1", "2", "3"],
+    #                                                     destination_path=Path(r"C:\Users\fraun\exp-ba\div_test"))
+    #to_sample = adaptive_random_sampler.apdaptive_rand_sample_multiple_subsets(['1', '2', '3'],
+    #                                                               parent_path=Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed"),
+    #                                                               destination_path=Path(r"C:\Users\fraun\exp-ba\div_test"))
+    #print(to_sample)

@@ -18,20 +18,27 @@ import matplotlib.pyplot as plt
 import colorama
 import math
 import evaluator_config as econf
-
-DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -105.0, -75.0, -60.0, -45.0, -30.0, -15.0, -1, 1, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0, 120.0]
-DEFAULT_PERCENTILE_VALUES_CUR_1 = DEFAULT_PERCENTILE_VALUES_CUR
-
-# modifiable from the outside, hacky
 K_LCSTR = 1
+
+DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -105.0, -90.0, -75.0, -45.0, -30.0, -15.0, -1, 1, 15.0, 30.0, 45.0, 60.0, 90.0, 105.0, 120.0]
+DEFAULT_PERCENTILE_VALUES_CUR_1 = DEFAULT_PERCENTILE_VALUES_CUR
 
 # To change the angle alphabet size, you have to add symbols to the enums
 # Ensure that the enum is balanced
 # Make sure that USE_FIXED_STRONG_BORDERS = False in evaluator config
-"""has to be symmetric around zero"""
+"""
 class cur(Enum):
-    SSSSS_LEFT = -7
-    SSSS_LEFT = -6
+    STRONG_LEFT = -3
+    LEFT = -2
+    SLIGHT_LEFT = -1
+    STRAIGHT = 0
+    SLIGHT_RIGHT = 1
+    RIGHT = 2
+    STRONG_RIGHT = 3
+"""
+class cur(Enum):
+    #SSSSS_LEFT = -7
+    #SSSS_LEFT = -6
     SSS_LEFT = -5
     SS_LEFT = -4
     STRONG_LEFT = -3
@@ -43,12 +50,13 @@ class cur(Enum):
     STRONG_RIGHT = 3
     SS_RIGHT = 4
     SSS_RIGHT = 5
-    SSSS_RIGHT = 6
-    SSSSS_RIGHT = 7
+    #SSSS_RIGHT = 6
+    #SSSSS_RIGHT = 7
 
+"""has to be symmetric around zero"""
 NUM_ALPHABET = len(cur)
 
-DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 36.6, 70.0, 147.6, 400]
+DEFAULT_PERCENTILE_VALUES_LEN = [10.0, 30.0, 50, 100]
 #DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 14.6, 33.5, 50.0, 69.1, 90.0, 134, 201, 400]
 
 # Comment the last symbols if a smaller alphabet is needed
@@ -65,8 +73,6 @@ class len_en(Enum):
 
 NUM_LEN_ALPHABET = len(len_en)
 
-FIX_NODE_LEGTHS = False
-
 class StringComparer:
     def __init__(self, data_dict: dict):
         self.data_dict = data_dict
@@ -75,8 +81,6 @@ class StringComparer:
         self.percentile_values = []
         self.percentile_len_values = []
 
-        if FIX_NODE_LEGTHS:
-            self.correct_node_lengths()
 
         # colorama.init(autoreset=True)
         if not self.data_dict:
@@ -85,11 +89,16 @@ class StringComparer:
             return
 
         # compute percentile based borders for sdl translation
+        only_cur_dynamic = True
         if not econf.USE_FIXED_STRONG_BORDERS:
             self.gather_all_angles()
             self.get_curve_distribution()
-            self.gather_all_lengths()
-            self.get_len_distribution()
+            if only_cur_dynamic:
+                self.percentile_len_values = DEFAULT_PERCENTILE_VALUES_LEN
+            else:
+                self.gather_all_lengths()
+                self.get_len_distribution()
+
 
         # configure this to define metrics, add them in evaluator_config
         self.string_metrics_config = [
@@ -116,15 +125,12 @@ class StringComparer:
 
     def get_configuration_description(self) -> str:
         """ Returns the current configuration to be written to the filename
-
         :return: string describing configuration
         """
         return "_" + str(NUM_ALPHABET) + "ang_" + str(NUM_LEN_ALPHABET) +"len"
 
     def all_roads_to_curvature_sdl(self):
         """ Performs shape definition language on all roads represented as asfault nodes
-
-
         :return: None
         """
         assert self.data_dict is not None, "There have to be roads added"
@@ -139,7 +145,6 @@ class StringComparer:
 
     def nodes_to_curvature_sdl(self, nodes: List[asfault.network.NetworkNode], compress_neighbours: bool = False):
         """ curve shape definition language of a single road
-
         :param nodes: List of all asfault.network.NetworkNode of a road
         :param compress_neighbours: only update list if the successor is different
         :return: List with all the symbols
@@ -166,7 +171,6 @@ class StringComparer:
 
     def all_roads_average_curvature(self, normalized: bool = True):
         """ Calculates the average curvature and saves it for each road.
-
         :param normalized: Normalized by alphabet length
         :return: Avg curvature for a road.
         """
@@ -188,7 +192,6 @@ class StringComparer:
 
     def sdl_all_to_all_unoptimized(self):
         """ Computes and saves distance metrics for each road
-
         :return: None
         """
         start_time_loop = time.time()
@@ -210,7 +213,6 @@ class StringComparer:
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
                                                                representation=BehaviorDicConst.CUR_SDL.value)
             self.data_dict[name][BehaviorDicConst.CUR_SDL_2_LCSTR_DIST.value] = distance_arr
-
             distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
                                                                representation=BehaviorDicConst.SDL_2D.value)
             self.data_dict[name][BehaviorDicConst.SDL_2D_2_LCSTR_DIST.value] = distance_arr
@@ -221,7 +223,6 @@ class StringComparer:
 
     def compare_one_to_all_unoptimized(self, road_name: str, funct, representation: str):
         """ Compares one road to all others and saves similarity in a dict.
-
         :param road_name: Name of the center road
         :param funct: function used for comparison
         :param representation: 2d shape definition language or curve shape definition language
@@ -241,7 +242,6 @@ class StringComparer:
         """ Set-based jaccard index
         Only works with sdl 2d representation
         # TODO there has to be a more efficient way
-
         :param curve1_sdl: sdl representation of one road
         :param curve2_sdl: sdl representation of the other road
         :return: Jaccard index
@@ -271,7 +271,6 @@ class StringComparer:
 
     def cur_sdl_one_to_one(self, curve1_sdl: list, curve2_sdl: list, normalized: bool = True, invert: bool = True):
         """ Compares two curve shape definition language representations
-
         :param curve1_sdl: cur_sdl list of road1
         :param curve2_sdl: cur_sdl list of road2
         :param normalized: normalize between 0 and 1
@@ -308,7 +307,6 @@ class StringComparer:
         """ calculates error element wise for the curvature shape definition language representation
         WARNING: the output is not yet normalized by length, but counting, to save unnecessary divisions
         error can be up to n * (NUM_ALPHABET-1)/2
-
         :param start_point:
         :param longer_road_sdl: curve sdl representation of the longer road
         :param shorter_road_sdl: curve sdl representation of the shorter road
@@ -321,7 +319,6 @@ class StringComparer:
 
     def sdl_2d_one_to_one(self, sdl_2d_1, sdl_2d_2, normalized: bool = True, invert: bool = True):
         """ Compares two curve shape definition language representations
-
         :param sdl_2d_1: cur_sdl list of road1
         :param sdl_2d_2: cur_sdl list of road2
         :param normalized: normalize between 0 and 1
@@ -356,7 +353,6 @@ class StringComparer:
         """ calculates error element wise for the 2d shape definition language representation
         WARNING: the output is not yet normalized by road length, but alphabet length, to save unnecessary divisions
         error can be up to n * 1.0
-
         :param start_point:
         :param longer_road_sdl: curve sdl representation of the longer road
         :param shorter_road_sdl: curve sdl representation of the shorter road
@@ -383,7 +379,6 @@ class StringComparer:
 
     def nodes_to_sdl_2d(self, nodes: List[asfault.network.NetworkNode]) -> list:
         """ Translates nodes to 2d sdl representation
-
         :param nodes: Nodes of a road
         :return: translation
         """
@@ -416,7 +411,6 @@ class StringComparer:
     def get_const_for_angle(self, angle: float):
         """ returns the representation for an angle based on the percentiles
         needs self.percentile_values to be set
-
         :param angle: the angle
         :return: cur type
         """
@@ -441,7 +435,6 @@ class StringComparer:
 
     def get_const_for_length(self, length: float):
         """ returns the representation for an length based on the percentiles
-
         :param length: the length
         :return: cur type
         """
@@ -464,7 +457,6 @@ class StringComparer:
 
     def print_ang_len_for_road(self, road_name, use_fnc: bool = True):
         """ Prints angle and length for each node in a selected road
-
         :param road_name: The road of which nodes are printed
         :param use_fnc: Whether node.length or utils.compute_length(node) is called.
         :return: None
@@ -487,7 +479,6 @@ class StringComparer:
     def gather_all_angles(self):
         """ is needed to be able to get the percentiles
         has an performance overhead, should be avoided
-
         :return: None
         """
         for name in self.data_dict:
@@ -500,7 +491,6 @@ class StringComparer:
     def gather_all_lengths(self):
         """ is needed to be able to get the percentiles
         has an performance overhead, should be avoided
-
         :return: None
         """
         for name in self.data_dict:
@@ -512,13 +502,14 @@ class StringComparer:
 
     def get_len_distribution(self):
         """ Sets equally distributed borders for self.all_lengths
-
         :return: None
         """
         if not self.all_lengths:
             self.gather_all_lengths()
 
         self.percentile_len_values = self.get_percentile_values(alphabet_size=NUM_LEN_ALPHABET, all_values=self.all_lengths)
+        # poping the last to ensure that the last element is still in range when compressing two segments of same curvature
+        self.percentile_len_values.pop(-1)
 
         print("percentile length values of all roads", self.percentile_len_values)
         assert self.ensure_valid_percentiles(self.percentile_len_values), "The lengths in the set are not valid or unbalanced"
@@ -528,7 +519,6 @@ class StringComparer:
         draws a box plot and self.percentile_values with bounds of all angles
         has to be called after all curves were compressed using shape definition
         has an performance overhead, should be avoided, borders fixed
-
         :return: None
         """
         if not self.all_angles:
@@ -563,7 +553,6 @@ class StringComparer:
 
     def get_percentile_values(self, alphabet_size: int, all_values: list) -> list:
         """ Returns alphabet_size many equally distributed percentile values of all_values.
-
         :param alphabet_size: Number of percentiles to compute
         :param all_values: Values for which percentiles get computed
         :return: List of percentiles
@@ -582,7 +571,6 @@ class StringComparer:
     def ensure_valid_percentiles(self, percentile_borders: list) -> bool:
         """ Checks that each border is greater than the previous one.
         Is used for angle and length percentile borders.
-
         :param percentile_borders: List of borders, values of percentiles
         :return: Bool, True if valid
         """
@@ -599,7 +587,6 @@ class StringComparer:
 def lcs(X, Y, normalized: bool = True):
     """ longest common subsequence problem dynamic programming approach
     copied form here: https://www.geeksforgeeks.org/python-program-for-longest-common-subsequence/
-
     :param X: First string
     :param Y: Second string
     :param normalized: normalizes in the range [0, 1.0] using the length of the shorter road
@@ -678,7 +665,6 @@ def k_lcstr(X, Y, k:int = K_LCSTR, normalized: bool = True) -> int:
     """ Longest common substring with k mismatches
     Implementation of https://doi.org/10.1016/j.ipl.2015.03.006 algorithm
     TODO experiment with k, it seems not change nothing?
-
     :param X: First string
     :param Y: Second string
     :param k: number of mismatches

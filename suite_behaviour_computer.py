@@ -139,7 +139,6 @@ class SuiteBehaviourComputer:
         print("In total", total_ops*total_ops, "comparison passes and", total_ops,
               "loop iterations will have to be completed for output behavior.")
         for name in self.test_dict:
-            # TODO schau mal ob da alles passt
             for out_met in self.output_metrics_to_compute:
                 #print("bins, fun, name", out_met['bins'], out_met['fun'], out_met['out_name'])
                 #distance_arr = self.behavior_compare_1d_2d(name, measure=out_met['bins'],
