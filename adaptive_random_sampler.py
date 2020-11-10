@@ -17,7 +17,8 @@ class AdaptiveRandSampler:
     # TODO sample of n with threshold
     # TODO select one start road
     # TODO high and low diversity function
-    def sample_of_n(self, measure: str, n: int, func, first_test: str = None, size_candidate_list: int = 10):
+    def sample_of_n(self, measure: str, n: int, func, first_test: str = None, force_first: bool = True,
+                    size_candidate_list: int = 10):
         """ Simulates adaptive random sampling like in https://doi.org/10.1007/978-3-540-30502-6_23.
         Draws a number of candidates and adds the best one based on a function func to the population.
 
@@ -32,7 +33,10 @@ class AdaptiveRandSampler:
         # create an initial population with one random road
         # set seed or None
         random.seed = econf.SEED_ADAPTIVE_RANDOM
-        if first_test is not None and first_test in all_keys:
+        if first_test is not None:
+            if force_first:
+                assert first_test in all_keys, \
+                    colorama.Fore.RED + "The selected startpoint is not included in the set!" + colorama.Style.RESET_ALL
             first_one = first_test
             all_keys.remove(first_one)
         else:
@@ -190,6 +194,8 @@ def prepare_folders_for_sampling(parent_path: Path, configs: list, destination_p
     assert parent_path.exists(), "The parent suite to copy the files from does not exist!"
     import shutil
 
+    print(colorama.Fore.BLUE, "Creating multiple folders for smaller subsets", colorama.Style.RESET_ALL)
+
     if not destination_path.exists():
         destination_path.mkdir()
 
@@ -199,6 +205,9 @@ def prepare_folders_for_sampling(parent_path: Path, configs: list, destination_p
     for cfg in configs:
         folder_name = str(parent_name) + "-" + cfg
         folder_path = destination_path.joinpath(folder_name)
+        if folder_path.exists():
+            print("Removing old folders of the subset")
+            shutil.rmtree(folder_path)
         folder_path.mkdir()
 
         for fiofo in parent_path.iterdir():
@@ -225,8 +234,8 @@ def apdaptive_rand_sample_multiple_subsets(start_points: list, parent_path: Path
     # create appropriate descriptors to folder names
     configs = []
     for stp in start_points:
-        configs.append("highdiv-" + stp)
-        configs.append("lowdiv-" + stp)
+        configs.append("highdiv_" + stp)
+        configs.append("lowdiv_" + stp)
 
     # create the folders with appropriate names
     folder_names = prepare_folders_for_sampling(parent_path, configs, destination_path)
@@ -235,7 +244,7 @@ def apdaptive_rand_sample_multiple_subsets(start_points: list, parent_path: Path
     # create list of [{'folder':, 'diversity':, 'start_point':}]
     runner_list = []
     for fldr in folder_names:
-        start_point = fldr.split('-')[-1]
+        start_point = fldr.split('_')[-1]
         if 'highdiv' in fldr:
             hiorlo = 'high'
         elif 'lowdiv' in fldr:

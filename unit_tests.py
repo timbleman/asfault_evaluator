@@ -370,14 +370,14 @@ class TestCurveSDL(unittest.TestCase):
 
     def test_all_roads_to_curvature_sdl(self):
         with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):
-            self.str_comparer.all_roads_to_curvature_sdl()
+            self.str_comparer.all_roads_to_sdl()
             road_dict = list(self.str_comparer.data_dict.values())[0]
             self.assertTrue(BehaviorDicConst.SDL_2D.value in road_dict, "two dimensional sdl has not been added")
             self.assertTrue(BehaviorDicConst.CUR_SDL.value in road_dict, "one dimensional sdl has not been added")
 
     def test_sdl_all_to_all_execution(self):
         with unittest.mock.patch.object(utils, "compute_length", new=mocked_compute_length):
-            self.str_comparer.all_roads_to_curvature_sdl()
+            self.str_comparer.all_roads_to_sdl()
             self.str_comparer.sdl_all_to_all_unoptimized()
             road_dict = list(self.str_comparer.data_dict.values())[0]
             self.assertTrue(BehaviorDicConst.SDL_2D_DIST.value in road_dict,

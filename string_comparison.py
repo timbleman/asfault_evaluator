@@ -20,8 +20,9 @@ import math
 import evaluator_config as econf
 K_LCSTR = 1
 
+DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -75.0, -30.0, -1.0, 1.0, 30.0, 75.0, 120.0]
+DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -90.0, -75.0, -45.0, -15.0, -1, 1, 30.0, 45.0, 75.0, 90.0, 120.0]
 DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -105.0, -90.0, -75.0, -45.0, -30.0, -15.0, -1, 1, 15.0, 30.0, 45.0, 60.0, 90.0, 105.0, 120.0]
-DEFAULT_PERCENTILE_VALUES_CUR_1 = DEFAULT_PERCENTILE_VALUES_CUR
 
 # To change the angle alphabet size, you have to add symbols to the enums
 # Ensure that the enum is balanced
@@ -37,8 +38,8 @@ class cur(Enum):
     STRONG_RIGHT = 3
 """
 class cur(Enum):
-    #SSSSS_LEFT = -7
-    #SSSS_LEFT = -6
+    SSSSS_LEFT = -7
+    SSSS_LEFT = -6
     SSS_LEFT = -5
     SS_LEFT = -4
     STRONG_LEFT = -3
@@ -50,8 +51,8 @@ class cur(Enum):
     STRONG_RIGHT = 3
     SS_RIGHT = 4
     SSS_RIGHT = 5
-    #SSSS_RIGHT = 6
-    #SSSSS_RIGHT = 7
+    SSSS_RIGHT = 6
+    SSSSS_RIGHT = 7
 
 """has to be symmetric around zero"""
 NUM_ALPHABET = len(cur)
@@ -110,7 +111,7 @@ class StringComparer:
             {'rep': BehaviorDicConst.SDL_2D.value, 'fun': LCSubStr, 'out_name': BehaviorDicConst.SDL_2D_LCSTR_DIST.value},
             {'rep': BehaviorDicConst.CUR_SDL.value, 'fun': k_lcstr, 'out_name': BehaviorDicConst.CUR_SDL_1_LCSTR_DIST.value},
             {'rep': BehaviorDicConst.SDL_2D.value, 'fun': k_lcstr, 'out_name': BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value},
-            {'rep': BehaviorDicConst.SDL_2D.value, 'fun': self.jaccard_sdl_2d_one_to_one, 'out_name': BehaviorDicConst.JACCARD.value}]
+            {'rep': BehaviorDicConst.SDLN_2D.value, 'fun': self.jaccard_sdl_2d_one_to_one, 'out_name': BehaviorDicConst.JACCARD.value}]
 
         self.string_metrics_to_compute = list(
             filter(lambda metr: metr['out_name'] in econf.string_metrics_to_analyse, self.string_metrics_config))
@@ -129,19 +130,43 @@ class StringComparer:
         """
         return "_" + str(NUM_ALPHABET) + "ang_" + str(NUM_LEN_ALPHABET) +"len"
 
-    def all_roads_to_curvature_sdl(self):
+    def all_roads_to_sdl(self, dict_name: str = None):
         """ Performs shape definition language on all roads represented as asfault nodes
         :return: None
         """
         assert self.data_dict is not None, "There have to be roads added"
+        self.all_roads_to_curvature_sdl()
+        self.all_roads_to_sdl_2d(BehaviorDicConst.SDLN_2D.value)
+        self.correct_node_lengths()
+        self.all_roads_to_sdl_2d(BehaviorDicConst.SDL_2D.value)
+
+    def all_roads_to_curvature_sdl(self, dict_name: str = None):
+        """ Performs shape definition language on all roads represented as asfault nodes
+        :return: None
+        """
+        assert self.data_dict is not None, "There have to be roads added"
+        if dict_name is None:
+            dict_name = BehaviorDicConst.CUR_SDL.value
         for name in self.data_dict:
             test = self.data_dict[name]
             nodes = test[RoadDicConst.NODES.value]
             assert nodes is not None, "There have to be nodes for each road"
-            # save both the curve only and the 2d shape definition language representation
-            self.data_dict[name][BehaviorDicConst.CUR_SDL.value] = self.nodes_to_curvature_sdl(nodes=nodes,
-                                                                                             compress_neighbours=True)
-            self.data_dict[name][BehaviorDicConst.SDL_2D.value] = self.nodes_to_sdl_2d(nodes=nodes)
+            # save the curve only shape definition language representation
+            self.data_dict[name][dict_name] = self.nodes_to_curvature_sdl(nodes=nodes, compress_neighbours=True)
+
+    def all_roads_to_sdl_2d(self, dict_name: str = None):
+        """ Performs shape definition language on all roads represented as asfault nodes
+        :return: None
+        """
+        assert self.data_dict is not None, "There have to be roads added"
+        if dict_name is None:
+            dict_name = BehaviorDicConst.SDL_2D.value
+        for name in self.data_dict:
+            test = self.data_dict[name]
+            nodes = test[RoadDicConst.NODES.value]
+            assert nodes is not None, "There have to be nodes for each road"
+            # save  the 2d shape definition language representation
+            self.data_dict[name][dict_name] = self.nodes_to_sdl_2d(nodes=nodes)
 
     def nodes_to_curvature_sdl(self, nodes: List[asfault.network.NetworkNode], compress_neighbours: bool = False):
         """ curve shape definition language of a single road
@@ -415,7 +440,7 @@ class StringComparer:
         :return: cur type
         """
         if econf.USE_FIXED_STRONG_BORDERS:
-            percentile_values_cur = DEFAULT_PERCENTILE_VALUES_CUR_1
+            percentile_values_cur = DEFAULT_PERCENTILE_VALUES_CUR
         else:
             percentile_values_cur = self.percentile_values
         assert percentile_values_cur, "percentile values have to be defined"
@@ -522,7 +547,7 @@ class StringComparer:
         :return: None
         """
         if not self.all_angles:
-            self.all_roads_to_curvature_sdl()
+            self.all_roads_to_sdl()
             self.gather_all_angles()
         # fig1, ax1 = plt.subplots()
         # ax1.set_title('Basic Plot')

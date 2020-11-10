@@ -70,7 +70,7 @@ def old_main():
     # regular, sets, invalid tests removed, including OBE tests
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
     parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
-    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-15-4-low-div")
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-no-obe-wo-minlen-wo-infspeed")
@@ -159,7 +159,7 @@ def old_main():
 
         start_str_trans = time.time()
         str_comparer = StringComparer(data_dict=data_bins_dict)
-        str_comparer.all_roads_to_curvature_sdl()
+        str_comparer.all_roads_to_sdl()
         #str_comparer.print_ang_len_for_road('random--la52')
         #str_comparer.print_ang_len_for_road('random--la52', use_fnc=False)
         end_str_trans = time.time()
@@ -281,13 +281,13 @@ def adaptive_random_sampling_multiple_subsets(bng_or_drvr: str, num_per_configur
     if bng_or_drvr == "bng":
         destination_folder = Path(r"C:\Users\fraun\exp-ba\div_bng5")
         parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
-        obe_start_points = ["random--la11", "random--la111", "random--la617", "rand-la219", "rand-la811"]
-        non_obe_start_points = ["random--la311", "random--la222", "random--la711", "random--la84", "random--la918"]
+        obe_start_points = [r"random--la11", r"random--la111", r"random--la617", r"random--la219", r"random--la811"]
+        non_obe_start_points = [r"random--la311", r"random--la222", r"random--la711", r"random--la84", r"random--la918"]
     elif bng_or_drvr == "drvr":
         destination_folder = Path(r"C:\Users\fraun\exp-ba\div_drvr5")
         parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
-        obe_start_points = ["random--la219", "random--la318", "random--la520", "random--la438", "random--la712"]
-        non_obe_start_points = ["one-plus-o212", "random--la42", "random--la68", "random--la94", "random--la1010"]
+        obe_start_points = [r"random--la219", r"random--la318", r"random--la520", r"random--la438", r"random--la712"]
+        non_obe_start_points = [r"one-plus-o212", r"random--la42", r"random--la68", r"random--la94", r"random--la1010"]
     else:
         raise ValueError("Select between bng and drvr!")
 
@@ -317,13 +317,12 @@ def adaptive_random_sampling_multiple_subsets(bng_or_drvr: str, num_per_configur
         {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-711", 'diversity': "low", 'startpoint': "random--la711"}
     ]
     """
+    print("subsets", subsets)
     # perform adaptive random sampling
     for seti in subsets:
         spath = path.join(destination_folder, seti['folder'])
         adaptive_random_sample_oneset(spath, seti['startpoint'], seti['diversity'], entirely_random=False)
 
-    # copy only the .csv
-    adaptive_random_sampler.mirror_subsets_only_results(destination_folder)
 
 def random_sampling_multiple_subsets(bng_or_drvr, num_subsets):
     if bng_or_drvr == "bng":
@@ -347,8 +346,10 @@ def random_sampling_multiple_subsets(bng_or_drvr, num_subsets):
     subsets = adaptive_random_sampler.prepare_folders_for_sampling(configs=cnfgs, parent_path=parent_folder,
                                                                    destination_path=destination_folder)
     for seti in subsets:
-        spath = path.join(parent_folder, seti['folder'])
+        spath = path.join(destination_folder, seti)
         adaptive_random_sample_oneset(spath, None, "", entirely_random=True)
+
+    # TODO mirror subsets only results
 
 def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entirely_random: False):
     """ Perfoms adaptive random sampling on one subset, forces removal
@@ -427,7 +428,7 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
 
         start_str_trans = time.time()
         str_comparer = StringComparer(data_dict=data_bins_dict)
-        str_comparer.all_roads_to_curvature_sdl()
+        str_comparer.all_roads_to_sdl()
         str_comparer.print_ang_len_for_road('random--la52')
         str_comparer.print_ang_len_for_road('random--la52', use_fnc=False)
         end_str_trans = time.time()
@@ -523,10 +524,12 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
 
 
 if __name__ == "__main__":
-    #old_main()
-    adaptive_random_sampling_multiple_subsets('bng', 5)
-    #random_sampling_multiple_subsets()
-    #import adaptive_random_sampler
+    old_main()
+    #adaptive_random_sampling_multiple_subsets('drvr', 5)
+    #random_sampling_multiple_subsets(bng_or_drvr="drvr", num_subsets=5)
+    import adaptive_random_sampler
+    # copy only the .csv, this should only be done after both subset classes are created to move all
+    #adaptive_random_sampler.mirror_subsets_only_results(Path(r"C:\Users\fraun\exp-ba\div_drvr5"))
     #adaptive_random_sampler.mirror_subsets_only_results(Path(r"C:\Users\fraun\exp-ba\div_bng"))
     #adaptive_random_sampler.prepare_folders_for_sampling(parent_path=Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed"),
     #                                                     configs=["1", "2", "3"],
