@@ -18,11 +18,11 @@ import matplotlib.pyplot as plt
 import colorama
 import math
 import evaluator_config as econf
-K_LCSTR = 1
+K_LCSTR = 5
 
 DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -75.0, -30.0, -1.0, 1.0, 30.0, 75.0, 120.0]
 DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -90.0, -75.0, -45.0, -15.0, -1, 1, 30.0, 45.0, 75.0, 90.0, 120.0]
-DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -105.0, -90.0, -75.0, -45.0, -30.0, -15.0, -1, 1, 15.0, 30.0, 45.0, 60.0, 90.0, 105.0, 120.0]
+#DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -105.0, -90.0, -75.0, -45.0, -30.0, -15.0, -1, 1, 15.0, 30.0, 45.0, 60.0, 90.0, 105.0, 120.0]
 
 # To change the angle alphabet size, you have to add symbols to the enums
 # Ensure that the enum is balanced
@@ -38,8 +38,8 @@ class cur(Enum):
     STRONG_RIGHT = 3
 """
 class cur(Enum):
-    SSSSS_LEFT = -7
-    SSSS_LEFT = -6
+    #SSSSS_LEFT = -7
+    #SSSS_LEFT = -6
     SSS_LEFT = -5
     SS_LEFT = -4
     STRONG_LEFT = -3
@@ -51,8 +51,8 @@ class cur(Enum):
     STRONG_RIGHT = 3
     SS_RIGHT = 4
     SSS_RIGHT = 5
-    SSSS_RIGHT = 6
-    SSSSS_RIGHT = 7
+    #SSSS_RIGHT = 6
+    #SSSSS_RIGHT = 7
 
 """has to be symmetric around zero"""
 NUM_ALPHABET = len(cur)
@@ -234,14 +234,23 @@ class StringComparer:
 
             """
             # example for longest common substring with 2 mismatches
-            utils.K_LCSTR = 2
-            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+            #K_LCSTR = 3
+            #distance_arr = self.compare_one_to_all_unoptimized(name, funct=k_lcstr,
+            #                                                   representation=BehaviorDicConst.CUR_SDL.value)
+            #self.data_dict[name][BehaviorDicConst.CUR_SDL_3_LCSTR_DIST.value] = distance_arr
+            #distance_arr = self.compare_one_to_all_unoptimized(name, funct=k_lcstr,
+            #                                                   representation=BehaviorDicConst.SDL_2D.value)
+            #self.data_dict[name][BehaviorDicConst.SDL_2D_3_LCSTR_DIST.value] = distance_arr
+
+            K_LCSTR = 5
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=k_lcstr,
                                                                representation=BehaviorDicConst.CUR_SDL.value)
-            self.data_dict[name][BehaviorDicConst.CUR_SDL_2_LCSTR_DIST.value] = distance_arr
-            distance_arr = self.compare_one_to_all_unoptimized(name, funct=utils.k_lcstr,
+            self.data_dict[name][BehaviorDicConst.CUR_SDL_5_LCSTR_DIST.value] = distance_arr
+            distance_arr = self.compare_one_to_all_unoptimized(name, funct=k_lcstr,
                                                                representation=BehaviorDicConst.SDL_2D.value)
-            self.data_dict[name][BehaviorDicConst.SDL_2D_2_LCSTR_DIST.value] = distance_arr
+            self.data_dict[name][BehaviorDicConst.SDL_2D_5_LCSTR_DIST.value] = distance_arr
             """
+
             current_ops += 1
             utils.print_remaining_time(start_time_loop, current_ops, total_ops)
 

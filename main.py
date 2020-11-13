@@ -64,12 +64,34 @@ def get_all_paths(parent_dir: Path) -> List[Path]:
     return all_paths
 
 
-def old_main():
+def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
+    """
+    Use this main for single suites or to remove obe tests
+
+    :param suite: "bng" or "drvr" or a path, select from two predefined suites
+    :param wo_obe: use the set excluding all OBEs
+    :param remove: "obe" or "nonobe", removes and recomputes
+    :return:
+    """
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
     """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
     # regular, sets, invalid tests removed, including OBE tests
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
-    parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
+    if suite == "bng":
+        if wo_obe:
+            parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-no-obe-wo-minlen-wo-infspeed")
+        else:
+            parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
+    elif suite == "drvr":
+        if wo_obe:
+            parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-no-obe-wo-minlen-wo-infspeed")
+        else:
+            parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+    else:
+        parent_dir = Path(suite)
+    assert path.exists(parent_dir), "The predefined suite paths do not exist or the supplied path is incorrect!"
+    # TODO remove legacy stuff
+    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
     # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
     #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-15-4-low-div")
@@ -524,7 +546,7 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
 
 
 if __name__ == "__main__":
-    old_main()
+    old_main("drvr", True)
     #adaptive_random_sampling_multiple_subsets('drvr', 5)
     #random_sampling_multiple_subsets(bng_or_drvr="drvr", num_subsets=5)
     import adaptive_random_sampler

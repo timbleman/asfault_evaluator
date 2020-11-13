@@ -56,5 +56,9 @@ string_metrics_to_analyse = [BehaviorDicConst.CUR_SDL_DIST.value,
                              #BehaviorDicConst.SDL_2D_LCSTR_DIST.value,
                              #BehaviorDicConst.CUR_SDL_1_LCSTR_DIST.value,
                              #BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value,
+                             #BehaviorDicConst.CUR_SDL_3_LCSTR_DIST.value,
+                             #BehaviorDicConst.SDL_2D_3_LCSTR_DIST.value,
+                             #BehaviorDicConst.CUR_SDL_5_LCSTR_DIST.value,
+                             #BehaviorDicConst.SDL_2D_5_LCSTR_DIST.value,
                              BehaviorDicConst.JACCARD.value
                              ]

@@ -49,18 +49,18 @@ class BehaviorDicConst(Enum):
     NUM_STATES = "num_states"
     EXEC_RESULT = "ex_result"
     AVG_CURVATURE = 'avg_curvature'
-    CENTER_DIST_BINARY = "center_dist_binary"
-    CENTER_DIST_SINGLE = "center_dist_single"
-    STEERING_DIST_BINARY = "steering_dist_binary"
-    STEERING_DIST_SINGLE = "steering_dist_single"
-    STEERING_ADJUSTED_DIST_BINARY = "steering_adjusted_dist_binary"
-    STEERING_ADJUSTED_DIST_SINGLE = "steering_adjusted_dist_single"
-    SPEED_DIST_BINARY = "speed_dist_binary"
-    SPEED_DIST_SINGLE = "speed_dist_single"
-    BINS_STEERING_SPEED_DIST = "steering_speed_dist"
-    BINS_STEERING_SPEED_DIST_SINGLE = "steering_speed_dist_single"
-    BINS_STEERING_SPEED_DIST_ADJUSTED = "steering_speed_dist_adjusted"
-    BINS_STEERING_SPEED_DIST_ADJUSTED_SINGLE = "steering_speed_dist_adjusted_single"
+    CENTER_DIST_BINARY = "center_bin"
+    CENTER_DIST_SINGLE = "center_sin"
+    STEERING_DIST_BINARY = "steering_bin"
+    STEERING_DIST_SINGLE = "steering_sin"
+    STEERING_ADJUSTED_DIST_BINARY = "steering_adj_bin"
+    STEERING_ADJUSTED_DIST_SINGLE = "steering_adj_sin"
+    SPEED_DIST_BINARY = "speed_bin"
+    SPEED_DIST_SINGLE = "speed_sin"
+    BINS_STEERING_SPEED_DIST = "steering_speed_bin"
+    BINS_STEERING_SPEED_DIST_SINGLE = "steering_speed_sin"
+    BINS_STEERING_SPEED_DIST_ADJUSTED = "steering_speed_adj_bin"
+    BINS_STEERING_SPEED_DIST_ADJUSTED_SINGLE = "steering_speed_adj_sin"
 
     COORD_DTW_DIST = "coord_dtw"
     COORD_EDR_DIST = "coord_edr"
@@ -174,7 +174,7 @@ def list_difference_1d_2d_bin(a, b, normalized: bool = True, inverse: bool = Tru
 
 
 def list_difference_1d_2d_sin(a, b, normalized: bool = True, inverse: bool = True):
-    return list_difference_1d_2d(a=a, b=b, function='binary', normalized=normalized, inverse=inverse)
+    return list_difference_1d_2d(a=a, b=b, function='single', normalized=normalized, inverse=inverse)
 
 
 def list_difference_1d_2d(a, b, function: str, normalized: bool = True, inverse: bool = True):
