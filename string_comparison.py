@@ -656,6 +656,13 @@ def lcs(X, Y, normalized: bool = True):
 
 
 def LCSubStr(X, Y, normalized: bool = True):
+    """ longest common substring problem dynamic programming approach
+    copied form here: https://www.geeksforgeeks.org/longest-common-substring-dp-29/
+    :param X: First string
+    :param Y: Second string
+    :param normalized: normalizes in the range [0, 1.0] using the length of the shorter road
+    :return: lcstr
+    """
     # Create a table to store lengths of
     # longest common suffixes of substrings.
     # Note that LCSuff[i][j] contains the
