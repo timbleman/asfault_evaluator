@@ -112,6 +112,7 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
         compute = False
 
         start_gathering = time.time()
+        # set to True to run only a short subset for testing purposes
         QUICK = False
         if QUICK:
             env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--4\.random--lanedist--ext--small--no-repair--with-restart--env")
@@ -169,7 +170,7 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
         other_data_tuples_list = []
         total_time = sbh.calculate_whole_suite_time()
         other_data_tuples_list.append(("total_time", total_time))
-        print("total_time", total_time)
+        print("total_time of the whole suite", total_time)
         num_obes = sbh.calculate_whole_suite_sum(feature=RoadDicConst.NUM_OBES.value)
         other_data_tuples_list.append(("num_obes", num_obes))
         print("num_obes", num_obes)
@@ -230,8 +231,10 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
                 csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_DTW_DIST.value)
                 csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.COORD_FRECHET_DIST.value)
 
-            csv_creator.write_all_tests_one_value(measure=RoadDicConst.NUM_OBES.value)
-            csv_creator.write_all_tests_one_value(measure=BehaviorDicConst.NUM_STATES.value)
+            for numeric_val in econf.numeric_vals_to_write:
+                csv_creator.write_all_tests_one_value(numeric_val)
+            #csv_creator.write_all_tests_one_value(measure=RoadDicConst.NUM_OBES.value)
+            #csv_creator.write_all_tests_one_value(measure=BehaviorDicConst.NUM_STATES.value)
             #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCS_DIST.value)
             #csv_creator.write_all_to_all_dist_matrix(measure=BehaviorDicConst.CUR_SDL_LCSTR_DIST.value)
             #csv_creator.write_two_roads_dists(road_1_name="random--la22", road_2_name="random--la23", measures=['curve_sdl_dist', 'random--la22_binary_steering_bins'])
@@ -278,9 +281,10 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
                 csv_creator.write_all_tests_one_value(BehaviorDicConst.SAMPLING_INDEX.value)
 
 
-        clusterer = Clusterer(data_dict=data_bins_dict)
+        # uncomment to use OPTICS clustering or networkx scatterplots
+        #clusterer = Clusterer(data_dict=data_bins_dict)
         #clusterer.perform_optics(measure=BehaviorDicConst.JACCARD.value)
-        #clusterer.networkx_plot_measure(measure=BehaviorDicConst.BINS_STEERING_SPEED_DIST.value, draw_edges=True)
+        #clusterer.networkx_plot_measure(measure=BehaviorDicConst.JACCARD.value, draw_edges=False, draw_graphweights=False)
 
         #print("data_bins_dict['random--la52']", data_bins_dict['random--la52'])
         #print("data_bins_dict['random--la54']['speed_steering_2d']", data_bins_dict['random--la54']['speed_steering_2d'])
@@ -440,7 +444,7 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
 
         other_data_tuples_list = []
         total_time = sbh.calculate_whole_suite_time()
-        other_data_tuples_list.append(("total_time", total_time))
+        other_data_tuples_list.append(("total_time of the whole suite", total_time))
         print("total_time", total_time)
         num_obes = sbh.calculate_whole_suite_sum(feature=RoadDicConst.NUM_OBES.value)
         other_data_tuples_list.append(("num_obes", num_obes))
@@ -546,7 +550,7 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
 
 
 if __name__ == "__main__":
-    old_main("drvr", True)
+    old_main("drvr", wo_obe=False)
     #adaptive_random_sampling_multiple_subsets('drvr', 5)
     #random_sampling_multiple_subsets(bng_or_drvr="drvr", num_subsets=5)
     import adaptive_random_sampler

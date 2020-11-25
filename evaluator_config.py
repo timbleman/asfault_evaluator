@@ -62,3 +62,9 @@ string_metrics_to_analyse = [BehaviorDicConst.CUR_SDL_DIST.value,
                              #BehaviorDicConst.SDL_2D_5_LCSTR_DIST.value,
                              BehaviorDicConst.JACCARD.value
                              ]
+
+numeric_vals_to_write = [RoadDicConst.NUM_OBES.value,
+                         BehaviorDicConst.NUM_STATES.value,
+                         RoadDicConst.ROAD_LEN.value,
+                         #RoadDicConst.EXEC_TIME.value
+                         ]
