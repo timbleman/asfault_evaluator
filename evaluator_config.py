@@ -1,6 +1,8 @@
 import utils
 from utils import RoadDicConst, BehaviorDicConst
 
+upper_dir = r"C:\Users\fraun\exp-ba"
+
 # detemines how many chars of a subfolder name to look at for a unique name
 first_chars_of_experiments_subfolder = 10
 

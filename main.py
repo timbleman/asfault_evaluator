@@ -27,6 +27,8 @@ import colorama
 # "C:\Users\fraun\exp-ba\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env\output\execs\test_0029.json"
 # "C:\Users\fraun\exp-ba\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env\output\execs\test_0042.json"
 
+upper_dir_p = Path(econf.upper_dir)
+
 def _configure_asfault() -> None:
     from asfault.config import init_configuration, load_configuration
     from tempfile import TemporaryDirectory
@@ -76,28 +78,19 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
     #parent_dir = Path(r"C:\Users\fraun\experiments-driver-ai")
     """!!IMPORTANT: THE PARENT DIRECTOR HAS TO START WITH "experiments-"!!"""
     # regular, sets, invalid tests removed, including OBE tests
-    # "C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed"
     if suite == "bng":
         if wo_obe:
-            parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-no-obe-wo-minlen-wo-infspeed")
+            parent_dir = upper_dir_p.joinpath(r"experiments-beamng-ai-no-obe-wo-minlen-wo-infspeed")
         else:
-            parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
+            parent_dir = upper_dir_p.joinpath(r"experiments-beamng-ai-wo-minlen-wo-infspeed")
     elif suite == "drvr":
         if wo_obe:
-            parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-no-obe-wo-minlen-wo-infspeed")
+            parent_dir = upper_dir_p.joinpath(r"experiments-driver-ai-no-obe-wo-minlen-wo-infspeed")
         else:
-            parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+            parent_dir = upper_dir_p.joinpath(r"experiments-driver-ai-wo-minlen-wo-infspeed")
     else:
         parent_dir = Path(suite)
     assert path.exists(parent_dir), "The predefined suite paths do not exist or the supplied path is incorrect!"
-    # TODO remove legacy stuff
-    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
-    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
-    # "C:\Users\fraun\exp-ba\experiments-driver-ai-test"
-    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-15-4-low-div")
-    #parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-no-obe-wo-minlen-wo-infspeed")
-    # for creating diversity sets
-    #parent_dir = Path(r"C:\Users\fraun\exp-ba\div_bng\experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-11")
     all_paths = get_all_paths(parent_dir)
 
     # FIXME the folder structure seems broken sometimes
@@ -115,8 +108,9 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
         # set to True to run only a short subset for testing purposes
         QUICK = False
         if QUICK:
-            env_directory = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--4\.random--lanedist--ext--small--no-repair--with-restart--env")
-            parent_dir = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-test")
+            env_directory = upper_dir_p.joinpath(r"experiments-driver-ai-test\random--lanedist--driver-ai--small--no-repair--with-restart--4\.random--lanedist--ext--small--no-repair--with-restart--env")
+            parent_dir = upper_dir_p.joinpath(r"experiments-driver-ai-test")
+            parent_dir = utils.get_root_of_test_suite(env_directory)
             cov_eval = coverage_evaluator.CoverageEvaluator(set_path=env_directory)
             data_bins_dict = cov_eval.get_all_bins()
             broken_tests.extend(cov_eval.get_broken_speed_tests())
@@ -156,8 +150,7 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
                 coverage_tuple_list.append((m_cl, cov_value))
                 print(str(m_cl) + " coverage", cov_value)
         print("coverage_tuple_list", coverage_tuple_list)
-        #print("road compare 1d", sbh.behavior_compare_1d("random--la22", 'steering_bins'))
-        #print("road compare 2d", sbh.behavior_compare_2d("random--la22", 'speed_steering_2d'))
+
         end_suite_behaviour = time.time()
         print(end_suite_behaviour - start_suite_behaviour, "seconds to compute the test behavior")
 
@@ -305,13 +298,13 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
 
 def adaptive_random_sampling_multiple_subsets(bng_or_drvr: str, num_per_configuration):
     if bng_or_drvr == "bng":
-        destination_folder = Path(r"C:\Users\fraun\exp-ba\div_bng5")
-        parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
+        destination_folder = upper_dir_p.joinpath(r"div_bng5")
+        parent_folder = upper_dir_p.joinpath(r"experiments-beamng-ai-wo-minlen-wo-infspeed")
         obe_start_points = [r"random--la11", r"random--la111", r"random--la617", r"random--la219", r"random--la811"]
         non_obe_start_points = [r"random--la311", r"random--la222", r"random--la711", r"random--la84", r"random--la918"]
     elif bng_or_drvr == "drvr":
-        destination_folder = Path(r"C:\Users\fraun\exp-ba\div_drvr5")
-        parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+        destination_folder = upper_dir_p.joinpath(r"div_drvr5")
+        parent_folder = upper_dir_p.joinpath(r"experiments-driver-ai-wo-minlen-wo-infspeed")
         obe_start_points = [r"random--la219", r"random--la318", r"random--la520", r"random--la438", r"random--la712"]
         non_obe_start_points = [r"one-plus-o212", r"random--la42", r"random--la68", r"random--la94", r"random--la1010"]
     else:
@@ -327,22 +320,7 @@ def adaptive_random_sampling_multiple_subsets(bng_or_drvr: str, num_per_configur
     subsets = adaptive_random_sampler.apdaptive_rand_sample_multiple_subsets(start_points=start_points,
                                                                              destination_path=destination_folder,
                                                                              parent_path=parent_folder)
-    """
-    subsets = [
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-obe-11", 'diversity': "high", 'startpoint': "random--la11"},  # OBE
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-obe-111", 'diversity': "high", 'startpoint': "random--la111"},
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-obe-617", 'diversity': "high", 'startpoint': "random--la617"},
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-noobe-311", 'diversity': "high", 'startpoint': "random--la311"},  # nonOBE
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-noobe-222", 'diversity': "high", 'startpoint': "random--la222"},
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-highdiv-noobe-711", 'diversity': "high", 'startpoint': "random--la711"},
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-11", 'diversity': "low", 'startpoint': "random--la11"},  # OBE
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-111", 'diversity': "low", 'startpoint': "random--la111"},
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-617", 'diversity': "low", 'startpoint': "random--la617"},
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-311", 'diversity': "low", 'startpoint': "random--la311"},  # nonOBE
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-222", 'diversity': "low", 'startpoint': "random--la222"},
-        {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-noobe-711", 'diversity': "low", 'startpoint': "random--la711"}
-    ]
-    """
+
     print("subsets", subsets)
     # perform adaptive random sampling
     for seti in subsets:
@@ -352,18 +330,14 @@ def adaptive_random_sampling_multiple_subsets(bng_or_drvr: str, num_per_configur
 
 def random_sampling_multiple_subsets(bng_or_drvr, num_subsets):
     if bng_or_drvr == "bng":
-        destination_folder = Path(r"C:\Users\fraun\exp-ba\div_bng5")
-        parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed")
+        destination_folder = upper_dir_p.joinpath(r"div_bng5")
+        parent_folder = upper_dir_p.joinpath(r"experiments-beamng-ai-wo-minlen-wo-infspeed")
     elif bng_or_drvr == "drvr":
-        destination_folder = Path(r"C:\Users\fraun\exp-ba\div_drvr5")
-        parent_folder = Path(r"C:\Users\fraun\exp-ba\experiments-driver-ai-wo-minlen-wo-infspeed")
+        destination_folder = upper_dir_p.joinpath(r"div_drvr5")
+        parent_folder = upper_dir_p.joinpath(r"experiments-driver-ai-wo-minlen-wo-infspeed")
     else:
         raise ValueError("Select between bng and drvr!")
-    #adaptive_random_sampler.prepare_folders_for_sampling()
-    """subsets = [{'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-rand0"},
-               {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-rand1"},
-               {'folder': r"experiments-beamng-ai-wo-ml-wo-is-lowdiv-obe-rand2"}
-    ] """
+
     # write list of configs for each subset containing "-random0" and further
     cnfgs = []
     for i in range(0, num_subsets):
@@ -375,7 +349,6 @@ def random_sampling_multiple_subsets(bng_or_drvr, num_subsets):
         spath = path.join(destination_folder, seti)
         adaptive_random_sample_oneset(spath, None, "", entirely_random=True)
 
-    # TODO mirror subsets only results
 
 def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entirely_random: False):
     """ Perfoms adaptive random sampling on one subset, forces removal
@@ -555,12 +528,12 @@ if __name__ == "__main__":
     #random_sampling_multiple_subsets(bng_or_drvr="drvr", num_subsets=5)
     import adaptive_random_sampler
     # copy only the .csv, this should only be done after both subset classes are created to move all
-    #adaptive_random_sampler.mirror_subsets_only_results(Path(r"C:\Users\fraun\exp-ba\div_drvr5"))
-    #adaptive_random_sampler.mirror_subsets_only_results(Path(r"C:\Users\fraun\exp-ba\div_bng"))
-    #adaptive_random_sampler.prepare_folders_for_sampling(parent_path=Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed"),
+    #adaptive_random_sampler.mirror_subsets_only_results(upper_dir_p.joinpath(r"div_drvr5"))
+    #adaptive_random_sampler.mirror_subsets_only_results(upper_dir_p.joinpath(r"div_bng"))
+    #adaptive_random_sampler.prepare_folders_for_sampling(parent_path=upper_dir_p.joinpath(r"experiments-beamng-ai-wo-minlen-wo-infspeed"),
     #                                                     configs=["1", "2", "3"],
-    #                                                     destination_path=Path(r"C:\Users\fraun\exp-ba\div_test"))
+    #                                                     destination_path=upper_dir_p.joinpath(r"div_test"))
     #to_sample = adaptive_random_sampler.apdaptive_rand_sample_multiple_subsets(['1', '2', '3'],
-    #                                                               parent_path=Path(r"C:\Users\fraun\exp-ba\experiments-beamng-ai-wo-minlen-wo-infspeed"),
-    #                                                               destination_path=Path(r"C:\Users\fraun\exp-ba\div_test"))
+    #                                                               parent_path=upper_dir_p.joinpath(r"experiments-beamng-ai-wo-minlen-wo-infspeed"),
+    #                                                               destination_path=upper_dir_p.joinpath(r"div_test"))
     #print(to_sample)
