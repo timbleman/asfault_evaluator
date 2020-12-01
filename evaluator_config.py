@@ -11,6 +11,8 @@ ALL_ROADS_WRITE = False
 # False if you want a custom sized angle alphabet
 # Has to be True for unit tests, otherwise borders are off
 USE_FIXED_STRONG_BORDERS = True
+# 28 (7 ang 4 len), 44 (11 ang 4 len), or 60 (15 ang 4 len), defaults to 44
+ALPHABET_SIZE = 28
 
 # Use a seed for adaptive random sampling if it should be deterministic
 SEED_ADAPTIVE_RANDOM = 1234
