@@ -521,12 +521,69 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
             compute = True
             ADAPTIVE_RAND_SAMPLE = False
 
+import click
+
+@click.command()
+@click.option('--suite', is_flag=False, help="Select between 'bng' and 'drvr' set.")
+@click.option('--woOBE', is_flag=True, help="Collect data for full non OBE suites.")
+@click.option('--rs', is_flag=True, help="Use random sampling.")
+@click.option('--ars', is_flag=True, help="Use adaptive random sampling.")
+@click.option('--subsetnum', required=False, is_flag=False, default="5", help="Number of subsets.")
+def cli(suite, rs, ars, woobe, subsetnum):
+    valid = True
+    def check_valid_subset_num(selection, max_num=5):
+        # if (isinstance(selection, int)):  # works only for type int
+        if (selection.isdigit()):
+            if not 0 < int(selection) <= 5:
+                click.echo("Only subset sizes between 1 and 5 are possible. " +
+                           "Add more startpoints in main.py to solve this.")
+                return False
+        else:
+            click.echo("The number of subsets has to be positive int.")
+            return False
+        return True
+
+    # ensure user only chooses between bng and drvr
+    if suite:
+        if suite == "bng" or suite == "drvr":
+            click.echo("{0}".format(suite) + " suite selected.")
+        else:
+            click.echo("Only bng and drvr are valid suite names.")
+            valid = False
+
+    # check whether only random or adaptive random sampling is selected
+    if rs and not ars:
+        valid = valid and check_valid_subset_num(subsetnum)
+    if ars and not rs:
+        valid = valid and check_valid_subset_num(subsetnum)
+    if ars and rs:
+        click.echo("Cannot run random sampling and adaptive random sampling simultaneously!")
+        valid = False
+
+    if woobe and (rs or ars):
+        click.echo("(Adaptive) random sampling does not work without OBE tests.")
+        valid = False
+
+    if valid:
+        if rs:
+            click.echo("Creating subsets using random sampling.")
+            random_sampling_multiple_subsets(bng_or_drvr=suite, num_subsets=subsetnum)
+        elif ars:
+            click.echo(
+                "Creating subsets using adaptive random sampling. OBE and non-OBE startpoints, as well as high " +
+                "and low diversity.")
+            adaptive_random_sampling_multiple_subsets(bng_or_drvr=suite, num_per_configuration=subsetnum)
+        else:
+            click.echo("Using the " + "{0}".format(suite) + " suite, without OBE tests: " + "{0}".format(woobe))
+            old_main(suite, wo_obe=woobe)
+
+
 
 if __name__ == "__main__":
-    old_main("drvr", wo_obe=False)
+    #old_main("drvr", wo_obe=False)
     #adaptive_random_sampling_multiple_subsets('drvr', 5)
     #random_sampling_multiple_subsets(bng_or_drvr="drvr", num_subsets=5)
-    import adaptive_random_sampler
+    #import adaptive_random_sampler
     # copy only the .csv, this should only be done after both subset classes are created to move all
     #adaptive_random_sampler.mirror_subsets_only_results(upper_dir_p.joinpath(r"div_drvr5"))
     #adaptive_random_sampler.mirror_subsets_only_results(upper_dir_p.joinpath(r"div_bng"))
@@ -537,3 +594,6 @@ if __name__ == "__main__":
     #                                                               parent_path=upper_dir_p.joinpath(r"experiments-beamng-ai-wo-minlen-wo-infspeed"),
     #                                                               destination_path=upper_dir_p.joinpath(r"div_test"))
     #print(to_sample)
+
+    import click
+    cli()
