@@ -268,6 +268,9 @@ def mirror_subsets_only_results(subsets_destination_path: Path):
     assert subsets_destination_path.exists(), "The path for the subsets has to be created"
     import shutil
 
+    print(colorama.Fore.BLUE + "Trying to move files for each subset in " + str(subsets_destination_path)
+            + colorama.Style.RESET_ALL)
+
     # create and if necessary delete folder for only the results
     last_part = subsets_destination_path.parts[-1] + "_only_results"
     only_res_path = subsets_destination_path.parent.joinpath(last_part)

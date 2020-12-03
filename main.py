@@ -16,6 +16,7 @@ from suite_trimmer import SuiteTrimmer
 from clusterer import Clusterer
 from adaptive_random_sampler import AdaptiveRandSampler
 
+import click
 import colorama
 
 # ssh -i /root/.ssh/id_rsa.pub ubuntu@160.85.252.213  # bill test suite pc
@@ -521,15 +522,28 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
             compute = True
             ADAPTIVE_RAND_SAMPLE = False
 
-import click
 
-@click.command()
+@click.group()
+def modes():
+  pass
+
+@click.command(help="Moves csv files of (adaptive) random sampling subsets.")
+@click.option('--parentPath', is_flag=False, default="None", help="Parent path of sampled subsets to copy csvs from")
+def copy(parentpath):
+    if not Path(parentpath).exists():
+        click.echo("The path does not exist. Check whether the folder names are right.")
+        return
+    import adaptive_random_sampler
+    # copy only the .csv, this should only be done after both subset classes are created to move all
+    adaptive_random_sampler.mirror_subsets_only_results(Path(parentpath))
+
+@click.command(help="Computing distances and writing out. Creates subsets if needed.")
 @click.option('--suite', is_flag=False, help="Select between 'bng' and 'drvr' set.")
 @click.option('--woOBE', is_flag=True, help="Collect data for full non OBE suites.")
 @click.option('--rs', is_flag=True, help="Use random sampling.")
 @click.option('--ars', is_flag=True, help="Use adaptive random sampling.")
 @click.option('--subsetnum', required=False, is_flag=False, default="5", help="Number of subsets.")
-def cli(suite, rs, ars, woobe, subsetnum):
+def run(suite, rs, ars, woobe, subsetnum):
     valid = True
     def check_valid_subset_num(selection, max_num=5):
         # if (isinstance(selection, int)):  # works only for type int
@@ -577,9 +591,11 @@ def cli(suite, rs, ars, woobe, subsetnum):
             click.echo("Using the " + "{0}".format(suite) + " suite, without OBE tests: " + "{0}".format(woobe))
             old_main(suite, wo_obe=woobe)
 
-
+modes.add_command(copy)
+modes.add_command(run)
 
 if __name__ == "__main__":
+    colorama.init()
     #old_main("drvr", wo_obe=False)
     #adaptive_random_sampling_multiple_subsets('drvr', 5)
     #random_sampling_multiple_subsets(bng_or_drvr="drvr", num_subsets=5)
@@ -596,4 +612,5 @@ if __name__ == "__main__":
     #print(to_sample)
 
     import click
-    cli()
+    #cli()
+    modes()
