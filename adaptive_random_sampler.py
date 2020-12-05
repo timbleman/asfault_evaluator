@@ -41,7 +41,7 @@ class AdaptiveRandSampler:
             all_keys.remove(first_one)
         else:
             first_one = all_keys.pop(random.randrange(0, len(all_keys)))
-        print(colorama.Fore.BLUE + "Picked " + first_one + " to be first in the population!" + colorama.Style.RESET_ALL)
+        print(colorama.Fore.CYAN + "Picked " + first_one + " to be first in the population!" + colorama.Style.RESET_ALL)
         self.population = [first_one]
         # index instead of m in order to be easier to adapt in the future
         test_index = 0
@@ -194,7 +194,7 @@ def prepare_folders_for_sampling(parent_path: Path, configs: list, destination_p
     assert parent_path.exists(), "The parent suite to copy the files from does not exist!"
     import shutil
 
-    print(colorama.Fore.BLUE, "Creating multiple folders for smaller subsets", colorama.Style.RESET_ALL)
+    print(colorama.Fore.CYAN, "Creating multiple folders for smaller subsets", colorama.Style.RESET_ALL)
 
     if not destination_path.exists():
         destination_path.mkdir()
@@ -268,7 +268,7 @@ def mirror_subsets_only_results(subsets_destination_path: Path):
     assert subsets_destination_path.exists(), "The path for the subsets has to be created"
     import shutil
 
-    print(colorama.Fore.BLUE + "Trying to move files for each subset in " + str(subsets_destination_path)
+    print(colorama.Fore.CYAN + "Trying to move files for each subset in " + str(subsets_destination_path)
             + colorama.Style.RESET_ALL)
 
     # create and if necessary delete folder for only the results

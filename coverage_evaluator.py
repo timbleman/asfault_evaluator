@@ -90,7 +90,7 @@ class CoverageEvaluator:
         env_directory = str(set_path)
         print()
         l.info("Start evaluation of OBEs from %s", env_directory)
-        print(colorama.Fore.BLUE + "Start evaluation of OBEs from %s", str(env_directory), colorama.Style.RESET_ALL)
+        print(colorama.Fore.CYAN + "Start evaluation of OBEs from %s", str(env_directory), colorama.Style.RESET_ALL)
 
         executions, executions_dict = self._get_execution_list_and_dict(env_directory)
 

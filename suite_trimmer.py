@@ -115,7 +115,7 @@ class SuiteTrimmer:
             print(colorama.Fore.RED + "Sure to continue? y or n" + colorama.Style.RESET_ALL)
             answer = str(input())
             if answer != 'y' and answer != 'Y':
-                print(colorama.Fore.BLUE + "Aborted test deletion" + colorama.Style.RESET_ALL)
+                print(colorama.Fore.CYAN + "Aborted test deletion" + colorama.Style.RESET_ALL)
                 return False
 
         # remove all paths that fit the criteria
@@ -127,7 +127,7 @@ class SuiteTrimmer:
                 print(colorama.Fore.RED + "Could not remove" + str(p) + colorama.Style.RESET_ALL)
                 return False
 
-        print(colorama.Fore.BLUE + "Successfully removed the tests!" + colorama.Style.RESET_ALL)
+        print(colorama.Fore.CYAN + "Successfully removed the tests!" + colorama.Style.RESET_ALL)
 
         self._write_info(removed_paths=unworthy_paths, reason=description)
         return True

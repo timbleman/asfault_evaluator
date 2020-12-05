@@ -132,7 +132,7 @@ class SuiteBehaviourComputer:
     def behaviour_all_to_all(self):
         #output_metrics_to_compute_names =
         yanda = list(map(lambda mtr: mtr['out_name'], self.output_metrics_to_compute))
-        print(colorama.Fore.BLUE + "Computing difference in the outputs " + str(yanda) + colorama.Style.RESET_ALL)
+        print(colorama.Fore.CYAN + "Computing difference in the outputs " + str(yanda) + colorama.Style.RESET_ALL)
         start_time_loop = time.time()
         current_ops = 0
         total_ops = len(self.test_dict)

@@ -114,7 +114,7 @@ def get_root_of_test_suite(test_path: path) -> path:
         suite_dir_path = path.split(suite_dir_path[0])
     # suite_dir_path = path.split(suite_dir_path[0])
     suite_dir_path = path.join(suite_dir_path[0], suite_dir_path[1])
-    print(colorama.Fore.BLUE + "Found this parent path:", str(suite_dir_path) + colorama.Style.RESET_ALL)
+    print(colorama.Fore.CYAN + "Found this parent path:", str(suite_dir_path) + colorama.Style.RESET_ALL)
     return suite_dir_path
 
 

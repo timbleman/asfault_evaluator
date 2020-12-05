@@ -581,12 +581,12 @@ def run(suite, rs, ars, woobe, subsetnum):
     if valid:
         if rs:
             click.echo("Creating subsets using random sampling.")
-            random_sampling_multiple_subsets(bng_or_drvr=suite, num_subsets=subsetnum)
+            random_sampling_multiple_subsets(bng_or_drvr=suite, num_subsets=int(subsetnum))
         elif ars:
             click.echo(
                 "Creating subsets using adaptive random sampling. OBE and non-OBE startpoints, as well as high " +
                 "and low diversity.")
-            adaptive_random_sampling_multiple_subsets(bng_or_drvr=suite, num_per_configuration=subsetnum)
+            adaptive_random_sampling_multiple_subsets(bng_or_drvr=suite, num_per_configuration=int(subsetnum))
         else:
             click.echo("Using the " + "{0}".format(suite) + " suite, without OBE tests: " + "{0}".format(woobe))
             old_main(suite, wo_obe=woobe)
