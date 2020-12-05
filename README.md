@@ -1,9 +1,11 @@
 # asfault_evaluator
 
+-------------- 
 Preliminaries:
-    Autonomous driving agents are usually tested using simulated roads. 
-    This project aims to investigate correlations between similarity of road shapes and test outcome as well as driving behavior.
-    This code extracts road geometry and car output from asfault executions datasets. 
+-------------- 
+Autonomous driving agents are usually tested using simulated roads. 
+This project aims to investigate correlations between similarity of road shapes and test outcome as well as driving behavior.
+This code extracts road geometry and car output from asfault executions datasets. 
    
 -------------- 
 Prerequisites:
@@ -17,12 +19,14 @@ Prerequisites:
 Installation
 ------------
     - It is easiest to clone the repository in C:/asfault_evaluator. 
-        AsFault execution datasets and folders are included in /suites/. 
+        AsFault execution datasets and folders should be included in /suites/. Due to the file size
+        limitation of github, these are supplied separately as a zip file.
         If these are placed in another location, the "upper_dir" in evaluator_config.py has to be changed.
+    - Unzip suites.zip in /suites/. This results in the folder structure required for running.
     - AsFault: An AsFault folder with a virtual environment is included in /asfault2/. 
         If the environment does not work, create a new one using the provided requirements. 
         It is important, that the environment is included in the /asfault2/ folder, 
-        otherwise usage as a library does not work. AsFault itself has not been modified.
+        otherwise usage as a library does not work. AsFault functionality itself has not been modified.
     
 -----
 Usage
