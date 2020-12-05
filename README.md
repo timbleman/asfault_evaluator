@@ -29,15 +29,15 @@ Usage
 -----
 This Python implementation is used to create data that is written into csv-files and then analyzed using R.
 Basic functions to replicate thesis experiments are simplified by a basic command line interface. This includes metric computation for the used sets and (adaptive) random sampling of subsets.
-The interface has been created via click and help can be accessed by :code:`python main.py --help`. The virtual environment inside the AsFault folder has to be activated.
-For my thesis, I used two different datasets created using the drivers BeamNG.AI and DriverAI. These can be evaluated using :code:`python main.py run --suite=drvr --woOBE`. The suites are either bng or drvr, --woOBE only runs successful tests. This step needs to be repeated for different alphabet configurations, as explained below.
-Multiple adaptive random sampling (--ars) and random sampling (--rs) subsets are created using :code:`python main.py run --suite=drvr --ars --subsetnum=5`. For ARS, there are four configurations, either with OBE test as start point and with high and low diversity. The number of subsets per configuration defaults to the maximum of 5. To increase this, more start points would need to be added to main.py.
-25 different subsets were used in my thesis. To transfer only the created csvs more easily, :code:`python main.py copy --parentPath="C:\asfault_ev_test\suites\div_drvr5"` can be used. 
+The interface has been created via click and help can be accessed by `python main.py --help`. The virtual environment inside the AsFault folder has to be activated.
+For my thesis, I used two different datasets created using the drivers BeamNG.AI and DriverAI. These can be evaluated using `python main.py run --suite=drvr --woOBE`. The suites are either bng or drvr, --woOBE only runs successful tests. This step needs to be repeated for different alphabet configurations, as explained below.
+Multiple adaptive random sampling (--ars) and random sampling (--rs) subsets are created using `python main.py run --suite=drvr --ars --subsetnum=5`. For ARS, there are four configurations, either with OBE test as start point and with high and low diversity. The number of subsets per configuration defaults to the maximum of 5. To increase this, more start points would need to be added to main.py.
+25 different subsets were used in my thesis. To transfer only the created csvs more easily, `python main.py copy --parentPath="C:\asfault_ev_test\suites\div_drvr5"` can be used. 
 
 Additional configuration is possible in evalutor_config.py. Important settings are:
-    1. :code:`upper_dir = r"C:\Users\fraun\exp-ba"` This is the path where all the suites are located in.
-    2. :code:`ALPHABET_SIZE = 28` This varies the number of angle symbols. Changing the length alphabet is possible in string_comparison.py.
-    3. :code:`coverages_1d_to_analyse`, :code:`coverages_2d_to_analyse`, :code:`output_metrics_to_analyse`, :code:`string_metrics_to_analyse`, :code:`numeric_vals_to_write`. By commenting entries of these lists it can be selected which metrics to compute and write out.
+    1. `upper_dir = r"C:\Users\fraun\exp-ba"` This is the path where all the suites are located in.
+    2. `ALPHABET_SIZE = 28` This varies the number of angle symbols. Changing the length alphabet is possible in string_comparison.py.
+    3. `coverages_1d_to_analyse`, `coverages_2d_to_analyse`, `output_metrics_to_analyse`, `string_metrics_to_analyse`, `numeric_vals_to_write`. By commenting entries of these lists it can be selected which metrics to compute and write out.
     
 Longest common substring with k mismatches requires adjustment in sdl_all_to_all_unoptimized in string_comparison.py. These results do not play a big role in the thesis.
 Documentation is provided for almost all functions.
