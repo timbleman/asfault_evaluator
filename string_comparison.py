@@ -129,14 +129,6 @@ class StringComparer:
         self.string_metrics_to_compute = list(
             filter(lambda metr: metr['out_name'] in econf.string_metrics_to_analyse, self.string_metrics_config))
 
-    def correct_node_lengths(self):
-        for name in self.data_dict:
-            test = self.data_dict[name]
-            nodes = test['nodes']
-            assert nodes is not None, "There have to be nodes for each road"
-            for node in nodes:
-                node.length = utils.compute_length(node)
-
     def get_configuration_description(self) -> str:
         """ Returns the current configuration to be written to the filename
         :return: string describing configuration
@@ -228,6 +220,17 @@ class StringComparer:
             avg_curve = _average_curvature(road[BehaviorDicConst.CUR_SDL.value], normalized)
             road[BehaviorDicConst.AVG_CURVATURE.value] = avg_curve
 
+    def correct_node_lengths(self):
+        """ Calculates lengths of segments
+        :return: None
+        """
+        for name in self.data_dict:
+            test = self.data_dict[name]
+            nodes = test['nodes']
+            assert nodes is not None, "There have to be nodes for each road"
+            for node in nodes:
+                node.length = utils.compute_length(node)
+
     def sdl_all_to_all_unoptimized(self):
         """ Computes and saves distance metrics for each road
         :return: None
@@ -246,7 +249,7 @@ class StringComparer:
                 self.data_dict[name][metr['out_name']] = distance_arr
 
             """
-            # example for longest common substring with 2 mismatches
+            # example for longest common substring with 3 and 5 mismatches
             #K_LCSTR = 3
             #distance_arr = self.compare_one_to_all_unoptimized(name, funct=k_lcstr,
             #                                                   representation=BehaviorDicConst.CUR_SDL.value)

@@ -14,12 +14,12 @@ ALL_ROADS_WRITE = False
 # Has to be True for unit tests, otherwise borders are off
 USE_FIXED_STRONG_BORDERS = True
 # 28 (7 ang 4 len), 44 (11 ang 4 len), or 60 (15 ang 4 len), defaults to 44
-ALPHABET_SIZE = 28
+ALPHABET_SIZE = 44
 
 # Use a seed for adaptive random sampling if it should be deterministic
 SEED_ADAPTIVE_RANDOM = 1234
 
-# remove tests with broken speed, otherwise these segments get ignored
+# remove tests with broken speed, otherwise these states get ignored
 rm_broken_speed_roads = True
 
 # some configuration has been moved to utils because cross imports created problems

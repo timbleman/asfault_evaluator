@@ -31,6 +31,7 @@ import colorama
 upper_dir_p = Path(econf.upper_dir)
 
 def _configure_asfault() -> None:
+    # asfault setup
     from asfault.config import init_configuration, load_configuration
     from tempfile import TemporaryDirectory
     temp_dir = TemporaryDirectory(prefix="testGenerator")
