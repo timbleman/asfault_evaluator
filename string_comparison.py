@@ -33,7 +33,7 @@ if econf.ALPHABET_SIZE == 28:
         SLIGHT_RIGHT = 1
         RIGHT = 2
         STRONG_RIGHT = 3
-elif econf.ALPHABET_SIZE == 60:
+elif (econf.ALPHABET_SIZE == 60 or econf.ALPHABET_SIZE == 120):
     DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -105.0, -90.0, -75.0, -45.0, -30.0, -15.0, -1, 1, 15.0, 30.0, 45.0, 60.0,
                                      90.0, 105.0, 120.0]
     class cur(Enum):
@@ -53,6 +53,7 @@ elif econf.ALPHABET_SIZE == 60:
         SSSS_RIGHT = 6
         SSSSS_RIGHT = 7
 else:
+    # 44 symbols or 88
     DEFAULT_PERCENTILE_VALUES_CUR = [-120.0, -90.0, -75.0, -45.0, -15.0, -1, 1, 30.0, 45.0, 75.0, 90.0, 120.0]
     class cur(Enum):
         SSS_LEFT = -5
@@ -70,20 +71,34 @@ else:
 """has to be symmetric around zero"""
 NUM_ALPHABET = len(cur)
 
-DEFAULT_PERCENTILE_VALUES_LEN = [10.0, 30.0, 50, 100]
-#DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 14.6, 33.5, 50.0, 69.1, 90.0, 134, 201, 400]
+if (econf.ALPHABET_SIZE == 120 or econf.ALPHABET_SIZE == 88):
+    # 8 length symbols
+    DEFAULT_PERCENTILE_VALUES_LEN = [6.0, 14.6, 33.5, 50.0, 69.1, 90.0, 134, 201, 400]
 
-# Comment the last symbols if a smaller alphabet is needed
-# make sure USE_FIXED_STRONG_BORDERS = False in evaluator_config
-class len_en(Enum):
-    SHORT = 0
-    MEDIUM = 1
-    LONG = 2
-    VERY_LONG = 3
-    #VV_L = 4
-    #VVV_L = 5
-    #VVVV_L = 6
-    #VVVVV_L = 7
+    class len_en(Enum):
+        SHORT = 0
+        MEDIUM = 1
+        LONG = 2
+        VERY_LONG = 3
+        VV_L = 4
+        VVV_L = 5
+        VVVV_L = 6
+        VVVVV_L = 7
+else:
+    # 4 length symbols
+    DEFAULT_PERCENTILE_VALUES_LEN = [10.0, 30.0, 50, 100]
+
+    # Comment the last symbols if a smaller alphabet is needed
+    # make sure USE_FIXED_STRONG_BORDERS = False in evaluator_config
+    class len_en(Enum):
+        SHORT = 0
+        MEDIUM = 1
+        LONG = 2
+        VERY_LONG = 3
+        #VV_L = 4
+        #VVV_L = 5
+        #VVVV_L = 6
+        #VVVVV_L = 7
 
 NUM_LEN_ALPHABET = len(len_en)
 
