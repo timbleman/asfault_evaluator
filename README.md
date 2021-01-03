@@ -6,6 +6,9 @@ Preliminaries:
 Autonomous driving agents are usually tested using simulated roads. 
 This project aims to investigate correlations between similarity of road shapes and test outcome as well as driving behavior.
 This code extracts road geometry and car output from asfault executions datasets. 
+In my bachelor thesis I evaluate the correlation between input similarity and outcome as well as output similarity. The effectiveness of adaptive random sampling using one of the metrics is also described.
+Overall the way of measuring global road similarity is not fit for improving testing of autonomous cars. The metrics are all very coarse tools and are not able to capture to most important parts of roads reliably.
+For these reasons, adaptive random sampling resulted in no significant improvement over random sampling.
    
 -------------- 
 Prerequisites:
