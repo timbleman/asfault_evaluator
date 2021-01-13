@@ -11,7 +11,7 @@ from asfault import network
 from asfault.network import NetworkNode, TYPE_STRAIGHT, TYPE_L_TURN, TYPE_R_TURN
 from typing import List
 
-# for box plots
+# For box plots, currently disabled
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
@@ -111,13 +111,12 @@ class StringComparer:
         self.percentile_len_values = []
 
 
-        # colorama.init(autoreset=True)
         if not self.data_dict:
             print(colorama.Fore.RED + "Warning, there are no roads to convert to Strings" + colorama.Style.RESET_ALL)
             # dirty hack, maybe avoid
             return
 
-        # compute percentile based borders for sdl translation
+        # Compute percentile based borders for sdl translation
         only_cur_dynamic = True
         if not econf.USE_FIXED_STRONG_BORDERS:
             self.gather_all_angles()
@@ -129,7 +128,7 @@ class StringComparer:
                 self.get_len_distribution()
 
 
-        # configure this to define metrics, add them in evaluator_config
+        # Configure this to define metrics, add them in evaluator_config
         self.string_metrics_config = [
             {'rep': BehaviorDicConst.CUR_SDL.value, 'fun': self.cur_sdl_one_to_one, 'out_name': BehaviorDicConst.CUR_SDL_DIST.value},
             {'rep': BehaviorDicConst.SDL_2D.value, 'fun': self.sdl_2d_one_to_one, 'out_name': BehaviorDicConst.SDL_2D_DIST.value},
@@ -141,6 +140,7 @@ class StringComparer:
             {'rep': BehaviorDicConst.SDL_2D.value, 'fun': k_lcstr, 'out_name': BehaviorDicConst.SDL_2D_1_LCSTR_DIST.value},
             {'rep': BehaviorDicConst.SDLN_2D.value, 'fun': self.jaccard_sdl_2d_one_to_one, 'out_name': BehaviorDicConst.JACCARD.value}]
 
+        # Remove metrics that shall not be computed
         self.string_metrics_to_compute = list(
             filter(lambda metr: metr['out_name'] in econf.string_metrics_to_analyse, self.string_metrics_config))
 
@@ -202,8 +202,6 @@ class StringComparer:
                     current_angle = self.get_const_for_angle(node.angle)
                     if current_angle != curve_sdl:
                         curve_sdl.append(current_angle)
-                    # fixme distribution seems many zeros, straights get classified as slight lefts
-                    # print("node.roadtype", node.roadtype, "; angle ", node.angle, "; cur type", self.get_const_for_angle(node.angle))
         else:
             for node in nodes:
                 curve_sdl.append(self.get_const_for_angle(node.angle))
@@ -247,7 +245,7 @@ class StringComparer:
                 node.length = utils.compute_length(node)
 
     def sdl_all_to_all_unoptimized(self):
-        """ Computes and saves distance metrics for each road
+        """ Computes and saves simput similarities for each road
         :return: None
         """
         start_time_loop = time.time()
@@ -256,15 +254,14 @@ class StringComparer:
         print("In total", total_ops * total_ops, "comparison passes and", total_ops,
               "loop iterations will have to be completed for string similarity.")
         for name in self.data_dict:
-            # TODO schau mal ob da alles passt
-            # TODO refactor this into a predefined tuple list [(func, representation, dist_name)]
+            # Compute all the metrics selected in econf
             for metr in self.string_metrics_to_compute:
                 distance_arr = self.compare_one_to_all_unoptimized(name, funct=metr['fun'],
                                                                    representation=metr['rep'])
                 self.data_dict[name][metr['out_name']] = distance_arr
 
             """
-            # example for longest common substring with 3 and 5 mismatches
+            # Example for longest common substring with 3 and 5 mismatches
             #K_LCSTR = 3
             #distance_arr = self.compare_one_to_all_unoptimized(name, funct=k_lcstr,
             #                                                   representation=BehaviorDicConst.CUR_SDL.value)
@@ -361,7 +358,6 @@ class StringComparer:
             # normalize by (NUM_ALPHABET-1), as values have to range from -(NUM_ALPHABET-1)/2 to (NUM_ALPHABET-1)/2
             best_similarity = best_similarity / (len(shorter_road) * (NUM_ALPHABET - 1))
 
-        # FIXME still experimental, might fail
         if invert:
             best_similarity = 1 - best_similarity
         assert 0 <= best_similarity <= 1, "The error " + str(best_similarity) + " is outside the range"
@@ -407,7 +403,6 @@ class StringComparer:
         if normalized:
             best_similarity = best_similarity / len(shorter_road)
 
-        # FIXME still experimental, this could cause problems
         if invert:
             best_similarity = 1 - best_similarity
         assert 0 <= best_similarity <= 1, "The error " + str(best_similarity) + " is outside the range"

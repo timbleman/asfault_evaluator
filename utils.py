@@ -97,6 +97,7 @@ class BehaviorDicConst(Enum):
     SAMPLING_INDEX = "sampling_index"
 
 
+# Difference/similarity functions for calculating output behavior between bins, squared is deprecated
 class DiffFuncConst(Enum):
     BINARY = 'binary'
     SINGLE = 'single'
@@ -170,10 +171,12 @@ def dict_of_lists_matrix_measure(data_dict: dict, measure: str) -> dict:
 
 
 def list_difference_1d_2d_bin(a, b, normalized: bool = True, inverse: bool = True):
+    # Wrapper for legacy code
     return list_difference_1d_2d(a=a, b=b, function='binary', normalized=normalized, inverse=inverse)
 
 
 def list_difference_1d_2d_sin(a, b, normalized: bool = True, inverse: bool = True):
+    # Wrapper for legacy code
     return list_difference_1d_2d(a=a, b=b, function='single', normalized=normalized, inverse=inverse)
 
 
@@ -211,7 +214,7 @@ def list_difference_1d(a: list, b: list, function: str, normalized: bool = True,
     :param inverse: inverses the output, only possible if normalized
     :return: the calculated difference as float
     """
-    # TODO add removal of sparsely populated bins like in the R script
+    # Removal of sparsely populated bins like in the R script placed elsewhere
     assert a.__len__() == b.__len__(), "Both lists have to be of the same length!"
     if inverse:
         assert normalized is True, "Inversing behavior similarity is only possible if data is normalized!"
@@ -381,6 +384,12 @@ def compute_radius_turn(road_segment: NetworkNode):
     return (center_x, center_y, radius)
 
 def extend_arrays_globally(data_dict: dict, feature: str) -> list:
+    """ Put arrays out of a dict into a global array
+
+    :param data_dict: Dict that contains lists
+    :param feature: Name of the list
+    :return: All lists in one
+    """
     global_array = []
     for test in data_dict.values():
         local_arr = test.get(feature, None)
@@ -451,6 +460,14 @@ def whole_suite_statistics(dataset_dict: dict, feature: str, desired_percentile:
 
 def list_statistics(data_list = list, desired_percentile: int = 0, plot: bool = False,
                            title: str = None) -> dict:
+    """ Writes and plots basic statistics of a list of numeric values
+
+    :param data_list: List with numeric values
+    :param desired_percentile: One percentile to look at
+    :param plot: Draw a box plot
+    :param title: Title of the box plot
+    :return: Dict
+    """
     import matplotlib.pyplot as plt
 
     if plot:
@@ -709,6 +726,4 @@ def optimized_bin_borders_percentiles(all_values: list, number_of_bins: int):
     # calculate the value of the percentiles
     percentile_res = np.percentile(a=all_values, q=percentiles)
     assert len(percentile_res) == number_of_bins + 1, "The number of computed percentiles is wrong"
-    #print("percentiles", percentiles)
-    #print("percentile_res", percentile_res)
     return percentile_res

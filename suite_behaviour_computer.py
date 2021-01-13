@@ -130,7 +130,11 @@ class SuiteBehaviourComputer:
         return sum
 
     def behaviour_all_to_all(self):
-        #output_metrics_to_compute_names =
+        """ Compute output similarities for each test
+
+        :return: None
+        """
+        # Selects metrics
         yanda = list(map(lambda mtr: mtr['out_name'], self.output_metrics_to_compute))
         print(colorama.Fore.CYAN + "Computing difference in the outputs " + str(yanda) + colorama.Style.RESET_ALL)
         start_time_loop = time.time()
@@ -138,6 +142,7 @@ class SuiteBehaviourComputer:
         total_ops = len(self.test_dict)
         print("In total", total_ops*total_ops, "comparison passes and", total_ops,
               "loop iterations will have to be completed for output behavior.")
+        # Compute selected metrics
         for name in self.test_dict:
             for out_met in self.output_metrics_to_compute:
                 #print("bins, fun, name", out_met['bins'], out_met['fun'], out_met['out_name'])
@@ -181,11 +186,11 @@ class SuiteBehaviourComputer:
         return d_dtw
 
     def compare_one_to_all_unoptimized(self, road_name: str, funct, representation: str):
-        """ # TODO this should teplace behavior_compare_1d_2d
+        """ Replaces behavior_compare_1d_2d()
 
-        :param road_name:
-        :param funct:
-        :param representation:
+        :param road_name: Center test
+        :param funct: Comparison function
+        :param representation: Representation used, 1d or 2d bins
         :return:
         """
         distance_dict = {}
@@ -200,6 +205,7 @@ class SuiteBehaviourComputer:
 
     def behavior_compare_1d_2d(self, road_to_compare: str, measure: str, function: str = 'binary'):
         """ compares the coverage of a single-dimensional feature of a road to all others in the suite
+        Legacy, replaced by  compare_one_to_all_unoptimized()
 
         :param road_to_compare: the baseline road which is compared to all others
         :param measure: the feature which is compare, has to be present for each road in the suite dict

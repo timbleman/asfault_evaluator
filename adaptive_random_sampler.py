@@ -15,8 +15,6 @@ class AdaptiveRandSampler:
         self.population = []
 
     # TODO sample of n with threshold
-    # TODO select one start road
-    # TODO high and low diversity function
     def sample_of_n(self, measure: str, n: int, func, first_test: str = None, force_first: bool = True,
                     size_candidate_list: int = 10):
         """ Simulates adaptive random sampling like in https://doi.org/10.1007/978-3-540-30502-6_23.
@@ -55,7 +53,6 @@ class AdaptiveRandSampler:
             indices = random.sample(range(0, len(all_keys)), 10)
             for i in indices:
                 candidates.append(all_keys[i])
-            #print("candidates: ", candidates)
 
             best_candidate = func(candidates, measure)
 
@@ -69,6 +66,12 @@ class AdaptiveRandSampler:
 
 
     def add_value_for_undefineds(self, measure: str, default_value=-1):
+        """ Sets undefined attribute of dict entries to a default. Used for the adaptive random sampling order.
+
+        :param measure: Name for the attribute
+        :param default_value: Value to set
+        :return: None
+        """
         for key, test in self.data_dict.items():
             val = test.get(measure, None)
             if val is None:

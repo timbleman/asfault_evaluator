@@ -1,3 +1,4 @@
+# This code has been sourced from here: https://gitlab.infosun.fim.uni-passau.de/gambi/esec-fse-20/-/blob/master/code/obe-evaluator.py#L315
 #
 # Estimate Output Coverage and Entropy of the OBE caused by our tests. They goal is to assess the
 # effectiveness of the test suites in terms of what type of OBE they generate.

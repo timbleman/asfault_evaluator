@@ -99,7 +99,6 @@ class CSVCreator:
 
         csv_columns = list(self.data_dict.keys())
         csv_columns.insert(0, "road")
-        #print("csv_columns", csv_columns)
 
         first_road_dict = self.data_dict.get(csv_columns[1], None)
         assert first_road_dict is not None, "There has to be at least one road!"
@@ -290,15 +289,12 @@ class CSVCreator:
         test_dir_path = path.split(test_path)
         test_dir_path = path.split(test_dir_path[0])
         csv_file = path.join(test_dir_path[0], road_name + '.csv')
-        # csv_file = "csv_test.csv"
         # TODO l.info("Generate CSV file %s", csv_file)
         try:
             with open(csv_file, 'w') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=csv_columns, extrasaction='ignore')
                 writer.writeheader()
-                """dic = {'measure': measures[0]}
-                dic.update(first_measure)
-                print("{'measure': measures[0]}.update(first_measure)", dic)"""
+
                 for i in range(0, len(measures)):
                     dic = _get_dict_to_write(i)
                     writer.writerow(dic)

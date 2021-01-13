@@ -26,7 +26,7 @@ class SuiteTrimmer:
         """
         assert remaining_number < len(self.data_dict)
         import random
-        # TODO check das
+        # Seemed to work
         tests_to_remove_num = len(self.data_dict) - remaining_number
         all_keys = list(self.data_dict.keys())
         unworthy_keys = random.sample(all_keys, tests_to_remove_num)

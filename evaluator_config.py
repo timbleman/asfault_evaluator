@@ -1,12 +1,13 @@
 import utils
 from utils import RoadDicConst, BehaviorDicConst
 
+# Important: Set this to where your suites are located.
 upper_dir = r"C:\Users\fraun\exp-ba"
 
-# detemines how many chars of a subfolder name to look at for a unique name
+# Detemines how many chars of a subfolder name to look at for a unique name
 first_chars_of_experiments_subfolder = 10
 
-# save obe or all road plots, requires a lot of disk io, disk space and is slow
+# Save obe or all road plots, requires a lot of disk io, disk space and is slow
 OBE_WRITE = False
 ALL_ROADS_WRITE = False
 
@@ -19,11 +20,11 @@ ALPHABET_SIZE = 44
 # Use a seed for adaptive random sampling if it should be deterministic
 SEED_ADAPTIVE_RANDOM = 1234
 
-# remove tests with broken speed, otherwise these states get ignored
+# Remove tests with broken speed, otherwise these states get ignored
 rm_broken_speed_roads = True
 
-# some configuration has been moved to utils because cross imports created problems
-# also add bins where sparsely covered bins are removed
+# Some configuration has been moved to utils because cross imports created problems
+# Also add bins where sparsely covered bins are removed
 CLEANUP_BINS = True
 coverages_1d_to_analyse = [utils.RoadDicConst.SPEED_BINS.value,
                            utils.RoadDicConst.STEERING_BINS.value,
@@ -33,8 +34,8 @@ coverages_2d_to_analyse = [utils.RoadDicConst.SPEED_STEERING_2D.value,
                            utils.RoadDicConst.SPEED_STEERING_2D_ADJ.value,
                            utils.RoadDicConst.OBE_2D.value]
 
-# what output metrics should be computed and written out
-# to reconfigure these metrics change output_metrics_config in suite_behaviour_computer.py
+# What output metrics should be computed and written out
+# To reconfigure these metrics change output_metrics_config in suite_behaviour_computer.py
 output_metrics_to_analyse = [BehaviorDicConst.CENTER_DIST_BINARY.value,
                              BehaviorDicConst.CENTER_DIST_SINGLE.value,
                              BehaviorDicConst.STEERING_DIST_BINARY.value,
@@ -52,6 +53,8 @@ output_metrics_to_analyse = [BehaviorDicConst.CENTER_DIST_BINARY.value,
                              #BehaviorDicConst.STEERING_SPEED_DTW.value
                              ]
 
+# What string metrics should be computed?
+# Uncomment to select
 string_metrics_to_analyse = [BehaviorDicConst.CUR_SDL_DIST.value,
                              BehaviorDicConst.SDL_2D_DIST.value,
                              #BehaviorDicConst.CUR_SDL_LCS_DIST.value,
@@ -67,6 +70,7 @@ string_metrics_to_analyse = [BehaviorDicConst.CUR_SDL_DIST.value,
                              BehaviorDicConst.JACCARD.value
                              ]
 
+# What single numeric vals should be written out for each road?
 numeric_vals_to_write = [RoadDicConst.NUM_OBES.value,
                          BehaviorDicConst.NUM_STATES.value,
                          RoadDicConst.ROAD_LEN.value,

@@ -20,6 +20,7 @@ MAX_ANG = string_comparison.DEFAULT_PERCENTILE_VALUES_CUR[-1]
 
 """ !!! NOTE: USE_FIXED_STRONG_BORDERS IN evaluator_config has to be True, else the small test set results 
 in unbalanced percentiles!!! """
+# Also do not use the 28 alphabet, flaky tests
 
 class TestUtils(unittest.TestCase):
 
