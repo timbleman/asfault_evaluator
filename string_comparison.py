@@ -454,11 +454,9 @@ class StringComparer:
 
             current_angle = next_angle
             next_angle = self.get_const_for_angle(nodes[i + 1].angle)
-            # print("current_angle, next_angle", current_angle, ", ", next_angle)
 
             if next_angle != current_angle:
                 length_en = self.get_const_for_length(lengths)
-                # print("appending, length", length_en)
                 sdl_2d.append((current_angle, length_en))
                 lengths = 0
 

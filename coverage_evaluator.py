@@ -223,7 +223,6 @@ class CoverageEvaluator:
                 BehaviorDicConst.NUM_STATES.value: num_states,
                 BehaviorDicConst.EXEC_RESULT.value: execution.result}
 
-        # print("bins: ", bins)
         road_name = self.global_name + str(execution.test.test_id)
         # check if road is included, may need renaming if the road is dífferent
         if road_name in self.suite_bins:

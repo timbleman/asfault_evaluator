@@ -58,7 +58,6 @@ class SuiteBehaviourComputer:
         global_bins = [0] * num_bins
 
         for key, test in self.test_dict.items():
-            # print("test ", test)
             cov_col = test.get(feature, None)
             assert cov_col is not None, "The bin " + feature + " has not been added or spelling is incorrect"
             # the if should be avoided, add coverage to each road

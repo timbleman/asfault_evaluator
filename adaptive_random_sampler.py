@@ -288,7 +288,6 @@ def mirror_subsets_only_results(subsets_destination_path: Path):
             # iterate through all folders and replicate them
             folder_repl = list(subset.parts)
             folder_repl[-2] = last_part
-            # print(tuple(folder_repl))
             outer = Path(*folder_repl)
             outer.mkdir()
             for el in subset.iterdir():

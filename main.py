@@ -130,6 +130,7 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
             print(end_gathering - start_gathering, "seconds to gather the data")
 
 
+        # Compute in econf selected coverage metrics
         start_suite_behaviour = time.time()
         sbh = SuiteBehaviourComputer(data_bins_dict)
         coverage_tuple_list = []
@@ -151,7 +152,6 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
                 cov_value = sbh.calculate_suite_2d_coverage(feature=m_cl, add_for_each=False)
                 coverage_tuple_list.append((m_cl, cov_value))
                 print(str(m_cl) + " coverage", cov_value)
-        print("coverage_tuple_list", coverage_tuple_list)
 
         end_suite_behaviour = time.time()
         print(end_suite_behaviour - start_suite_behaviour, "seconds to compute the test behavior")
@@ -159,8 +159,6 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
         from road_visualizer.visualize_centerline import visualize_centerline
         road0_lstr = list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value)
         #visualize_centerline(road0_lstr, road_width=10)   # fixme this breaks box plots
-        #print(list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value).coords.xy[0])  #TODO remove
-        #print(list(data_bins_dict.values())[0].get(RoadDicConst.POLYLINE.value).coords.xy[1])  #TODO remove
 
         other_data_tuples_list = []
         total_time = sbh.calculate_whole_suite_time()
@@ -178,8 +176,6 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
         start_str_trans = time.time()
         str_comparer = StringComparer(data_dict=data_bins_dict)
         str_comparer.all_roads_to_sdl()
-        #str_comparer.print_ang_len_for_road('random--la52')
-        #str_comparer.print_ang_len_for_road('random--la52', use_fnc=False)
         end_str_trans = time.time()
         print(end_str_trans - start_str_trans, "seconds to compute the string translation")
 
@@ -201,7 +197,6 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
             start_predefined = time.time()
             utils.add_coord_tuple_representation(data_dict=data_bins_dict)
             utils.align_shape_of_roads(data_dict=data_bins_dict)
-            #print(list(data_bins_dict.values())[0].get(RoadDicConst.COORD_TUPLE_REP.value))
             utils.shape_similarity_measures_all_to_all_unoptimized(data_dict=data_bins_dict)
             end_predefined = time.time()
             print(end_predefined - start_predefined, "seconds to compute the similaritymeasures distances")
@@ -238,16 +233,11 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
 
             for cov_metr in econf.coverages_1d_to_analyse:
                 csv_creator.write_whole_suite_1d_coverages(cov_metr)
-            # check ob das noch stimmt
-            #print("spst 2d", data_bins_dict['random--la11'][RoadDicConst.SPEED_STEERING_2D.value])
-            #print("spst 2d adj", data_bins_dict['random--la11'][RoadDicConst.SPEED_STEERING_2D_ADJ.value])
             for cov_metr in econf.coverages_2d_to_analyse:
                 csv_creator.write_whole_suite_2d_coverages(cov_metr)
 
         end_csv = time.time()
         print(end_csv - start_csv, "seconds to write the csvs")
-
-        #print(list(data_bins_dict.values())[2]["curve_sdl"])
 
         #utils.whole_suite_statistics(dataset_dict=data_bins_dict, feature="num_states", plot=True)
 
@@ -255,7 +245,6 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
         names_of_all = list(data_bins_dict.keys())
         print("all roads ", names_of_all)
         print(colorama.Fore.GREEN + "Computed following measures for each road", data_bins_dict[names_of_all[0]].keys(), "" + colorama.Style.RESET_ALL)
-        #print("all roads ", data_bins_dict)
 
         suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=parent_dir)
 
@@ -276,13 +265,11 @@ def old_main(suite: str = "bng", wo_obe: bool = False, remove: str = None):
                 csv_creator.write_all_tests_one_value(BehaviorDicConst.SAMPLING_INDEX.value)
 
 
+        # Some advanced and future work stuff
         # uncomment to use OPTICS clustering or networkx scatterplots
         #clusterer = Clusterer(data_dict=data_bins_dict)
         #clusterer.perform_optics(measure=BehaviorDicConst.JACCARD.value)
         #clusterer.networkx_plot_measure(measure=BehaviorDicConst.JACCARD.value, draw_edges=False, draw_graphweights=False)
-
-        #print("data_bins_dict['random--la52']", data_bins_dict['random--la52'])
-        #print("data_bins_dict['random--la54']['speed_steering_2d']", data_bins_dict['random--la54']['speed_steering_2d'])
 
         # halving the suite size
         #unworthy_paths = suite_trimmer.get_random_percentage_unworthy(percentage=50)
@@ -366,7 +353,6 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
 
     # FIXME the folder structure seems broken sometimes
     # FIXME there is an defective road in C:\Users\fraun\experiments-driver-ai\one-plus-one--lanedist--driver-ai--small--no-repair--with-restart--2\.one-plus-one-EA--lanedist--ext--small--no-repair--with-restart--env
-    #print(all_paths.pop(2))
     broken_tests = []
     # These have to be adjusted for adpative random sampling
     RECOMPUTE_AFTER_REMOVAL = True
@@ -390,6 +376,7 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
         print(end_gathering - start_gathering, "seconds to gather the data")
 
 
+        # Compute in econf selected coverage metrics
         start_suite_behaviour = time.time()
         sbh = SuiteBehaviourComputer(data_bins_dict)
         coverage_tuple_list = []
@@ -411,7 +398,6 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
                 cov_value = sbh.calculate_suite_2d_coverage(feature=m_cl, add_for_each=False)
                 coverage_tuple_list.append((m_cl, cov_value))
                 print(str(m_cl) + " coverage", cov_value)
-        print("coverage_tuple_list", coverage_tuple_list)
 
         end_suite_behaviour = time.time()
         print(end_suite_behaviour - start_suite_behaviour, "seconds to compute the test behavior")
@@ -430,8 +416,6 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
         start_str_trans = time.time()
         str_comparer = StringComparer(data_dict=data_bins_dict)
         str_comparer.all_roads_to_sdl()
-        str_comparer.print_ang_len_for_road('random--la52')
-        str_comparer.print_ang_len_for_road('random--la52', use_fnc=False)
         end_str_trans = time.time()
         print(end_str_trans - start_str_trans, "seconds to compute the string translation")
 
@@ -492,7 +476,6 @@ def adaptive_random_sample_oneset(parent_dir, start_point, diversity: str, entir
         names_of_all = list(data_bins_dict.keys())
         print("all roads ", names_of_all)
         print(colorama.Fore.GREEN + "Computed following measures for each road", data_bins_dict[names_of_all[0]].keys(), "" + colorama.Style.RESET_ALL)
-        #print("all roads ", data_bins_dict)
 
         suite_trimmer = SuiteTrimmer(data_dict=data_bins_dict, base_path=parent_dir)
         # perform adaptive random sampling
@@ -597,6 +580,7 @@ modes.add_command(run)
 
 if __name__ == "__main__":
     colorama.init()
+    # Uncomment these if you do not want to use the command-line interface
     #old_main("drvr", wo_obe=False)
     #adaptive_random_sampling_multiple_subsets('drvr', 5)
     #random_sampling_multiple_subsets(bng_or_drvr="drvr", num_subsets=5)
@@ -612,6 +596,6 @@ if __name__ == "__main__":
     #                                                               destination_path=upper_dir_p.joinpath(r"div_test"))
     #print(to_sample)
 
+    # Use command-line interface
     import click
-    #cli()
     modes()
