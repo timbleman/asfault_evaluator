@@ -1,4 +1,4 @@
-﻿alabaster==0.7.12
+alabaster==0.7.12
 -e git+https://github.com/alessiogambi/AsFault.git@5092bdb0b413b749c5241c7d16e4fcaa1624b594#egg=asfault
 Babel==2.6.0
 beamngpy==1.15
@@ -39,7 +39,7 @@ python-dateutil==2.7.5
 pytz==2018.7
 requests==2.20.1
 scikit-learn==0.23.2
-scipy==1.1.0
+scipy==1.10.0
 seaborn==0.9.0
 Shapely @ file:///C:/Users/fraun/Downloads/Installer/Shapely-1.6.4.post1-cp36-cp36m-win_amd64.whl
 similaritymeasures==0.4.3
