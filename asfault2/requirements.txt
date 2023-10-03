@@ -1,4 +1,4 @@
-﻿alabaster==0.7.12
+alabaster==0.7.12
 -e git+https://github.com/alessiogambi/AsFault.git@5092bdb0b413b749c5241c7d16e4fcaa1624b594#egg=asfault
 Babel==2.6.0
 beamngpy==1.15
@@ -49,4 +49,4 @@ Sphinx==1.8.2
 sphinxcontrib-websupport==1.1.0
 threadpoolctl==2.1.0
 traj-dist==1.1
-urllib3==1.24.1
+urllib3==1.26.17
