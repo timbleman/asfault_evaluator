@@ -1,4 +1,4 @@
-﻿alabaster==0.7.12
+alabaster==0.7.12
 -e git+https://github.com/alessiogambi/AsFault.git@5092bdb0b413b749c5241c7d16e4fcaa1624b594#egg=asfault
 Babel==2.6.0
 beamngpy==1.15
@@ -29,7 +29,7 @@ numpy==1.15.4
 opencv-python==3.4.1.15
 packaging==18.0
 pandas==0.23.4
-Pillow==5.3.0
+Pillow==10.0.1
 Pygments==2.3.0
 pygraphviz @ file:///C:/Users/fraun/Downloads/pygraphviz-1.5-cp36-cp36m-win_amd64.whl
 PyOpenGL==3.1.5
